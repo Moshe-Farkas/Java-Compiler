@@ -1,7 +1,6 @@
 package com.moshefarkas.javacompiler.semanticanalysis;
 
 import java.util.Stack;
-
 import com.moshefarkas.generated.JavaBaseVisitor;
 import com.moshefarkas.generated.JavaParser.BlockStatementContext;
 import com.moshefarkas.generated.JavaParser.ExpressionContext;
@@ -16,7 +15,7 @@ import com.moshefarkas.generated.JavaParser.VariableDeclaratorsContext;
 import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.VarInfo;
 
-public class TypeCheckVisitor extends JavaBaseVisitor<Void> {
+public class SemanticAnalysisVisitor extends JavaBaseVisitor<Void> {
     public enum Type {
         ERROR,
         INT,
@@ -29,15 +28,17 @@ public class TypeCheckVisitor extends JavaBaseVisitor<Void> {
         SHORT,
     }
 
-    // mostly the leaf nodes are the ones that push types on the type stack
-    // check for already defined vars.
-
     private final Stack<Type> typeStack = new Stack<>();
     private final Stack<VarInfo> varInfoStack = new Stack<>();
 
     private void checkTypes(String errorMessage) {
         Type b = typeStack.pop();
         Type a = typeStack.pop();
+        if (a == Type.ERROR || b == Type.ERROR)  {
+            typeStack.push(a);
+            return;
+        }
+
         if (a != b) {
             typeStack.push(Type.ERROR);
             System.err.printf("%s type `%s` is incompatable with type `%s`.\n", errorMessage, a, b);
@@ -210,15 +211,21 @@ public class TypeCheckVisitor extends JavaBaseVisitor<Void> {
         if (ctx.literal() != null) {
             visit(ctx.literal());
         } else if (ctx.Identifier() != null) {
-            // lookup its name in symbol table and push its type 
             identifierExpression(ctx.Identifier().getText());
         }
         return null;
     }
 
     private void identifierExpression(String identifier) {
+        // lookup its name in symbol table and push its type 
         if (alreadyDefined(identifier)) {
-            typeStack.push(SymbolTable.getInstance().getType(identifier));
+            VarInfo info = SymbolTable.getInstance().getInfo(identifier);
+            if (info.initialized == false) {
+                System.err.printf("Uninitialized var `%s`.\n", identifier);
+                typeStack.push(Type.ERROR);
+            } else {
+                typeStack.push(info.type);
+            }
         } else {
             undefinedVariable(identifier);
         }

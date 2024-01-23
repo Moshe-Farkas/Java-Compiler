@@ -48,7 +48,6 @@ public class LiteralDispatcher extends OpTypeDispatch {
             // TODO: implement ldc and add intVal to constant pool
         }
 
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'dispatchForInt'");
     }
 
@@ -63,7 +62,6 @@ public class LiteralDispatcher extends OpTypeDispatch {
             // TODO: implement ldc and add floatVal to constant pool
         }
 
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'dispatchForFloat'");
     }
 }

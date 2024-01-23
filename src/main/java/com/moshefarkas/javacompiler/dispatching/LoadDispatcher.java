@@ -23,7 +23,6 @@ public class LoadDispatcher extends OpTypeDispatch {
         if (varIndex >= 0 && varIndex <= 3) {
             return new byte[] {getOp("iload_" + varIndex)};
         }
-        // TODO Auto-generated method stub
         // TODO: dispatch based on varName index and type
         throw new UnsupportedOperationException("Unimplemented method 'dispatchForInt'");
     }
@@ -31,7 +30,6 @@ public class LoadDispatcher extends OpTypeDispatch {
     @Override
     public byte[] dispatchForFloat() {
         // TODO: dispatch based on varName index and type
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'dispatchForFloat'");
     }
 }

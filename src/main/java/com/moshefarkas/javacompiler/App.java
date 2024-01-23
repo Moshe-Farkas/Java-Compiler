@@ -10,7 +10,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.moshefarkas.generated.JavaLexer;
 import com.moshefarkas.generated.JavaParser;
-import com.moshefarkas.javacompiler.semanticanalysis.TypeCheckVisitor;
+import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysisVisitor;
 
 public class App {
     public static void main( String[] args ) throws Exception {
@@ -28,8 +28,8 @@ public class App {
             return;
         }
 
-        TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
-        typeCheckVisitor.visit(tree);
+        SemanticAnalysisVisitor semAnal = new SemanticAnalysisVisitor();
+        semAnal.visit(tree);
 
         System.out.println("-------------------------");
         SymbolTable.getInstance().debugPrintTable();

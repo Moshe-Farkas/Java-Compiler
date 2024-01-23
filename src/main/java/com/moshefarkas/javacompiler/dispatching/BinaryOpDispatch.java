@@ -41,7 +41,6 @@ public class BinaryOpDispatch extends OpTypeDispatch {
             case "-":
                 return new byte[] {getOp("isub")};
         }
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'dispatchForInt'");
     }
 
@@ -53,7 +52,6 @@ public class BinaryOpDispatch extends OpTypeDispatch {
             case "-":
                 return new byte[] {getOp("fsub")};
         }
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'dispatchForFloat'");
     }
 }

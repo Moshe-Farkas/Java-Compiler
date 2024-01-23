@@ -1,6 +1,6 @@
 package com.moshefarkas.javacompiler;
 
-import com.moshefarkas.javacompiler.semanticanalysis.TypeCheckVisitor.Type;
+import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysisVisitor.Type;
 
 public class VarInfo {
     public Type type;

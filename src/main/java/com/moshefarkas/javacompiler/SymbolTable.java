@@ -3,7 +3,7 @@ package com.moshefarkas.javacompiler;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.moshefarkas.javacompiler.semanticanalysis.TypeCheckVisitor.Type;
+import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysisVisitor.Type;
 
 public class SymbolTable {
     // singleton of symbol table
@@ -33,5 +33,9 @@ public class SymbolTable {
 
     public Type getType(String name) {
         return vars.get(name).type;
+    }
+
+    public VarInfo getInfo(String name) {
+        return vars.get(name);
     }
 }
