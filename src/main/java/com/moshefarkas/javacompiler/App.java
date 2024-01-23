@@ -10,9 +10,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.moshefarkas.generated.JavaLexer;
 import com.moshefarkas.generated.JavaParser;
-import com.moshefarkas.javacompiler.codegen.CodeGenVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.TypeCheckVisitor;
-import com.moshefarkas.javacompiler.semanticanalysis.TypeCheckVisitor.Type;
 
 public class App {
     public static void main( String[] args ) throws Exception {

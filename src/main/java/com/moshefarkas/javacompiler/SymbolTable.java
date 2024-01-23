@@ -27,6 +27,10 @@ public class SymbolTable {
         vars.put(name, varInfo);
     }
 
+    public boolean hasVar(String name) {
+        return vars.containsKey(name);
+    }
+
     public Type getType(String name) {
         return vars.get(name).type;
     }

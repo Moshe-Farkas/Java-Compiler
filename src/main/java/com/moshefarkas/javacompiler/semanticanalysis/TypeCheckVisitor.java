@@ -30,6 +30,7 @@ public class TypeCheckVisitor extends JavaBaseVisitor<Void> {
     }
 
     // mostly the leaf nodes are the ones that push types on the type stack
+    // check for already defined vars.
 
     private final Stack<Type> typeStack = new Stack<>();
     private final Stack<VarInfo> varInfoStack = new Stack<>();
@@ -39,10 +40,19 @@ public class TypeCheckVisitor extends JavaBaseVisitor<Void> {
         Type a = typeStack.pop();
         if (a != b) {
             typeStack.push(Type.ERROR);
-            System.out.printf("%s type `%s` is incompatable with type `%s`.\n", errorMessage, a, b);
+            System.err.printf("%s type `%s` is incompatable with type `%s`.\n", errorMessage, a, b);
         } else {
             typeStack.push(a);
         }
+    }
+
+    private void undefinedVariable(String identifier) {
+        System.err.printf("`%s` cannot be resolved to a variable.\n", identifier);
+        typeStack.push(Type.ERROR);
+    }
+
+    private boolean alreadyDefined(String identifier) {
+        return SymbolTable.getInstance().hasVar(identifier);
     }
 
     private void resetTypeStack() {
@@ -78,17 +88,15 @@ public class TypeCheckVisitor extends JavaBaseVisitor<Void> {
         visit(ctx.variableDeclarators());
         VarInfo declaredVar = varInfoStack.pop();
         declaredVar.type = varType;
-
-        SymbolTable.getInstance().addLocal(declaredVar.name, declaredVar);
+        if (alreadyDefined(declaredVar.name)) {
+            System.err.printf("Duplicate local variable `%s`.", declaredVar.name);
+        } else {
+            SymbolTable.getInstance().addLocal(declaredVar.name, declaredVar);
+        }
         if (declaredVar.initialized) {
             // check if the initializer matches the var type
-            checkTypes("Assignment error.");
+            checkTypes("Type assignment error.");
         }
-
-
-
-        
-
         return null;
     }
 
@@ -185,7 +193,6 @@ public class TypeCheckVisitor extends JavaBaseVisitor<Void> {
                     throw new UnsupportedOperationException("because of this: " + ctx.op.getText());
             }
         }
-
         return null;
     }
 
@@ -204,9 +211,17 @@ public class TypeCheckVisitor extends JavaBaseVisitor<Void> {
             visit(ctx.literal());
         } else if (ctx.Identifier() != null) {
             // lookup its name in symbol table and push its type 
-            typeStack.push(SymbolTable.getInstance().getType(ctx.Identifier().getText()));
+            identifierExpression(ctx.Identifier().getText());
         }
         return null;
+    }
+
+    private void identifierExpression(String identifier) {
+        if (alreadyDefined(identifier)) {
+            typeStack.push(SymbolTable.getInstance().getType(identifier));
+        } else {
+            undefinedVariable(identifier);
+        }
     }
 
     @Override

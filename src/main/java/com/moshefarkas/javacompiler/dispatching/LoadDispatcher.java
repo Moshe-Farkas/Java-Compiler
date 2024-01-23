@@ -1,8 +1,5 @@
 package com.moshefarkas.javacompiler.dispatching;
 
-import com.moshefarkas.javacompiler.semanticanalysis.VarInfo;
-import static com.moshefarkas.javacompiler.codegen.Value.ValueType.*;
-
 public class LoadDispatcher extends OpTypeDispatch {
     static {
         // int
