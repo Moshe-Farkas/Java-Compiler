@@ -124,8 +124,8 @@ member
     ;
 
 methodDeclaration
-    :   type Identifier formalParameters ('[' ']')* methodDeclarationRest   # NonVoidMethod
-    |   'void' Identifier formalParameters methodDeclarationRest            # VoidMethod
+    :   type Identifier formalParameters ('[' ']')* methodDeclarationRest   
+    |   'void' Identifier formalParameters methodDeclarationRest            
     ;
 
 methodDeclarationRest
@@ -250,8 +250,8 @@ typeName
     :   qualifiedName
     ;
 
-type:   classOrInterfaceType ('[' ']')* # ClassInterType
-    |   primitiveType ('[' ']')*        # Primtype
+type:   classOrInterfaceType ('[' ']')* 
+    |   primitiveType ('[' ']')*        
     ;
 
 classOrInterfaceType
@@ -531,8 +531,8 @@ expression
     |   ('~'|'!') expression
     |   '(' type ')' expression
     |   'new' creator
-    |   expression ('*'|'/'|'%') expression
-    |   expression ('+'|'-') expression
+    |   expression op=('*'|'/'|'%') expression
+    |   expression op=('+'|'-') expression
     |   expression ('<' '<' | '>' '>' '>' | '>' '>') expression
     |   expression ('<' '=' | '>' '=' | '>' | '<') expression
     |   expression 'instanceof' type
@@ -544,18 +544,18 @@ expression
     |   expression '||' expression
     |   expression '?' expression ':' expression
     |   expression
-        ('^='<assoc=right>
-        |'+='<assoc=right>
-        |'-='<assoc=right>
-        |'*='<assoc=right>
-        |'/='<assoc=right>
-        |'&='<assoc=right>
-        |'|='<assoc=right>
-        |'='<assoc=right>
-        |'>' '>' '='<assoc=right>
-        |'>' '>' '>' '='<assoc=right>
-        |'<' '<' '='<assoc=right>
-        |'%='<assoc=right>
+        (op='^='<assoc=right>
+        |op='+='<assoc=right>
+        |op='-='<assoc=right>
+        |op='*='<assoc=right>
+        |op='/='<assoc=right>
+        |op='&='<assoc=right>
+        |op='|='<assoc=right>
+        |op='='<assoc=right>
+        |op='>' '>' '='<assoc=right>
+        |op='>' '>' '>' '='<assoc=right>
+        |op='<' '<' '='<assoc=right>
+        |op='%='<assoc=right>
         )
         expression
     ;

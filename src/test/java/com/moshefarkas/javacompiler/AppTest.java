@@ -1,6 +1,8 @@
 package com.moshefarkas.javacompiler;
 
 import static org.junit.Assert.assertTrue;
+import com.moshefarkas.javacompiler.*;
+import com.moshefarkas.javacompiler.dispatching.LiteralDispatcher;
 
 import org.junit.Test;
 

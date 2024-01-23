@@ -1688,18 +1688,6 @@ public class JavaParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class MethodDeclarationContext extends ParserRuleContext {
-		public MethodDeclarationContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_methodDeclaration; }
-	 
-		public MethodDeclarationContext() { }
-		public void copyFrom(MethodDeclarationContext ctx) {
-			super.copyFrom(ctx);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class NonVoidMethodContext extends MethodDeclarationContext {
 		public TypeContext type() {
 			return getRuleContext(TypeContext.class,0);
 		}
@@ -1710,26 +1698,13 @@ public class JavaParser extends Parser {
 		public MethodDeclarationRestContext methodDeclarationRest() {
 			return getRuleContext(MethodDeclarationRestContext.class,0);
 		}
-		public NonVoidMethodContext(MethodDeclarationContext ctx) { copyFrom(ctx); }
+		public MethodDeclarationContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_methodDeclaration; }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof JavaVisitor ) return ((JavaVisitor<? extends T>)visitor).visitNonVoidMethod(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class VoidMethodContext extends MethodDeclarationContext {
-		public TerminalNode Identifier() { return getToken(JavaParser.Identifier, 0); }
-		public FormalParametersContext formalParameters() {
-			return getRuleContext(FormalParametersContext.class,0);
-		}
-		public MethodDeclarationRestContext methodDeclarationRest() {
-			return getRuleContext(MethodDeclarationRestContext.class,0);
-		}
-		public VoidMethodContext(MethodDeclarationContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof JavaVisitor ) return ((JavaVisitor<? extends T>)visitor).visitVoidMethod(this);
+			if ( visitor instanceof JavaVisitor ) return ((JavaVisitor<? extends T>)visitor).visitMethodDeclaration(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -1751,7 +1726,6 @@ public class JavaParser extends Parser {
 			case T__37:
 			case T__38:
 			case Identifier:
-				_localctx = new NonVoidMethodContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(423);
@@ -1781,7 +1755,6 @@ public class JavaParser extends Parser {
 				}
 				break;
 			case T__24:
-				_localctx = new VoidMethodContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(435);
@@ -3311,37 +3284,19 @@ public class JavaParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class TypeContext extends ParserRuleContext {
+		public ClassOrInterfaceTypeContext classOrInterfaceType() {
+			return getRuleContext(ClassOrInterfaceTypeContext.class,0);
+		}
+		public PrimitiveTypeContext primitiveType() {
+			return getRuleContext(PrimitiveTypeContext.class,0);
+		}
 		public TypeContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_type; }
-	 
-		public TypeContext() { }
-		public void copyFrom(TypeContext ctx) {
-			super.copyFrom(ctx);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class ClassInterTypeContext extends TypeContext {
-		public ClassOrInterfaceTypeContext classOrInterfaceType() {
-			return getRuleContext(ClassOrInterfaceTypeContext.class,0);
-		}
-		public ClassInterTypeContext(TypeContext ctx) { copyFrom(ctx); }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof JavaVisitor ) return ((JavaVisitor<? extends T>)visitor).visitClassInterType(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class PrimtypeContext extends TypeContext {
-		public PrimitiveTypeContext primitiveType() {
-			return getRuleContext(PrimitiveTypeContext.class,0);
-		}
-		public PrimtypeContext(TypeContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof JavaVisitor ) return ((JavaVisitor<? extends T>)visitor).visitPrimtype(this);
+			if ( visitor instanceof JavaVisitor ) return ((JavaVisitor<? extends T>)visitor).visitType(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -3355,7 +3310,6 @@ public class JavaParser extends Parser {
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case Identifier:
-				_localctx = new ClassInterTypeContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(613);
@@ -3388,7 +3342,6 @@ public class JavaParser extends Parser {
 			case T__36:
 			case T__37:
 			case T__38:
-				_localctx = new PrimtypeContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(621);
@@ -6707,6 +6660,7 @@ public class JavaParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class ExpressionContext extends ParserRuleContext {
+		public Token op;
 		public PrimaryContext primary() {
 			return getRuleContext(PrimaryContext.class,0);
 		}
@@ -6840,9 +6794,10 @@ public class JavaParser extends Parser {
 						setState(1078);
 						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
 						setState(1079);
+						((ExpressionContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
 						if ( !(_la==T__5 || _la==T__72 || _la==T__73) ) {
-						_errHandler.recoverInline(this);
+							((ExpressionContext)_localctx).op = (Token)_errHandler.recoverInline(this);
 						}
 						else {
 							if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
@@ -6860,9 +6815,10 @@ public class JavaParser extends Parser {
 						setState(1081);
 						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
 						setState(1082);
+						((ExpressionContext)_localctx).op = _input.LT(1);
 						_la = _input.LA(1);
 						if ( !(_la==T__68 || _la==T__69) ) {
-						_errHandler.recoverInline(this);
+							((ExpressionContext)_localctx).op = (Token)_errHandler.recoverInline(this);
 						}
 						else {
 							if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
@@ -7063,55 +7019,55 @@ public class JavaParser extends Parser {
 						case 1:
 							{
 							setState(1130);
-							match(T__81);
+							((ExpressionContext)_localctx).op = match(T__81);
 							}
 							break;
 						case 2:
 							{
 							setState(1131);
-							match(T__82);
+							((ExpressionContext)_localctx).op = match(T__82);
 							}
 							break;
 						case 3:
 							{
 							setState(1132);
-							match(T__83);
+							((ExpressionContext)_localctx).op = match(T__83);
 							}
 							break;
 						case 4:
 							{
 							setState(1133);
-							match(T__84);
+							((ExpressionContext)_localctx).op = match(T__84);
 							}
 							break;
 						case 5:
 							{
 							setState(1134);
-							match(T__85);
+							((ExpressionContext)_localctx).op = match(T__85);
 							}
 							break;
 						case 6:
 							{
 							setState(1135);
-							match(T__86);
+							((ExpressionContext)_localctx).op = match(T__86);
 							}
 							break;
 						case 7:
 							{
 							setState(1136);
-							match(T__87);
+							((ExpressionContext)_localctx).op = match(T__87);
 							}
 							break;
 						case 8:
 							{
 							setState(1137);
-							match(T__26);
+							((ExpressionContext)_localctx).op = match(T__26);
 							}
 							break;
 						case 9:
 							{
 							setState(1138);
-							match(T__17);
+							((ExpressionContext)_localctx).op = match(T__17);
 							setState(1139);
 							match(T__17);
 							setState(1140);
@@ -7121,7 +7077,7 @@ public class JavaParser extends Parser {
 						case 10:
 							{
 							setState(1141);
-							match(T__17);
+							((ExpressionContext)_localctx).op = match(T__17);
 							setState(1142);
 							match(T__17);
 							setState(1143);
@@ -7133,7 +7089,7 @@ public class JavaParser extends Parser {
 						case 11:
 							{
 							setState(1145);
-							match(T__15);
+							((ExpressionContext)_localctx).op = match(T__15);
 							setState(1146);
 							match(T__15);
 							setState(1147);
@@ -7143,7 +7099,7 @@ public class JavaParser extends Parser {
 						case 12:
 							{
 							setState(1148);
-							match(T__88);
+							((ExpressionContext)_localctx).op = match(T__88);
 							}
 							break;
 						}

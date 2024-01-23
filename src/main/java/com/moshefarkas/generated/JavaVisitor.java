@@ -143,19 +143,11 @@ public interface JavaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMember(JavaParser.MemberContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code NonVoidMethod}
-	 * labeled alternative in {@link JavaParser#methodDeclaration}.
+	 * Visit a parse tree produced by {@link JavaParser#methodDeclaration}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitNonVoidMethod(JavaParser.NonVoidMethodContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code VoidMethod}
-	 * labeled alternative in {@link JavaParser#methodDeclaration}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVoidMethod(JavaParser.VoidMethodContext ctx);
+	T visitMethodDeclaration(JavaParser.MethodDeclarationContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link JavaParser#methodDeclarationRest}.
 	 * @param ctx the parse tree
@@ -301,19 +293,11 @@ public interface JavaVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTypeName(JavaParser.TypeNameContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code ClassInterType}
-	 * labeled alternative in {@link JavaParser#type}.
+	 * Visit a parse tree produced by {@link JavaParser#type}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitClassInterType(JavaParser.ClassInterTypeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code Primtype}
-	 * labeled alternative in {@link JavaParser#type}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPrimtype(JavaParser.PrimtypeContext ctx);
+	T visitType(JavaParser.TypeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link JavaParser#classOrInterfaceType}.
 	 * @param ctx the parse tree
