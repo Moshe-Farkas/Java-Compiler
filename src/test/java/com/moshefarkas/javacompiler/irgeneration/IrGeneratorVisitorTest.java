@@ -68,5 +68,12 @@ public class IrGeneratorVisitorTest extends BaseMock {
 
         compileNewSource("int a; a = 9;");
         assertEquals(null, visitor.test_error);
+
+        compileNewSource("int b; int a; a = a + b;");
+        assertEquals(ErrorType.UNINITIALIZED_VAR, visitor.test_error);
+
+        compileNewSource("int a = 0; int b; b = 9 + a * a;");
+        assertEquals(null, visitor.test_error);
+
     }
 }

@@ -1,0 +1,5 @@
+target/
+Demo.java
+plans.txt
+bytecode-testing/
+.vscode/

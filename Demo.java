@@ -1,6 +1,7 @@
 public class Demo {
     public void temp () {
-        int a = 5;
-        a = 4;
+        int a = 9;
+        int b = 4;
+        a = 5;
     }
 }

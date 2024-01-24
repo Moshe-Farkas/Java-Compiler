@@ -2,6 +2,7 @@ package com.moshefarkas.javacompiler.irgeneration;
 
 import java.util.Stack;
 
+
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.generated.Java8Parser.AdditiveExpressionContext;
 import com.moshefarkas.generated.Java8Parser.AssignmentContext;
@@ -12,6 +13,7 @@ import com.moshefarkas.generated.Java8Parser.IntegralTypeContext;
 import com.moshefarkas.generated.Java8Parser.LiteralContext;
 import com.moshefarkas.generated.Java8Parser.LocalVariableDeclarationContext;
 import com.moshefarkas.generated.Java8Parser.MultiplicativeExpressionContext;
+import com.moshefarkas.generated.Java8Parser.PostfixExpressionContext;
 import com.moshefarkas.generated.Java8Parser.VariableDeclaratorContext;
 import com.moshefarkas.generated.Java8Parser.VariableDeclaratorIdContext;
 import com.moshefarkas.javacompiler.SymbolTable;
@@ -20,8 +22,13 @@ import com.moshefarkas.javacompiler.irgeneration.IR.Op;
 
 public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
 
+    private class SemanticError extends RuntimeException {
+        public SemanticError(ErrorType errType, String errMsg) {
+            System.err.println("\u001B[31m" + errType + ": " + errMsg + "\u001B[0m");
+        }
+    }
+
     public enum Type {
-        ERROR,
         INT,
         FLOAT,
         CHAR,
@@ -41,24 +48,18 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
         INVALID_LVALUE,
     } 
 
-    private final Stack<Type> typeStack = new Stack<>();
-    private final Stack<VarInfo> declaredVarsStack = new Stack<>();
     public final IR ir = new IR();
     public ErrorType test_error = null;
+    private final Stack<Type> typeStack = new Stack<>();
+    private final Stack<VarInfo> varInfoStack = new Stack<>();
 
     private void error(ErrorType errType, String errMsg) {
-        System.err.println("\u001B[31m" + errType + ": " + errMsg + "\u001B[0m");
-        typeStack.push(Type.ERROR);
         test_error = errType;
+        throw new SemanticError(errType, errMsg);
     }
 
     private boolean checkTypes(ErrorType errType, Type a, Type b) {
-        if (a == Type.ERROR || b == Type.ERROR) {
-            typeStack.push(Type.ERROR);
-            return false; // an error occured beforehand
-        }
         if (a != b) {
-            typeStack.push(Type.ERROR);
             error(errType, 
            String.format("type `%s` and type `%s`.", a, b));
            return false;
@@ -66,6 +67,15 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
             typeStack.push(a);
             return true;
         }
+    }
+
+    private boolean checkIfDefined(String name) {
+        if (!SymbolTable.getInstance().hasVar(name)) {
+            error(ErrorType.UNDEFINED_VAR, 
+                  String.format("`%s` cannot be resolved to a variable.", name));
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -76,7 +86,11 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
         //     | statement
         //     ;
         typeStack.clear();
-        return super.visitBlockStatement(ctx);
+        try {
+            super.visitBlockStatement(ctx);
+        } catch (SemanticError e) {
+        }
+        return null;
     }
 
     @Override
@@ -88,7 +102,7 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
         visit(ctx.unannType());
         Type type = typeStack.pop();
         visit(ctx.variableDeclaratorList());
-        VarInfo declaredVar = declaredVarsStack.pop();
+        VarInfo declaredVar = varInfoStack.pop();
         declaredVar.type = type;
         if (alreadyDefined(declaredVar.name)) {
             error(ErrorType.DUPLICATE_VAR, 
@@ -117,12 +131,12 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
         //     : variableDeclaratorId ('=' variableInitializer)?
         //     ;
         visit(ctx.variableDeclaratorId());
-        VarInfo var = declaredVarsStack.pop();
+        VarInfo var = varInfoStack.pop();
         if (ctx.variableInitializer() != null) {
             visit(ctx.variableInitializer());
             var.initialized = true;
         }
-        declaredVarsStack.push(var);
+        varInfoStack.push(var);
         return null;
     }
 
@@ -130,7 +144,7 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
     public Void visitVariableDeclaratorId(VariableDeclaratorIdContext ctx) {
         VarInfo var = new VarInfo();
         var.name = ctx.Identifier().getText();
-        declaredVarsStack.push(var);
+        varInfoStack.push(var);
         return null;
     }
     
@@ -250,7 +264,6 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
         //     : Identifier
         //     | ambiguousName '.' Identifier
         //     ;
-
         if (ctx.Identifier() != null) {
             identifierExpression(ctx.Identifier().getText());
         } else {
@@ -262,18 +275,41 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
 
     private void identifierExpression(String identifier) {
         // need to check if already defined the var 
-        if (alreadyDefined(identifier)) {
-            VarInfo info = SymbolTable.getInstance().getInfo(identifier);
-            if (info.initialized == false) {
-                error(ErrorType.UNINITIALIZED_VAR, 
-                      String.format("cant use var `%s` because it's uninitialized.", identifier));
-            } else {
-                typeStack.push(info.type);
-            }
-        } else {
-            error(ErrorType.UNDEFINED_VAR, 
-                  String.format("`%s` cannot be resolved to a variable.", identifier));
+        // if (!checkIfDefined(identifier)) {
+        //     // error(ErrorType.UNDEFINED_VAR, 
+        //     //       String.format("`%s` cannot be resolved to a variable.", identifier));
+        // } else {
+        //     VarInfo var = SymbolTable.getInstance().getInfo(identifier);
+        //     typeStack.push(var.type);
+        //     varInfoStack.push(var);
+        // }
+        if (checkIfDefined(identifier)) {
+            VarInfo var = SymbolTable.getInstance().getInfo(identifier);
+            typeStack.push(var.type);
+            varInfoStack.push(var);
         }
+    }
+
+    @Override
+    public Void visitPostfixExpression(PostfixExpressionContext ctx) {
+        // postfixExpression
+        //     : (primary | expressionName) (
+        //         postIncrementExpression_lf_postfixExpression
+        //         | postDecrementExpression_lf_postfixExpression
+        //     )*
+        //     ;
+        if (ctx.expressionName() != null) {
+            visit(ctx.expressionName());
+            VarInfo var = varInfoStack.pop();
+            ir.addOP(Op.LOAD, var.name);
+            if (!var.initialized) {
+                error(ErrorType.UNINITIALIZED_VAR, 
+                      String.format("cant use var `%s` because it's uninitialized.", var.name));
+            } 
+        } else {
+            visit(ctx.primary());
+        }
+        return null;
     }
 
     @Override
@@ -281,16 +317,14 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
         // assignment
         //     : leftHandSide assignmentOperator expression
         //     ;
-        
-        // need to add a store op
-
-        // need to check if its 
-        // left hand side is the var name
-        visit(ctx.leftHandSide());
         visit(ctx.expression());
-
+        visit(ctx.leftHandSide());
+        Type b = typeStack.pop();
+        Type a = typeStack.pop();
+        checkTypes(ErrorType.MISMATCHED_TYPE, a, b);
+        VarInfo var = varInfoStack.pop();
+        checkIfDefined(var.name);
+        ir.addOP(Op.STORE, var.name);
         return null;
     }
-
-
 }
