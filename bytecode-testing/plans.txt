@@ -1,8 +1,0 @@
-TASKS:
-    - figure out if the order of constants in the pool are ordered
-
-
-compiler needs to check if a local variable is assigned before use
-if there is no need for a variable sized table then dont add a plain zero (eg: no fields, interfaces etc)
-
-
