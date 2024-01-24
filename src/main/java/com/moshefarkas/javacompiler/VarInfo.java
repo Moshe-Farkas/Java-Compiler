@@ -1,6 +1,6 @@
 package com.moshefarkas.javacompiler;
 
-import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysisVisitor.Type;
+import com.moshefarkas.javacompiler.irgeneration.IrGeneratorVisitor.Type;
 
 public class VarInfo {
     public Type type;
