@@ -1,7 +1,6 @@
 package com.moshefarkas.javacompiler;
 
-import com.moshefarkas.javacompiler.irgeneration.SemanticAnalysisVisitor;
-import com.moshefarkas.javacompiler.irgeneration.SemanticAnalysisVisitor.Type;
+import com.moshefarkas.javacompiler.Value.Type;
 
 public class TypeConversionLookupTable {
     private static Type[][] table = {

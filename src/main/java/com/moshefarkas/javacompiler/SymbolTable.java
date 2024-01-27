@@ -3,7 +3,7 @@ package com.moshefarkas.javacompiler;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.moshefarkas.javacompiler.irgeneration.IrGeneratorVisitor.Type;
+import com.moshefarkas.javacompiler.Value.Type;
 
 public class SymbolTable {
     // singleton of symbol table

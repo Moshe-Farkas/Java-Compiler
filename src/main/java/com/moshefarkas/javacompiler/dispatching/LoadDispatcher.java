@@ -1,5 +1,7 @@
 package com.moshefarkas.javacompiler.dispatching;
 
+import com.moshefarkas.javacompiler.VarInfo;
+
 public class LoadDispatcher extends OpTypeDispatch {
     static {
         // int
@@ -12,24 +14,32 @@ public class LoadDispatcher extends OpTypeDispatch {
         addOp("fload", (byte)0x17);
     }
 
-    private final int varIndex;
+    private final VarInfo varInfo;
 
-    public LoadDispatcher(int index) {
-        this.varIndex = index;
+    public LoadDispatcher(VarInfo varInfo) {
+        // need to dispatch load based on Value.type and lookup its index
+        this.varInfo = varInfo;
     }
 
     @Override
-    public byte[] dispatchForInt() {
-        if (varIndex >= 0 && varIndex <= 3) {
-            return new byte[] {getOp("iload_" + varIndex)};
+    public byte[] dispatch() {
+        switch (varInfo.type) {
+            case INT:
+                return dispatchForInt();
+            case FLOAT:
+                return dispatchForFloat();
+            default: throw new UnsupportedOperationException(" ::::: " + varInfo.type);
         }
-        // TODO: dispatch based on varName index and type
+    }
+
+    private byte[] dispatchForInt() {
+        // if (varIndex >= 0 && varIndex <= 3) {
+        //     return new byte[] {getOp("iload_" + varIndex)};
+        // }
         throw new UnsupportedOperationException("Unimplemented method 'dispatchForInt'");
     }
 
-    @Override
-    public byte[] dispatchForFloat() {
-        // TODO: dispatch based on varName index and type
+    private byte[] dispatchForFloat() {
         throw new UnsupportedOperationException("Unimplemented method 'dispatchForFloat'");
     }
 }

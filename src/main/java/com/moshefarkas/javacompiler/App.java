@@ -2,16 +2,13 @@ package com.moshefarkas.javacompiler;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-
 import com.moshefarkas.generated.Java8Lexer;
 import com.moshefarkas.generated.Java8Parser;
+import com.moshefarkas.javacompiler.codegen.CodeGen;
 import com.moshefarkas.javacompiler.irgeneration.IrGeneratorVisitor;
 
 public class App {
@@ -31,14 +28,13 @@ public class App {
 
         IrGeneratorVisitor visitor = new IrGeneratorVisitor();
         visitor.visit(tree);
-        visitor.ir.debugPrintCode();
-        SymbolTable.getInstance().debugPrintTable();
 
-        // SemanticAnalysisVisitor semAnal = new SemanticAnalysisVisitor();
-        // semAnal.visit(tree);
+        new CodeGen(visitor.ir).run();
 
-        // System.out.println("-------------------------");
         // SymbolTable.getInstance().debugPrintTable();
+
+
+
 
         System.out.println("\nDONE\n");
     }

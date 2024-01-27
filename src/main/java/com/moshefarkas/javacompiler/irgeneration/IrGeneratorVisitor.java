@@ -2,7 +2,7 @@ package com.moshefarkas.javacompiler.irgeneration;
 
 import java.util.Stack;
 
-
+import com.ibm.icu.util.TimeZone.SystemTimeZoneType;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.generated.Java8Parser.AdditiveExpressionContext;
 import com.moshefarkas.generated.Java8Parser.AssignmentContext;
@@ -14,11 +14,14 @@ import com.moshefarkas.generated.Java8Parser.LiteralContext;
 import com.moshefarkas.generated.Java8Parser.LocalVariableDeclarationContext;
 import com.moshefarkas.generated.Java8Parser.MultiplicativeExpressionContext;
 import com.moshefarkas.generated.Java8Parser.PostfixExpressionContext;
+import com.moshefarkas.generated.Java8Parser.UnaryExpressionContext;
 import com.moshefarkas.generated.Java8Parser.VariableDeclaratorContext;
 import com.moshefarkas.generated.Java8Parser.VariableDeclaratorIdContext;
 import com.moshefarkas.javacompiler.SymbolTable;
+import com.moshefarkas.javacompiler.Value;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.irgeneration.IR.Op;
+import com.moshefarkas.javacompiler.Value.Type;
 
 public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
 
@@ -26,17 +29,6 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
         public SemanticError(ErrorType errType, String errMsg) {
             System.err.println("\u001B[31m" + errType + ": " + errMsg + "\u001B[0m");
         }
-    }
-
-    public enum Type {
-        INT,
-        FLOAT,
-        CHAR,
-        STRING,
-        OBJECT,
-        BOOL,
-        BYTE, 
-        SHORT,
     }
 
     public enum ErrorType {
@@ -52,6 +44,7 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
     public ErrorType test_error = null;
     private final Stack<Type> typeStack = new Stack<>();
     private final Stack<VarInfo> varInfoStack = new Stack<>();
+    private int localIndex = 1;
 
     private void error(ErrorType errType, String errMsg) {
         test_error = errType;
@@ -116,7 +109,7 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
             checkTypes(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, initializerType, type);
         }
 
-        ir.addOP(Op.STORE, declaredVar.name);
+        ir.addOP(Op.STORE, new Value(declaredVar, SymbolTable.getInstance().getType(declaredVar.name)));
 
         return null; 
     }
@@ -136,6 +129,7 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
             visit(ctx.variableInitializer());
             var.initialized = true;
         }
+        var.localIndex = localIndex++;
         varInfoStack.push(var);
         return null;
     }
@@ -196,6 +190,17 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
     }
 
     @Override
+    public Void visitUnaryExpression(UnaryExpressionContext ctx) {
+        if (ctx.SUB() != null) {
+            visit(ctx.unaryExpression());
+            ir.addOP(Op.NEGATE);
+        } else {
+            return super.visitUnaryExpression(ctx);
+        }
+        return null; 
+    }
+
+    @Override
     public Void visitIntegralType(IntegralTypeContext ctx) {
         // integralType
         // : 'byte'
@@ -241,20 +246,36 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
         //     | StringLiteral
         //     | NullLiteral
         //     ;
+        Object value = null;
+        Type type = null;
+
         if (ctx.IntegerLiteral() != null) {
-            ir.addOP(Op.LITERAL, ctx.IntegerLiteral());
+            // ir.addOP(Op.LITERAL, ctx.IntegerLiteral());
+            value = Integer.valueOf(ctx.IntegerLiteral().getText());
+            type = Type.INT;
+
             typeStack.push(Type.INT);
         } else if (ctx.FloatingPointLiteral() != null) {
-            ir.addOP(Op.LITERAL, ctx.FloatingPointLiteral());
+            // ir.addOP(Op.LITERAL, ctx.FloatingPointLiteral());
+            value = Float.valueOf(ctx.FloatingPointLiteral().getText());
+            type = Type.FLOAT;
+
             typeStack.push(Type.FLOAT);
         } else if (ctx.CharacterLiteral() != null) {
-            ir.addOP(Op.LITERAL, ctx.CharacterLiteral());
+            // ir.addOP(Op.LITERAL, ctx.CharacterLiteral());
+            value = ctx.CharacterLiteral().getText().charAt(0);
+            type = Type.CHAR;
+
             typeStack.push(Type.CHAR);
         } else if (ctx.StringLiteral() != null) {
-            ir.addOP(Op.LITERAL, ctx.StringLiteral());
+            // ir.addOP(Op.LITERAL, ctx.StringLiteral());
+            value = ctx.StringLiteral().getText();
+            type = Type.STRING;
+
             typeStack.push(Type.STRING);
         }
 
+        ir.addOP(Op.LITERAL, new Value(value, type));
         return null;
     }
 
@@ -275,14 +296,6 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
 
     private void identifierExpression(String identifier) {
         // need to check if already defined the var 
-        // if (!checkIfDefined(identifier)) {
-        //     // error(ErrorType.UNDEFINED_VAR, 
-        //     //       String.format("`%s` cannot be resolved to a variable.", identifier));
-        // } else {
-        //     VarInfo var = SymbolTable.getInstance().getInfo(identifier);
-        //     typeStack.push(var.type);
-        //     varInfoStack.push(var);
-        // }
         if (checkIfDefined(identifier)) {
             VarInfo var = SymbolTable.getInstance().getInfo(identifier);
             typeStack.push(var.type);
@@ -301,7 +314,9 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
         if (ctx.expressionName() != null) {
             visit(ctx.expressionName());
             VarInfo var = varInfoStack.pop();
-            ir.addOP(Op.LOAD, var.name);
+
+            ir.addOP(Op.LOAD, new Value(var, SymbolTable.getInstance().getType(var.name)));
+
             if (!var.initialized) {
                 error(ErrorType.UNINITIALIZED_VAR, 
                       String.format("cant use var `%s` because it's uninitialized.", var.name));
@@ -324,7 +339,8 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
         checkTypes(ErrorType.MISMATCHED_TYPE, a, b);
         VarInfo var = varInfoStack.pop();
         checkIfDefined(var.name);
-        ir.addOP(Op.STORE, var.name);
+        
+        ir.addOP(Op.STORE, new Value(var, SymbolTable.getInstance().getType(var.name)));
         return null;
     }
 }

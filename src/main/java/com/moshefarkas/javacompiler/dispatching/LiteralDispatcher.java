@@ -5,7 +5,6 @@ public class LiteralDispatcher extends OpTypeDispatch {
     static {
         // int
         addOp("iconst_m1", (byte)0x02);
-        addOp("iconst_m1", (byte)0x02);
         addOp("iconst_0", (byte)0x03);
         addOp("iconst_1", (byte)0x04);
         addOp("iconst_2", (byte)0x05);
@@ -29,8 +28,19 @@ public class LiteralDispatcher extends OpTypeDispatch {
         this.input = input;
     }
 
-    @Override
-    public byte[] dispatchForInt() {
+    @Override 
+    public byte[] dispatch() {
+        if (input instanceof Integer) {
+            return dispatchForInt();            
+        } else if (input instanceof Float) {
+            return dispatchForFloat();
+        } else if (input instanceof Character) {
+            return dispatchForChar();
+        }
+        throw new UnsupportedOperationException(" :::: " + input.getClass().getName());
+    }
+
+    private byte[] dispatchForInt() {
         int intVal = (int)this.input;
 
         if (intVal == -1) {
@@ -45,23 +55,27 @@ public class LiteralDispatcher extends OpTypeDispatch {
             byte lowByte = (byte)(intVal & 0xFF);
             return new byte[] {getOp("sipush"), highByte, lowByte};
         } else {
-            // TODO: implement ldc and add intVal to constant pool
         }
 
         throw new UnsupportedOperationException("Unimplemented method 'dispatchForInt'");
     }
 
-    @Override
-    public byte[] dispatchForFloat() {
+    private byte[] dispatchForFloat() {
         float floatVal = (float)this.input;
 
         if (floatVal >= 0.0 && floatVal <= 2.0) {
-            String op = "fconst_" + (int)this.input;
+            String op = "fconst_" + (int)floatVal;
             return new byte[] {getOp(op)};
         } else {
-            // TODO: implement ldc and add floatVal to constant pool
         }
 
         throw new UnsupportedOperationException("Unimplemented method 'dispatchForFloat'");
+    }
+
+    private byte[] dispatchForChar() {
+        char charVal = (char)input;
+        byte highByte = (byte)((charVal >> 8) & 0xFF);
+        byte lowByte = (byte)(charVal & 0xFF);
+        return new byte[] {getOp("sipush"), highByte, lowByte};
     }
 }

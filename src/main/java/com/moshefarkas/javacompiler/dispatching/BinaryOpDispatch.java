@@ -1,7 +1,6 @@
 package com.moshefarkas.javacompiler.dispatching;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.moshefarkas.javacompiler.Value.Type;
 
 public class BinaryOpDispatch extends OpTypeDispatch {
     static {
@@ -28,13 +27,24 @@ public class BinaryOpDispatch extends OpTypeDispatch {
     }
 
     private String op;
+    private Type type;
 
-    public BinaryOpDispatch(String op) {
+    public BinaryOpDispatch(Type type, String op) {
         this.op = op;
     }
 
     @Override
-    public byte[] dispatchForInt() {
+    public byte[] dispatch() {
+        switch (type) {
+            case INT:
+                return dispatchForInt();
+            case FLOAT:
+                return dispatchForFloat();
+            default: throw new UnsupportedOperationException("::: "+  type);
+        }
+    }
+
+    private byte[] dispatchForInt() {
         switch (op) {
             case "+":
                 return new byte[] {getOp("iadd")};
@@ -44,8 +54,7 @@ public class BinaryOpDispatch extends OpTypeDispatch {
         throw new UnsupportedOperationException("Unimplemented method 'dispatchForInt'");
     }
 
-    @Override
-    public byte[] dispatchForFloat() {
+    private byte[] dispatchForFloat() {
         switch (op) {
             case "+":
                 return new byte[] {getOp("fadd")};
