@@ -1,22 +1,21 @@
-package com.moshefarkas.javacompiler.irgeneration;
+package com.moshefarkas.javacompiler;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
-import com.moshefarkas.javacompiler.SymbolTable;
-import com.moshefarkas.javacompiler.irgeneration.IrGeneratorVisitor.ErrorType;
+import com.moshefarkas.javacompiler.SemanticAnalysisVisitor.ErrorType;
 
-public class IrGeneratorVisitorTest extends BaseMock {
+public class SemanticAnalysisVisitorTest extends BaseMock {
+    // needs to compile new source -> create ast -> visit it
 
-    public IrGeneratorVisitor visitor = new IrGeneratorVisitor();
-
-    private void compileNewSource(String source) {        
+    private SemanticAnalysisVisitor visitor;
+    private void compileNewSource(String source) {
         SymbolTable.getInstance().test_reset();
-        visitor = new IrGeneratorVisitor();
+        visitor = new SemanticAnalysisVisitor();
         compile(source);
-        visitor.visit(tree);
+        visitor.visitClassNode(ast);
     }
 
     @Test
@@ -74,6 +73,5 @@ public class IrGeneratorVisitorTest extends BaseMock {
 
         compileNewSource("int a = 0; int b; b = 9 + a * a;");
         assertEquals(null, visitor.test_error);
-
     }
 }

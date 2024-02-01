@@ -10,6 +10,7 @@ public class Value {
     }
 
     public enum Type {
+        ERROR, 
         INT,
         FLOAT,
         CHAR,

@@ -4,3 +4,4 @@ plans.txt
 bytecode-testing/
 .vscode/
 myFile
+MyVisitor.java
