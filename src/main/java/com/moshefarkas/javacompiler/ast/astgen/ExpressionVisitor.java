@@ -8,8 +8,6 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 
 public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
 
-    // assignment expression is the starting point for the expression rule tree
-
     @Override
     public ExpressionNode visitLiteral(LiteralContext ctx) {
         // literal

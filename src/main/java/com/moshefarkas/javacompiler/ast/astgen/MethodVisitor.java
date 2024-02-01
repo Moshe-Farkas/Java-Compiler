@@ -31,8 +31,9 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
     @Override
     public Void visitExpression(ExpressionContext ctx) {
         ExpressionVisitor expressionVisitor = new ExpressionVisitor();
-        ExpressionNode n = expressionVisitor.visit(ctx);
-        expressionStack.push(n);
+        ExpressionNode exprNode = expressionVisitor.visit(ctx);
+        expressionStack.push(exprNode);
+        System.out.println(exprNode);
         return null;
     }
 }

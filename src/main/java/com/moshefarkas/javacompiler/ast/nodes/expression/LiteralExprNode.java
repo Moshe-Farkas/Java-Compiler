@@ -1,6 +1,7 @@
 package com.moshefarkas.javacompiler.ast.nodes.expression;
 
 import com.moshefarkas.javacompiler.Value.Type;
+import com.moshefarkas.javacompiler.ast.AstVisitor;
 
 public class LiteralExprNode extends ExpressionNode {
     public Type type;
@@ -17,5 +18,10 @@ public class LiteralExprNode extends ExpressionNode {
     @Override 
     public String toString() {
         return "Type: " + type + ", value: " + value;
+    }
+
+    @Override
+    public void accept(AstVisitor v) {
+        v.visitLiteralExprNode(this);
     }
 }

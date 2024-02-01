@@ -2,13 +2,36 @@ package com.moshefarkas.javacompiler.ast;
 
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.StatementNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 
 public class BaseAstVisitor implements AstVisitor {
 
     @Override
-    public void visitClassNode(ClassNode node) {
+    public void visitAssignExprNode(AssignExprNode node) {
+        node.visitChildren(this);
+    }
+
+    @Override
+    public void visitBinaryExprNode(BinaryExprNode node) {
+        node.visitChildren(this);
+    }
+
+    @Override
+    public void visitBlockStmtNode(BlockStmtNode node) {
+        node.visitChildren(this);
+    }
+
+    @Override
+    public void visitCallExprNode(CallExprNode node) {
         node.visitChildren(this);
     }
 
@@ -16,6 +39,36 @@ public class BaseAstVisitor implements AstVisitor {
     public void visitExpressionNode(ExpressionNode node) {
         node.visitChildren(this);
     }
+
+    @Override
+    public void visitIfStmtNode(IfStmtNode node) {
+        node.visitChildren(this);
+    }
+
+    @Override
+    public void visitLiteralExprNode(LiteralExprNode node) {
+        node.visitChildren(this);
+    }
+
+    @Override
+    public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
+        node.visitChildren(this);
+    }
+
+    @Override
+    public void visitWhileStmtNode(WhileStmtNode node) {
+        node.visitChildren(this);
+    }
+
+    @Override
+    public void visitClassNode(ClassNode node) {
+        node.visitChildren(this);
+    }
+
+    // @Override
+    // public void visitExpressionNode(ExpressionNode node) {
+    //     node.visitChildren(this);
+    // }
 
     @Override
     public void visitMethodNode(MethodNode node) {

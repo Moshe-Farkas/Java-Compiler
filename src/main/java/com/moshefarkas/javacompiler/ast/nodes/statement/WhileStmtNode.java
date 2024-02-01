@@ -1,5 +1,6 @@
 package com.moshefarkas.javacompiler.ast.nodes.statement;
 
+import com.moshefarkas.javacompiler.ast.AstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 
 public class WhileStmtNode extends StatementNode {
@@ -22,5 +23,10 @@ public class WhileStmtNode extends StatementNode {
         res += "whileStmt: ";
         res += " condition: " + condition;
         return res;
+    }
+
+    @Override
+    public void accept(AstVisitor v) {
+        v.visitWhileStmtNode(this);
     }
 }
