@@ -5,7 +5,7 @@ import com.moshefarkas.javacompiler.ast.nodes.AstNode;
 
 public class StatementNode extends AstNode {
     @Override
-    public void accept(AstVisitor<? extends AstNode> v) {
+    public void accept(AstVisitor v) {
         // TODO Auto-generated method stub
         v.visitStatementNode(this);
     }

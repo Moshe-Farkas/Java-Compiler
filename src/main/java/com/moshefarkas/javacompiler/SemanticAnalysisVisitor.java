@@ -1,13 +1,13 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 
 public class SemanticAnalysisVisitor extends BaseAstVisitor {
 
-    // @Override
-    // public AstNode visitExpressionNode(ExpressionNode node) {
-
-    //     // TODO Auto-generated method stub
-    //     return super.visitExpressionNode(node);
-    // }
+    @Override
+    public void visitExpressionNode(ExpressionNode node) {
+        System.out.println("should be here twice: " + node);
+        // super.visitExpressionNode(node);
+    }
 }

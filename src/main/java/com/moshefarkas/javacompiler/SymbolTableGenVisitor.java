@@ -8,18 +8,18 @@ import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 public class SymbolTableGenVisitor extends BaseAstVisitor {
 
     @Override
-    public AstNode visitClassNode(ClassNode node) {
+    public void visitClassNode(ClassNode node) {
         System.out.println("class name: ");
         System.out.println(" " + node.className);
-        return super.visitClassNode(node);
+        super.visitClassNode(node);
     }
 
     @Override
-    public AstNode visitMethodNode(MethodNode node) {
+    public void visitMethodNode(MethodNode node) {
         System.out.println("  method name: " + node.methodName);
         System.out.println("   ret type: " + node.returnType);
         System.out.println("   access mods: " + node.accessModifiers);
         System.out.println("    statements: " + node.statements);
-        return super.visitMethodNode(node);
+        super.visitMethodNode(node);
     }
 }

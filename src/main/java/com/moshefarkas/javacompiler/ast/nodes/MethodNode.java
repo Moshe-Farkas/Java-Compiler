@@ -39,7 +39,7 @@ public class MethodNode extends AstNode {
     }
 
     @Override
-    public void accept(AstVisitor<? extends AstNode> v) {
+    public void accept(AstVisitor v) {
         v.visitMethodNode(this); 
     }
 }

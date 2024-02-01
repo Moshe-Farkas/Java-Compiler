@@ -25,7 +25,7 @@ public class ClassNode extends AstNode {
     }
 
     @Override
-    public void accept(AstVisitor<? extends AstNode> v) {
+    public void accept(AstVisitor v) {
         v.visitClassNode(this);
     }
 }

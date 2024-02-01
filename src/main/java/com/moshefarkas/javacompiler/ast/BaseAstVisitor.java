@@ -1,39 +1,30 @@
 package com.moshefarkas.javacompiler.ast;
 
-import com.moshefarkas.javacompiler.ast.nodes.AstNode;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.StatementNode;
 
-public class BaseAstVisitor<T> implements AstVisitor<T> {
+public class BaseAstVisitor implements AstVisitor {
 
     @Override
-    public AstNode visitClassNode(ClassNode node) {
-        // AstNodeODO Auto-generated method stub
+    public void visitClassNode(ClassNode node) {
         node.visitChildren(this);
-        return null;
     }
 
     @Override
-    public AstNode visitExpressionNode(ExpressionNode node) {
-        // AstNodeODO Auto-generated method stub
+    public void visitExpressionNode(ExpressionNode node) {
         node.visitChildren(this);
-        return null;
     }
 
     @Override
-    public AstNode visitMethodNode(MethodNode node) {
-        // AstNodeODO Auto-generated method stub
+    public void visitMethodNode(MethodNode node) {
         node.visitChildren(this);
-        return null;
     }
 
     @Override
-    public AstNode visitStatementNode(StatementNode node) {
-        // AstNodeODO Auto-generated method stub
+    public void visitStatementNode(StatementNode node) {
         node.visitChildren(this);
-        return null;
     }
     
 }

@@ -6,7 +6,7 @@ import com.moshefarkas.javacompiler.ast.nodes.AstNode;
 public class ExpressionNode extends AstNode {
 
     @Override
-    public void accept(AstVisitor<? extends AstNode> v) {
+    public void accept(AstVisitor v) {
         v.visitExpressionNode(this);
     }
 }
