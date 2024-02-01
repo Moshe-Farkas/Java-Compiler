@@ -11,19 +11,14 @@ public class BinaryOpDispatch extends OpTypeDispatch {
         addOp("fsub", (byte)0x66);
         addOp("isub", (byte)0x64);
 
-        
         // -------------------------
 
-        // // mul
-        // ops.put("iadd", (byte)0x60);
-        // ops.put("dadd", (byte)0x63);
-        // ops.put("fadd", (byte)0x62);
-        // // -------------------------
-        // // div
-        // ops.put("iadd", (byte)0x60);
-        // ops.put("dadd", (byte)0x63);
-        // ops.put("fadd", (byte)0x62);
-        // // -------------------------
+        // mul
+        ops.put("imul", (byte)0x68);
+        // -------------------------
+        // div
+        ops.put("idiv", (byte)0x6c);
+        // -------------------------
     }
 
     private String op;
@@ -31,6 +26,7 @@ public class BinaryOpDispatch extends OpTypeDispatch {
 
     public BinaryOpDispatch(Type type, String op) {
         this.op = op;
+        this.type = type;
     }
 
     @Override
@@ -50,6 +46,10 @@ public class BinaryOpDispatch extends OpTypeDispatch {
                 return new byte[] {getOp("iadd")};
             case "-":
                 return new byte[] {getOp("isub")};
+            case "*":
+                return new byte[] {getOp("imul")};
+            case "/":
+                return new byte[] {getOp("idiv")};
         }
         throw new UnsupportedOperationException("Unimplemented method 'dispatchForInt'");
     }

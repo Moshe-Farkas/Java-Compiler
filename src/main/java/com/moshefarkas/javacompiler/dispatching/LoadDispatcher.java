@@ -33,10 +33,11 @@ public class LoadDispatcher extends OpTypeDispatch {
     }
 
     private byte[] dispatchForInt() {
-        // if (varIndex >= 0 && varIndex <= 3) {
-        //     return new byte[] {getOp("iload_" + varIndex)};
-        // }
-        throw new UnsupportedOperationException("Unimplemented method 'dispatchForInt'");
+        if (varInfo.localIndex >= 0 && varInfo.localIndex <= 3) {
+            String op = "iload_" + varInfo.localIndex;
+            return new byte[] {getOp(op)};
+        }
+        return new byte[] {getOp("iload"), (byte)varInfo.localIndex};
     }
 
     private byte[] dispatchForFloat() {

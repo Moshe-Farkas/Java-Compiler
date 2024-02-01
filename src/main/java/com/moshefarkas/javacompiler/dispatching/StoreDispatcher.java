@@ -2,8 +2,6 @@ package com.moshefarkas.javacompiler.dispatching;
 
 import com.moshefarkas.javacompiler.VarInfo;
 
-import jdk.internal.org.objectweb.asm.Type;
-
 public class StoreDispatcher extends OpTypeDispatch {
 
     static {

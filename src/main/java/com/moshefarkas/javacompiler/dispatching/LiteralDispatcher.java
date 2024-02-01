@@ -1,5 +1,7 @@
 package com.moshefarkas.javacompiler.dispatching;
 
+import com.moshefarkas.javacompiler.codegen.ConstantPool;
+
 public class LiteralDispatcher extends OpTypeDispatch {
 
     static {
@@ -14,6 +16,8 @@ public class LiteralDispatcher extends OpTypeDispatch {
 
         addOp("sipush", (byte)0x11);
         addOp("bipush", (byte)0x10);
+        
+        addOp("ldc", (byte)0x12);
         // --------------------------------
         // float
         addOp("fconst_0", (byte)0x0b);
@@ -55,9 +59,10 @@ public class LiteralDispatcher extends OpTypeDispatch {
             byte lowByte = (byte)(intVal & 0xFF);
             return new byte[] {getOp("sipush"), highByte, lowByte};
         } else {
+            byte index = ConstantPool.getInstance().insertInteger(intVal);
+            return new byte[] {getOp("ldc"), index};
         }
-
-        throw new UnsupportedOperationException("Unimplemented method 'dispatchForInt'");
+        // throw new UnsupportedOperationException("Unimplemented method 'dispatchForInt'");
     }
 
     private byte[] dispatchForFloat() {

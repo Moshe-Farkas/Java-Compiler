@@ -107,9 +107,8 @@ public class IrGeneratorVisitor extends Java8ParserBaseVisitor<Void> {
         if (declaredVar.initialized) {
             Type initializerType = typeStack.pop();
             checkTypes(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, initializerType, type);
+            ir.addOP(Op.STORE, new Value(declaredVar, SymbolTable.getInstance().getType(declaredVar.name)));
         }
-
-        ir.addOP(Op.STORE, new Value(declaredVar, SymbolTable.getInstance().getType(declaredVar.name)));
 
         return null; 
     }

@@ -19,6 +19,7 @@ public class Value {
         BYTE, 
         SHORT,
         IDENTIFIER,
+        NULL,
     }
 
     @Override 
