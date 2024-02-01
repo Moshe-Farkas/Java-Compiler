@@ -6,6 +6,7 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
@@ -65,10 +66,10 @@ public class BaseAstVisitor implements AstVisitor {
         node.visitChildren(this);
     }
 
-    // @Override
-    // public void visitExpressionNode(ExpressionNode node) {
-    //     node.visitChildren(this);
-    // }
+    @Override
+    public void visitIdentifierExprNode(IdentifierExprNode node) {
+        node.visitChildren(this);
+    }
 
     @Override
     public void visitMethodNode(MethodNode node) {

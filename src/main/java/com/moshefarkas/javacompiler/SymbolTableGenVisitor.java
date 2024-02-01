@@ -1,25 +1,12 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
-import com.moshefarkas.javacompiler.ast.nodes.AstNode;
-import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
-import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class SymbolTableGenVisitor extends BaseAstVisitor {
 
     @Override
-    public void visitClassNode(ClassNode node) {
-        System.out.println("class name: ");
-        System.out.println(" " + node.className);
-        super.visitClassNode(node);
-    }
-
-    @Override
-    public void visitMethodNode(MethodNode node) {
-        System.out.println("  method name: " + node.methodName);
-        System.out.println("   ret type: " + node.returnType);
-        System.out.println("   access mods: " + node.accessModifiers);
-        System.out.println("    statements: " + node.statements);
-        super.visitMethodNode(node);
+    public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
+        SymbolTable.getInstance().addLocal(node.var.name, node.var);
     }
 }

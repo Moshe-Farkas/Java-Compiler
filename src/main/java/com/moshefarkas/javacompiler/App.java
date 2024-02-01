@@ -38,7 +38,12 @@ public class App {
         System.out.println("-------------------------------------------");
         SemanticAnalysisVisitor s = new SemanticAnalysisVisitor();
         s.visitClassNode(ast);
+        System.out.println("-------------------------------------------");
+        AstPrintVisitor printVisitor = new AstPrintVisitor();
+        printVisitor.visitClassNode(ast);
+        System.out.println("-------------------------------------------");
 
+        SymbolTable.getInstance().debugPrintTable();
 
         System.out.println("\nDONE\n");
 

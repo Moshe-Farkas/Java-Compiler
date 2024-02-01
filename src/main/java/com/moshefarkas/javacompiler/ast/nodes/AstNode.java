@@ -9,16 +9,14 @@ public abstract class AstNode {
     public abstract void accept(AstVisitor v);
     protected List<AstNode> children = new ArrayList<>();
     protected void addChild(AstNode childNode) {
-        children.add(childNode);
+        if (childNode != null) {
+            children.add(childNode);
+        }
     }
 
     public void visitChildren(AstVisitor v) {
         for (AstNode child : children) {
             child.accept(v);
         }
-    }
-
-    public void seechildCount() {
-        System.out.println(children.size());
     }
 }
