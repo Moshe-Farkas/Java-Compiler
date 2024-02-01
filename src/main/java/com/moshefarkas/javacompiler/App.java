@@ -12,6 +12,10 @@ import com.moshefarkas.generated.Java8Lexer;
 import com.moshefarkas.generated.Java8Parser;
 import com.moshefarkas.javacompiler.ast.astgen.ClassVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
+import com.moshefarkas.javacompiler.semanticanalysis.IdentifierUsageVisitor;
+import com.moshefarkas.javacompiler.semanticanalysis.SymbolTableGenVisitor;
+import com.moshefarkas.javacompiler.semanticanalysis.TypeCheckVisitor;
 
 public class App {
     public static void main( String[] args ) throws Exception {
@@ -33,12 +37,16 @@ public class App {
         visitor.visit(tree);
         
         ClassNode ast = visitor.currentClass;
+        // semantic analysis
+        System.out.println("-------------------------------------------");
         SymbolTableGenVisitor sv = new SymbolTableGenVisitor();
         sv.visitClassNode(ast);
-        System.out.println("-------------------------------------------");
-        SemanticAnalysisVisitor s = new SemanticAnalysisVisitor();
+        IdentifierUsageVisitor iuv = new IdentifierUsageVisitor();
+        iuv.visitClassNode(ast);
+        TypeCheckVisitor s = new TypeCheckVisitor();
         s.visitClassNode(ast);
         System.out.println("-------------------------------------------");
+        // end semantic analysis
         AstPrintVisitor printVisitor = new AstPrintVisitor();
         printVisitor.visitClassNode(ast);
         System.out.println("-------------------------------------------");
