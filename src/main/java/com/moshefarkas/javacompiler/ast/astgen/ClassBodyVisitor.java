@@ -43,6 +43,7 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Void> {
         methodNode.setStatements(mv.statements);
         
         // need to add the methodVisitor's list of statements to the methodNode
+        methodNode.lineNum = ctx.getStart().getLine();
         methods.add(methodNode);
         return null;
     }

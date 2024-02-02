@@ -6,6 +6,7 @@ import java.util.List;
 import com.moshefarkas.javacompiler.ast.AstVisitor;
 
 public abstract class AstNode {
+    public int lineNum = -1;
     public abstract void accept(AstVisitor v);
     protected List<AstNode> children = new ArrayList<>();
     protected void addChild(AstNode childNode) {

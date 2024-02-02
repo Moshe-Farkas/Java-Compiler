@@ -8,6 +8,7 @@ public class AstPrintVisitor extends BaseAstVisitor {
 
     @Override
     public void visitMethodNode(MethodNode node) {
+        System.out.println("line: " + node.lineNum);
         System.out.println("method: " + node.methodName);
         System.out.println("[");
         super.visitMethodNode(node);
@@ -16,6 +17,7 @@ public class AstPrintVisitor extends BaseAstVisitor {
 
     @Override
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
+        System.out.println("line: " + node.lineNum);
         System.out.println("local var decl: ");
         System.out.println(" " + node.var + ", init: " + node.initializer);
         

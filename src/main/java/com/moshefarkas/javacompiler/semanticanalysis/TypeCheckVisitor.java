@@ -6,7 +6,10 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 
 public class TypeCheckVisitor extends SemanticAnalysis {
 
-    // called after the symbol table is filled
+    // called after the symbol table is filled and checked for duplicate/uninit vars
+    
+    // float + int -> float
+    // float + byte -> float
 
     @Override
     public void visitBinaryExprNode(BinaryExprNode node) {
@@ -14,7 +17,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         // visited its children
         Type b = typeStack.pop();
         Type a = typeStack.pop();
-        checkTypes(a, b);
+        checkTypes(a, b, node.lineNum);
     }
 
     @Override

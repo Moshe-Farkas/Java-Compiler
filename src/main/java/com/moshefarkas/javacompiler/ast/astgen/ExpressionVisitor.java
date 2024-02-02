@@ -1,6 +1,7 @@
 package com.moshefarkas.javacompiler.ast.astgen;
 
 import com.moshefarkas.generated.Java8Parser.AdditiveExpressionContext;
+import com.moshefarkas.generated.Java8Parser.ExpressionContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionNameContext;
 import com.moshefarkas.generated.Java8Parser.LiteralContext;
 import com.moshefarkas.generated.Java8Parser.MultiplicativeExpressionContext;
@@ -43,6 +44,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
             expr = visit(ctx.multiplicativeExpression());
         }
 
+        expr.lineNum = ctx.getStart().getLine();
         return expr;
     }
 
@@ -78,6 +80,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
             expr = visit(ctx.unaryExpression());
         }
 
+        expr.lineNum = ctx.getStart().getLine();
         return expr;
     }
 
@@ -110,6 +113,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
         lit.type = type;
         lit.value = ctx.getText();
 
+        lit.lineNum = ctx.getStart().getLine();
         return lit;
     }
 
@@ -125,7 +129,8 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
         
         IdentifierExprNode iden = new IdentifierExprNode();
         iden.setVarName(ctx.Identifier().getText());
-    
+
+        iden.lineNum = ctx.getStart().getLine();
         return iden;
     }
 }

@@ -18,8 +18,9 @@ public class ClassVisitor extends Java8ParserBaseVisitor<Void> {
         String className = ctx.Identifier().getText();
         ClassBodyVisitor cbv = new ClassBodyVisitor();
         cbv.visit(ctx.classBody());
-        // currentClass.methods = cbv.methods;
         currentClass = new ClassNode(className, 0, cbv.methods);
+
+        currentClass.lineNum = ctx.getStart().getLine();
 
         return null;
     }

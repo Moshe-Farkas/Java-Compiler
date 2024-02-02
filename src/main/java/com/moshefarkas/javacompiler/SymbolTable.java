@@ -18,7 +18,7 @@ public class SymbolTable {
     public void debugPrintTable() {
         System.out.println("constant pool: ");
         for (Map.Entry<String, VarInfo> entry : vars.entrySet()) {
-            System.out.println("\t" + entry.getKey() + ": " + entry.getValue());
+            System.out.println("\t" + entry.getValue());
         }
     }
 

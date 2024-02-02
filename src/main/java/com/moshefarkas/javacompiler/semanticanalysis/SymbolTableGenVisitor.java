@@ -10,7 +10,7 @@ public class SymbolTableGenVisitor extends SemanticAnalysis {
     @Override
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
         if (SymbolTable.getInstance().hasVar(node.var.name)) {
-            error(ErrorType.DUPLICATE_VAR, node.var.name);
+            error(ErrorType.DUPLICATE_VAR, node.lineNum, node.var.name);
         } else {
             SymbolTable.getInstance().addLocal(node.var.name, node.var);
         }

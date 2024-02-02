@@ -36,6 +36,7 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         ExpressionNode condition = expressionStack.pop();
         node.setCondition(condition);
 
+        node.lineNum = ctx.getStart().getLine();
         statements.addStatement(node);
         return null;
     }
@@ -60,6 +61,7 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         lclVarNode.setVar(currLocalVarDecl);
         lclVarNode.setInitializer(currVarInitializer);
         
+        lclVarNode.lineNum = ctx.getStart().getLine();
         statements.addStatement(lclVarNode);
         return null;
     }

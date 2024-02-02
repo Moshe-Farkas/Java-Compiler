@@ -11,9 +11,9 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
     public void visitIdentifierExprNode(IdentifierExprNode node) {
         String varName = node.varName;
         if (!SymbolTable.getInstance().hasVar(varName)) {
-            error(ErrorType.UNDEFINED_VAR, varName);
+            error(ErrorType.UNDEFINED_VAR, node.lineNum, varName);
         } else if (!SymbolTable.getInstance().getInfo(varName).initialized) {
-            error(ErrorType.UNINITIALIZED_VAR, varName);
+            error(ErrorType.UNINITIALIZED_VAR, node.lineNum, varName);
         }
     }
 }
