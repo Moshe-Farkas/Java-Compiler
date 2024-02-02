@@ -1,12 +1,13 @@
 package com.moshefarkas.javacompiler.ast.astgen;
 
 import com.moshefarkas.generated.Java8Parser.AdditiveExpressionContext;
-import com.moshefarkas.generated.Java8Parser.ExpressionContext;
+import com.moshefarkas.generated.Java8Parser.AssignmentContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionNameContext;
 import com.moshefarkas.generated.Java8Parser.LiteralContext;
 import com.moshefarkas.generated.Java8Parser.MultiplicativeExpressionContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.Value.Type;
+import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
@@ -137,5 +138,21 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
 
         iden.lineNum = ctx.getStart().getLine();
         return iden;
+    }
+
+    @Override
+    public ExpressionNode visitAssignment(AssignmentContext ctx) {
+        // assignment
+        //     : leftHandSide assignmentOperator expression
+        //     ;
+        
+        IdentifierExprNode iden = (IdentifierExprNode)visit(ctx.leftHandSide());
+        ExpressionNode assignmentVal = visit(ctx.expression());
+
+        AssignExprNode assignment = new AssignExprNode();
+        assignment.setVar(iden);
+        assignment.setAssignmentValue(assignmentVal);
+        assignment.lineNum = ctx.getStart().getLine();
+        return assignment;
     }
 }

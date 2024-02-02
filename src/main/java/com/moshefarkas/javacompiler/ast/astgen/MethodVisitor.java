@@ -2,10 +2,13 @@ package com.moshefarkas.javacompiler.ast.astgen;
 
 import java.util.Stack;
 
+import com.moshefarkas.generated.Java8Parser.AssignmentContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionContext;
+import com.moshefarkas.generated.Java8Parser.ExpressionStatementContext;
 import com.moshefarkas.generated.Java8Parser.FloatingPointTypeContext;
 import com.moshefarkas.generated.Java8Parser.IntegralTypeContext;
 import com.moshefarkas.generated.Java8Parser.LocalVariableDeclarationContext;
+import com.moshefarkas.generated.Java8Parser.StatementExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnannPrimitiveTypeContext;
 import com.moshefarkas.generated.Java8Parser.VariableDeclaratorContext;
 import com.moshefarkas.generated.Java8Parser.VariableDeclaratorIdContext;
@@ -15,6 +18,7 @@ import com.moshefarkas.javacompiler.Value.Type;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.ExprStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 
@@ -150,5 +154,35 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         currLocalVarDecl.name = ctx.Identifier().getText();
         return null;
     }
+
+    @Override
+    public Void visitStatementExpression(StatementExpressionContext ctx) {
+        //  statementExpression
+        //     : assignment
+        //     | preIncrementExpression
+        //     | preDecrementExpression
+        //     | postIncrementExpression
+        //     | postDecrementExpression
+        //     | methodInvocation
+        //     | classInstanceCreationExpression
+        //     ;
+        ExpressionVisitor exprVisitor = new ExpressionVisitor();
+        ExpressionNode expr;
+
+        if (ctx.assignment() != null) {
+            expr = exprVisitor.visitAssignment(ctx.assignment());
+        } else {
+            throw new UnsupportedOperationException("inside expression statement.");
+        }
+
+        ExprStmtNode exprStmt = new ExprStmtNode();
+        exprStmt.setExpression(expr);
+        statements.addStatement(exprStmt); 
+        return super.visitStatementExpression(ctx);
+    }
+
+
+
+
 
 }
