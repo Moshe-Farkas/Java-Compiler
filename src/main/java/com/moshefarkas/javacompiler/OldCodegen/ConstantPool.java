@@ -1,4 +1,4 @@
-package com.moshefarkas.javacompiler.codegen;
+package com.moshefarkas.javacompiler.OldCodegen;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;

@@ -98,20 +98,25 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
         Type type = null;
         if (ctx.IntegerLiteral() != null) {
             type = Type.INT;
+            lit.value = Integer.valueOf(ctx.getText());
         } else if (ctx.FloatingPointLiteral() != null) {
             type = Type.FLOAT;
+            lit.value = Float.valueOf(ctx.getText());
         } else if (ctx.BooleanLiteral() != null) {
             type = Type.BOOL;
+            lit.value = Boolean.valueOf(ctx.getText());
         } else if (ctx.CharacterLiteral() != null) {
             type = Type.CHAR;
+            lit.value = ctx.getText();
         } else if (ctx.StringLiteral() != null) {
             type = Type.STRING;
+            lit.value = ctx.getText();
         } else if (ctx.NullLiteral() != null) {
             type = Type.NULL;
+            lit.value = null;
         }
 
         lit.type = type;
-        lit.value = ctx.getText();
 
         lit.lineNum = ctx.getStart().getLine();
         return lit;

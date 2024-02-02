@@ -1,8 +1,10 @@
 package com.moshefarkas.javacompiler;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 
+import org.antlr.v4.parse.ANTLRParser.optionValue_return;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -13,6 +15,7 @@ import com.moshefarkas.generated.Java8Parser;
 import com.moshefarkas.javacompiler.ast.astgen.ClassVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
+import com.moshefarkas.javacompiler.codegen.ClassGenVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.IdentifierUsageVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.SymbolTableGenVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.TypeCheckVisitor;
@@ -50,9 +53,15 @@ public class App {
         AstPrintVisitor printVisitor = new AstPrintVisitor();
         printVisitor.visitClassNode(ast);
         System.out.println("-------------------------------------------");
-
         SymbolTable.getInstance().debugPrintTable();
+        System.out.println("-------------------------------------------");
+        // code gen
+        ClassGenVisitor classGen = new ClassGenVisitor();
+        classGen.visitClassNode(ast);
 
+        FileOutputStream fos = new FileOutputStream("Demo.class");
+        fos.write(classGen.classWriter.toByteArray());
+        fos.close();
         System.out.println("\nDONE\n");
 
     }

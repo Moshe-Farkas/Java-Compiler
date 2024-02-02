@@ -1,6 +1,6 @@
 package com.moshefarkas.javacompiler.dispatching;
 
-import com.moshefarkas.javacompiler.codegen.ConstantPool;
+import com.moshefarkas.javacompiler.OldCodegen.ConstantPool;
 
 public class LiteralDispatcher extends OpTypeDispatch {
 

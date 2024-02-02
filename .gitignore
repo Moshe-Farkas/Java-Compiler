@@ -1,5 +1,6 @@
 target/
 Demo.java
+Demo.class
 plans.txt
 bytecode-testing/
 .vscode/
