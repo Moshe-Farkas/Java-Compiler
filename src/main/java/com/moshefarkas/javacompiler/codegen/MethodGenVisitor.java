@@ -3,16 +3,16 @@ package com.moshefarkas.javacompiler.codegen;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class MethodGenVisitor extends BaseAstVisitor {
-    // exposes a MethodVisior that this class will populate with data
 
-    public int stackOperandCount = 0;
     private MethodVisitor methodVisitor;
 
     public MethodGenVisitor(MethodVisitor methodVisitor) {
@@ -42,7 +42,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
         // );
 
         methodVisitor.visitInsn(Opcodes.RETURN);
-        methodVisitor.visitMaxs(stackOperandCount, -1);
+        methodVisitor.visitMaxs(-1, -1);
         methodVisitor.visitEnd();
     }
 
@@ -53,6 +53,14 @@ public class MethodGenVisitor extends BaseAstVisitor {
             // placed init one stack
             methodVisitor.visitVarInsn(Opcodes.ISTORE, node.var.localIndex);
         }
+    }
+    
+    @Override
+    public void visitAssignExprNode(AssignExprNode node) {
+        super.visitAssignExprNode(node);
+
+        int localIndex = SymbolTable.getInstance().getInfo(node.var.varName).localIndex;
+        methodVisitor.visitVarInsn(Opcodes.ISTORE, localIndex);
     }
 
     @Override
@@ -84,6 +92,5 @@ public class MethodGenVisitor extends BaseAstVisitor {
     @Override
     public void visitLiteralExprNode(LiteralExprNode node) {
         methodVisitor.visitLdcInsn(node.value);
-        stackOperandCount++;
     }
 }

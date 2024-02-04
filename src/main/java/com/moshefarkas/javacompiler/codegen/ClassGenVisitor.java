@@ -14,7 +14,8 @@ public class ClassGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitClassNode(ClassNode node) {
-        classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+        classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+
         classWriter.visit(
             Opcodes.V1_8,   // class format version
             Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER,  

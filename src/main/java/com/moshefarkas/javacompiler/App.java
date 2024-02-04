@@ -4,17 +4,16 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-import org.antlr.v4.parse.ANTLRParser.optionValue_return;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.objectweb.asm.Type;
 
 import com.moshefarkas.generated.Java8Lexer;
 import com.moshefarkas.generated.Java8Parser;
 import com.moshefarkas.javacompiler.ast.astgen.ClassVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.codegen.ClassGenVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.IdentifierUsageVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.SymbolTableGenVisitor;
@@ -64,6 +63,12 @@ public class App {
         fos.close();
         System.out.println("\nDONE\n");
 
+        testTypes();
     }
 
+    private static void testTypes() {
+        System.out.println(Type.getInternalName(String.class));
+
+        System.out.println(Type.getObjectType("java/lang/String"));
+    }
 }

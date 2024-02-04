@@ -9,7 +9,9 @@ public class MethodNode extends AstNode {
     public String returnType;
     public List<String> params;
     public List<String> accessModifiers;
+
     public BlockStmtNode statements;
+
     public String methodName;
 
     public void setReturnType(String returnType) {

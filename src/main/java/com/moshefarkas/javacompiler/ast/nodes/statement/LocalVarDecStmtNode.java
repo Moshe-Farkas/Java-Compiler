@@ -22,4 +22,9 @@ public class LocalVarDecStmtNode extends StatementNode {
     public void accept(AstVisitor v) {
         v.visitLocalVarDecStmtNode(this);
     }
+
+    @Override 
+    public String toString() {
+        return "var: " + var + ", initializer: " + initializer;
+    }
 }

@@ -1,17 +1,35 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
-import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 
 public class AstPrintVisitor extends BaseAstVisitor {
 
     @Override
-    public void visitAssignExprNode(AssignExprNode node) {
+    public void visitIfStmtNode(IfStmtNode node) {
         System.out.println("line: " + node.lineNum);
-        System.out.println("assignment: ");
-        System.out.println("\t name: " + node.var);
-        System.out.println("\t expression: " + node.assignmentValue);
+        System.out.println("if: ");
+        System.out.println("\t condition: " + node.condition);
+        System.out.println("\tstatement: " + node.statement);
     }
+
+    @Override
+    public void visitWhileStmtNode(WhileStmtNode node) {
+        System.out.println("line: " + node.lineNum);
+        System.out.println("while: ");
+        System.out.println("\tcondition: " + node.condition);
+        System.out.println("\tstatement: " + node.statement);
+        super.visitWhileStmtNode(node);
+    }
+
+    // @Override
+    // public void visitAssignExprNode(AssignExprNode node) {
+    //     System.out.println("line: " + node.lineNum);
+    //     System.out.println("assignment: ");
+    //     System.out.println("\t name: " + node.var);
+    //     System.out.println("\t expression: " + node.assignmentValue);
+    // }
 
     // @Override
     // public void visitMethodNode(MethodNode node) {

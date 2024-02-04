@@ -2,12 +2,14 @@ package com.moshefarkas.javacompiler.ast.astgen;
 
 import java.util.Stack;
 
-import com.moshefarkas.generated.Java8Parser.AssignmentContext;
+import com.moshefarkas.generated.Java8Parser.BlockContext;
+import com.moshefarkas.generated.Java8Parser.BlockStatementContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionContext;
-import com.moshefarkas.generated.Java8Parser.ExpressionStatementContext;
 import com.moshefarkas.generated.Java8Parser.FloatingPointTypeContext;
+import com.moshefarkas.generated.Java8Parser.IfThenStatementContext;
 import com.moshefarkas.generated.Java8Parser.IntegralTypeContext;
 import com.moshefarkas.generated.Java8Parser.LocalVariableDeclarationContext;
+import com.moshefarkas.generated.Java8Parser.MethodBodyContext;
 import com.moshefarkas.generated.Java8Parser.StatementExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnannPrimitiveTypeContext;
 import com.moshefarkas.generated.Java8Parser.VariableDeclaratorContext;
@@ -19,29 +21,90 @@ import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ExprStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.StatementNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 
 public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
 
-    public BlockStmtNode statements = new BlockStmtNode();
+    public BlockStmtNode statements;
     private Stack<ExpressionNode> expressionStack = new Stack<>();
+    private Stack<StatementNode> statementStack = new Stack<>();
 
     private int localVarIndex = 0;
     private VarInfo currLocalVarDecl;
     private ExpressionNode currVarInitializer = null;
     private Type currLocalVarDeclType;
+        
+    @Override
+    public Void visitMethodBody(MethodBodyContext ctx) {
+        // methodBody
+        //     : block
+        //     | ';'
+        //     ;
+        // this needs to set global block to statementStack.pop(); after visiting ctx.block
+        // need to delete all local var stuff.
+
+        visit(ctx.block());
+
+        BlockStmtNode methodBlock = (BlockStmtNode)statementStack.pop();
+        statements = methodBlock;
+        return null;
+    }
+
+    @Override
+    public Void visitBlock(BlockContext ctx) {
+        // block
+        //     : '{' blockStatements? '}'
+        //     ;
+
+        BlockStmtNode block = new BlockStmtNode();
+        for (BlockStatementContext bsc : ctx.blockStatements().blockStatement()) {
+            visit(bsc);
+            StatementNode statement = statementStack.pop();
+            block.addStatement(statement);
+        }
+        statementStack.push(block);
+        return null;
+    }
 
     @Override
     public Void visitWhileStatement(WhileStatementContext ctx) {
-        WhileStmtNode node = new WhileStmtNode();
-        
+        // whileStatement
+        //     : 'while' '(' expression ')' statement
+        //     ;
         visit(ctx.expression());
         ExpressionNode condition = expressionStack.pop();
-        node.setCondition(condition);
+        visit(ctx.statement());
+        StatementNode statement = statementStack.pop();
 
-        node.lineNum = ctx.getStart().getLine();
-        statements.addStatement(node);
+        WhileStmtNode whileNode = new WhileStmtNode();
+        whileNode.setCondition(condition);
+        whileNode.setStatement(statement);
+
+        whileNode.lineNum = ctx.getStart().getLine();
+
+        statementStack.push(whileNode);
+        return null;
+    }
+
+    @Override
+    public Void visitIfThenStatement(IfThenStatementContext ctx) {
+        // ifThenStatement
+        //     : 'if' '(' expression ')' statement
+        //     ;
+        visit(ctx.expression());
+        ExpressionNode condition = expressionStack.pop();
+        visit(ctx.statement());
+        StatementNode statement = statementStack.pop();
+
+        IfStmtNode ifStmtNode = new IfStmtNode();
+        ifStmtNode.setCondition(condition);
+        ifStmtNode.setStatement(statement);
+
+        ifStmtNode.lineNum = ctx.getStart().getLine();
+        statementStack.push(ifStmtNode);
         return null;
     }
 
@@ -66,7 +129,43 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         lclVarNode.setInitializer(currVarInitializer);
         
         lclVarNode.lineNum = ctx.getStart().getLine();
-        statements.addStatement(lclVarNode);
+
+        statementStack.push(lclVarNode);
+        return null;
+    }
+
+    @Override
+    public Void visitStatementExpression(StatementExpressionContext ctx) {
+        //  statementExpression
+        //     : assignment
+        //     | preIncrementExpression
+        //     | preDecrementExpression
+        //     | postIncrementExpression
+        //     | postDecrementExpression
+        //     | methodInvocation
+        //     | classInstanceCreationExpression
+        //     ;
+        ExpressionVisitor exprVisitor = new ExpressionVisitor();
+        ExpressionNode expr;
+
+        if (ctx.assignment() != null) {
+            expr = exprVisitor.visitAssignment(ctx.assignment());
+        } else {
+            throw new UnsupportedOperationException("inside expression statement.");
+        }
+
+        ExprStmtNode exprStmt = new ExprStmtNode();
+        exprStmt.setExpression(expr);
+
+        statementStack.push(exprStmt);
+        return null;
+    }
+
+    @Override
+    public Void visitExpression(ExpressionContext ctx) {
+        ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+        ExpressionNode exprNode = expressionVisitor.visit(ctx);
+        expressionStack.push(exprNode);
         return null;
     }
 
@@ -84,13 +183,6 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         return null;
     }
 
-    @Override
-    public Void visitExpression(ExpressionContext ctx) {
-        ExpressionVisitor expressionVisitor = new ExpressionVisitor();
-        ExpressionNode exprNode = expressionVisitor.visit(ctx);
-        expressionStack.push(exprNode);
-        return null;
-    }
 
     @Override
     public Void visitFloatingPointType(FloatingPointTypeContext ctx) {
@@ -154,35 +246,4 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         currLocalVarDecl.name = ctx.Identifier().getText();
         return null;
     }
-
-    @Override
-    public Void visitStatementExpression(StatementExpressionContext ctx) {
-        //  statementExpression
-        //     : assignment
-        //     | preIncrementExpression
-        //     | preDecrementExpression
-        //     | postIncrementExpression
-        //     | postDecrementExpression
-        //     | methodInvocation
-        //     | classInstanceCreationExpression
-        //     ;
-        ExpressionVisitor exprVisitor = new ExpressionVisitor();
-        ExpressionNode expr;
-
-        if (ctx.assignment() != null) {
-            expr = exprVisitor.visitAssignment(ctx.assignment());
-        } else {
-            throw new UnsupportedOperationException("inside expression statement.");
-        }
-
-        ExprStmtNode exprStmt = new ExprStmtNode();
-        exprStmt.setExpression(expr);
-        statements.addStatement(exprStmt); 
-        return super.visitStatementExpression(ctx);
-    }
-
-
-
-
-
 }
