@@ -13,6 +13,7 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
@@ -96,7 +97,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
                 methodVisitor.visitInsn(Opcodes.IMUL);
                 break;
             case MOD:
-                // methodVisitor.visitInsn(Opcodes.IREM);
+                methodVisitor.visitInsn(Opcodes.IREM);
                 break;
             case GT:
                 methodVisitor.visitJumpInsn(Opcodes.IF_ICMPLE, labelStack.pop());
@@ -109,6 +110,16 @@ public class MethodGenVisitor extends BaseAstVisitor {
                 break;
             case LT_EQ:
                 methodVisitor.visitJumpInsn(Opcodes.IF_ICMPGT, labelStack.pop());
+                break;
+        }
+    }
+
+    @Override
+    public void visitUnaryExprNode(UnaryExprNode node) {
+        visit(node.expr);
+        switch (node.op) {
+            case MINUS:
+                methodVisitor.visitInsn(Opcodes.INEG);
                 break;
         }
     }

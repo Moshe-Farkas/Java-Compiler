@@ -3,6 +3,7 @@ package com.moshefarkas.javacompiler;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
@@ -50,5 +51,12 @@ public class AstPrintVisitor extends BaseAstVisitor {
         System.out.println(" " + node.var + ", init: " + node.initializer);
         
         super.visitLocalVarDecStmtNode(node);
+    }
+
+    @Override
+    public void visitUnaryExprNode(UnaryExprNode node) {
+        System.out.println("line: " + node.lineNum);
+        System.out.println("unary: "); 
+        System.out.println("\top: " + node.op + ", value: " + node.expr);
     }
 }

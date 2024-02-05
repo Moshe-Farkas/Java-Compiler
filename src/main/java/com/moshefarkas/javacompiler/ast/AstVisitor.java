@@ -8,6 +8,7 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ExprStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
@@ -31,4 +32,5 @@ public interface AstVisitor {
     public void visitCallExprNode(CallExprNode node);
     public void visitLiteralExprNode(LiteralExprNode node);
     public void visitIdentifierExprNode(IdentifierExprNode node);
+    public void visitUnaryExprNode(UnaryExprNode node);
 }

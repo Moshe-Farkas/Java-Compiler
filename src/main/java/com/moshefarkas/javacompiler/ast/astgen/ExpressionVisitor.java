@@ -6,6 +6,8 @@ import com.moshefarkas.generated.Java8Parser.ExpressionNameContext;
 import com.moshefarkas.generated.Java8Parser.LiteralContext;
 import com.moshefarkas.generated.Java8Parser.MultiplicativeExpressionContext;
 import com.moshefarkas.generated.Java8Parser.RelationalExpressionContext;
+import com.moshefarkas.generated.Java8Parser.UnaryExpressionContext;
+import com.moshefarkas.generated.Java8Parser.UnaryExpressionNotPlusMinusContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.Value.Type;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
@@ -13,7 +15,9 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
+import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode.UnaryOp;
 
 public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
 
@@ -81,6 +85,54 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
             expr = binExpr;
         } else {
             expr = visit(ctx.unaryExpression());
+        }
+
+        expr.lineNum = ctx.getStart().getLine();
+        return expr;
+    }
+
+    @Override
+    public ExpressionNode visitUnaryExpression(UnaryExpressionContext ctx) {
+        // unaryExpression
+        //     : preIncrementExpression
+        //     | preDecrementExpression
+        //     | '+' unaryExpression
+        //     | '-' unaryExpression
+        //     | unaryExpressionNotPlusMinus
+        //     ;
+        ExpressionNode expr = null;
+        if (ctx.SUB() != null) {
+            UnaryExprNode unaryExpr = new UnaryExprNode();
+            unaryExpr.expr = visit(ctx.unaryExpression());
+            unaryExpr.op = UnaryOp.MINUS;
+            expr = unaryExpr;
+        } else {
+            expr = super.visitUnaryExpression(ctx);
+        }
+
+        expr.lineNum = ctx.getStart().getLine();
+        return expr;
+    }
+
+    @Override
+    public ExpressionNode visitUnaryExpressionNotPlusMinus(UnaryExpressionNotPlusMinusContext ctx) {
+        // unaryExpressionNotPlusMinus
+        //     : postfixExpression
+        //     | '~' unaryExpression
+        //     | '!' unaryExpression
+        //     | castExpression
+        //     ;
+        ExpressionNode expr = null;
+        if (ctx.TILDE() != null) {
+            UnaryExprNode unaryExpr = new UnaryExprNode();
+            unaryExpr.expr = visit(ctx.unaryExpression());
+            unaryExpr.op = UnaryOp.TILDE;
+        } else if (ctx.BANG() != null) {
+            UnaryExprNode unaryExpr = new UnaryExprNode();
+            unaryExpr.expr = visit(ctx.unaryExpression());
+            unaryExpr.op = UnaryOp.NOT;
+        } else {
+            expr = super.visitUnaryExpressionNotPlusMinus(ctx);
         }
 
         expr.lineNum = ctx.getStart().getLine();
