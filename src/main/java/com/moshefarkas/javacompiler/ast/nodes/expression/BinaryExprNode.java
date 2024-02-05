@@ -3,11 +3,26 @@ package com.moshefarkas.javacompiler.ast.nodes.expression;
 import com.moshefarkas.javacompiler.ast.AstVisitor;
 
 public class BinaryExprNode extends ExpressionNode {
-    public String op;
+    
+    public enum BinOp {
+        PLUS,
+        MINUS,
+        DIV,
+        MUL,
+        MOD,
+        EQ_EQ,
+        NOT_EQ,
+        GR,
+        GR_EQ,
+        LT,
+        LT_EQ,
+    }
+
+    public BinOp op;
     public ExpressionNode right;
     public ExpressionNode left;
     
-    public void setOp(String op) {
+    public void setOp(BinOp op) {
         this.op = op;
     }
 

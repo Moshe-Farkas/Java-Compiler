@@ -1,7 +1,9 @@
 package com.moshefarkas.javacompiler.codegen;
 
+import org.antlr.v4.parse.ANTLRParser.parserRule_return;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
@@ -71,19 +73,19 @@ public class MethodGenVisitor extends BaseAstVisitor {
         super.visitBinaryExprNode(node);
 
         switch (node.op) {
-            case "+":
+            case PLUS:
                 methodVisitor.visitInsn(Opcodes.IADD);
                 break;
-            case "-":
+            case MINUS:
                 methodVisitor.visitInsn(Opcodes.ISUB);
                 break;
-            case "/":
+            case DIV:
                 methodVisitor.visitInsn(Opcodes.IDIV);
                 break;
-            case "*":
+            case MUL:
                 methodVisitor.visitInsn(Opcodes.IMUL);
                 break;
-            case "%":
+            case MOD:
                 methodVisitor.visitInsn(Opcodes.IREM);
                 break;
         }

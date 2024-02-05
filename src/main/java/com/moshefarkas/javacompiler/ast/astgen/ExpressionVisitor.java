@@ -12,6 +12,7 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
 
 public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
 
@@ -35,9 +36,9 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
             binExpr.setRight(right);
             
             if (ctx.ADD() != null) {
-                binExpr.setOp("+");
+                binExpr.setOp(BinOp.PLUS);
             } else {
-                binExpr.setOp("-");
+                binExpr.setOp(BinOp.MINUS);
             }
 
             expr = binExpr;
@@ -69,11 +70,11 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
             binExpr.setRight(right);
             
             if (ctx.DIV() != null) {
-                binExpr.setOp("/");
+                binExpr.setOp(BinOp.DIV);
             } else if (ctx.MUL() != null) {
-                binExpr.setOp("*");
+                binExpr.setOp(BinOp.MUL);
             } else {
-                binExpr.setOp("%");
+                binExpr.setOp(BinOp.MOD);
             }
 
             expr = binExpr;
