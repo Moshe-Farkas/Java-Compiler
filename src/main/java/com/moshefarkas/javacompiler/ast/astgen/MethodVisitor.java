@@ -28,7 +28,7 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 
 public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
 
-    public BlockStmtNode statements;
+    public BlockStmtNode statements = new BlockStmtNode();
     private Stack<ExpressionNode> expressionStack = new Stack<>();
     private Stack<StatementNode> statementStack = new Stack<>();
 
@@ -60,10 +60,12 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         //     ;
 
         BlockStmtNode block = new BlockStmtNode();
-        for (BlockStatementContext bsc : ctx.blockStatements().blockStatement()) {
-            visit(bsc);
-            StatementNode statement = statementStack.pop();
-            block.addStatement(statement);
+        if (ctx.blockStatements() != null) {
+            for (BlockStatementContext bsc : ctx.blockStatements().blockStatement()) {
+                visit(bsc);
+                StatementNode statement = statementStack.pop();
+                block.addStatement(statement);
+            }
         }
         statementStack.push(block);
         return null;

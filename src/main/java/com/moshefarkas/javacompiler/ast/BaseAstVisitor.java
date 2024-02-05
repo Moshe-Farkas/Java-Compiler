@@ -1,5 +1,6 @@
 package com.moshefarkas.javacompiler.ast;
 
+import com.moshefarkas.javacompiler.ast.nodes.AstNode;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
@@ -87,4 +88,7 @@ public class BaseAstVisitor implements AstVisitor {
         node.visitChildren(this);
     }
     
+    public void visit(AstNode node) {
+        node.accept(this);
+    }
 }
