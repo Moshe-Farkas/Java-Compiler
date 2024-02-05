@@ -99,16 +99,16 @@ public class MethodGenVisitor extends BaseAstVisitor {
                 // methodVisitor.visitInsn(Opcodes.IREM);
                 break;
             case GT:
-                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPLT, labelStack.pop());
-                break;
-            case GT_EQ:
                 methodVisitor.visitJumpInsn(Opcodes.IF_ICMPLE, labelStack.pop());
                 break;
+            case GT_EQ:
+                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPLT, labelStack.pop());
+                break;
             case LT:
-                // methodVisitor.visitInsn(Opcodes.IREM);
+                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPGE, labelStack.pop());
                 break;
             case LT_EQ:
-                // methodVisitor.visitInsn(Opcodes.IREM);
+                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPGT, labelStack.pop());
                 break;
         }
     }
