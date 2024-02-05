@@ -5,6 +5,7 @@ import com.moshefarkas.generated.Java8Parser.AssignmentContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionNameContext;
 import com.moshefarkas.generated.Java8Parser.LiteralContext;
 import com.moshefarkas.generated.Java8Parser.MultiplicativeExpressionContext;
+import com.moshefarkas.generated.Java8Parser.RelationalExpressionContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.Value.Type;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
@@ -82,6 +83,44 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
             expr = visit(ctx.unaryExpression());
         }
 
+        expr.lineNum = ctx.getStart().getLine();
+        return expr;
+    }
+
+    @Override
+    public ExpressionNode visitRelationalExpression(RelationalExpressionContext ctx) {
+        // relationalExpression
+        //     : shiftExpression
+        //     | relationalExpression '<' shiftExpression
+        //     | relationalExpression '>' shiftExpression
+        //     | relationalExpression '<=' shiftExpression
+        //     | relationalExpression '>=' shiftExpression
+        //     | relationalExpression 'instanceof' referenceType
+        //     ;
+
+        ExpressionNode expr = null;
+
+        if (ctx.relationalExpression() != null) {
+            ExpressionNode left = visit(ctx.relationalExpression());
+            ExpressionNode right = visit(ctx.shiftExpression());
+            BinaryExprNode binExpr = new BinaryExprNode();
+            binExpr.setLeft(left);
+            binExpr.setRight(right);
+            if (ctx.LT() != null) {
+                binExpr.setOp(BinOp.LT);
+            } else if (ctx.GT() != null) {
+                binExpr.setOp(BinOp.GT);
+            } else if (ctx.LE() != null) {
+                binExpr.setOp(BinOp.LT_EQ);
+            } else if (ctx.GE() != null) {
+                binExpr.setOp(BinOp.GT_EQ);
+            }
+
+            expr = binExpr;
+        } else {
+            expr = visit(ctx.shiftExpression());
+        }
+        
         expr.lineNum = ctx.getStart().getLine();
         return expr;
     }

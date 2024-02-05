@@ -68,9 +68,10 @@ public class MethodGenVisitor extends BaseAstVisitor {
     @Override
     public void visitBinaryExprNode(BinaryExprNode node) {
         // need to emit code based on node's op type
-        // visitExpressionNode(node.left);
-        // visitExpressionNode(node.right);
-        super.visitBinaryExprNode(node);
+        
+        // super.visitBinaryExprNode(node);
+        visitExpressionNode(node.left);
+        visitExpressionNode(node.right);
 
         switch (node.op) {
             case PLUS:

@@ -45,8 +45,8 @@ public class App {
         sv.visitClassNode(ast);
         IdentifierUsageVisitor iuv = new IdentifierUsageVisitor();
         iuv.visitClassNode(ast);
-        TypeCheckVisitor s = new TypeCheckVisitor();
-        s.visitClassNode(ast);
+        // TypeCheckVisitor s = new TypeCheckVisitor();
+        // s.visitClassNode(ast);
         System.out.println("-------------------------------------------");
         // end semantic analysis
         AstPrintVisitor printVisitor = new AstPrintVisitor();

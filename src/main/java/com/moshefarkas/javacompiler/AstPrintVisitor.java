@@ -2,6 +2,7 @@ package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 
 public class AstPrintVisitor extends BaseAstVisitor {
@@ -48,6 +49,4 @@ public class AstPrintVisitor extends BaseAstVisitor {
         
     //     super.visitLocalVarDecStmtNode(node);
     // }
-    
-    
 }

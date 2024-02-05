@@ -12,8 +12,8 @@ public class BinaryExprNode extends ExpressionNode {
         MOD,
         EQ_EQ,
         NOT_EQ,
-        GR,
-        GR_EQ,
+        GT,
+        GT_EQ,
         LT,
         LT_EQ,
     }
