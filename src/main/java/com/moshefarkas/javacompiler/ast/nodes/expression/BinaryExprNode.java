@@ -1,5 +1,7 @@
 package com.moshefarkas.javacompiler.ast.nodes.expression;
 
+import org.objectweb.asm.Type;
+
 import com.moshefarkas.javacompiler.ast.AstVisitor;
 
 public class BinaryExprNode extends ExpressionNode {
@@ -21,6 +23,12 @@ public class BinaryExprNode extends ExpressionNode {
     public BinOp op;
     public ExpressionNode right;
     public ExpressionNode left;
+
+    public Type exprType;
+
+    public void setExprType(Type type) {
+        this.exprType = type;
+    }
     
     public void setOp(BinOp op) {
         this.op = op;
@@ -35,7 +43,7 @@ public class BinaryExprNode extends ExpressionNode {
         this.left = left;
         addChild(left);
     }
-
+    
     @Override
     public void accept(AstVisitor v) {
         v.visitBinaryExprNode(this);

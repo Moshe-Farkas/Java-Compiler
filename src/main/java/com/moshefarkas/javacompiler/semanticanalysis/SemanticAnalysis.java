@@ -13,10 +13,11 @@ public class SemanticAnalysis extends BaseAstVisitor {
     } 
 
     protected ErrorType test_error;
-    protected boolean hadErr = false;
+    public boolean hadErr = false;
 
     protected void error(ErrorType errType, int lineNum, String errMsg) {
         System.err.println("\u001B[31m" + errType + " on line " + lineNum + ": " + errMsg + "\u001B[0m");
         test_error = errType;
+        hadErr = true;
     }
 }

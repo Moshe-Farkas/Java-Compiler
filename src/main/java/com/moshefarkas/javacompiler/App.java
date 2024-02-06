@@ -45,8 +45,11 @@ public class App {
         sv.visitClassNode(ast);
         IdentifierUsageVisitor iuv = new IdentifierUsageVisitor();
         iuv.visitClassNode(ast);
-        // TypeCheckVisitor s = new TypeCheckVisitor();
-        // s.visitClassNode(ast);
+        TypeCheckVisitor s = new TypeCheckVisitor();
+        s.visitClassNode(ast);
+        if (s.hadErr) {
+            return;
+        }
         System.out.println("-------------------------------------------");
         // end semantic analysis
         AstPrintVisitor printVisitor = new AstPrintVisitor();
@@ -62,13 +65,5 @@ public class App {
         fos.write(classGen.classWriter.toByteArray());
         fos.close();
         System.out.println("\nDONE\n");
-
-        testTypes();
-    }
-
-    private static void testTypes() {
-        System.out.println(Type.getInternalName(String.class));
-
-        System.out.println(Type.getObjectType("java/lang/String"));
     }
 }
