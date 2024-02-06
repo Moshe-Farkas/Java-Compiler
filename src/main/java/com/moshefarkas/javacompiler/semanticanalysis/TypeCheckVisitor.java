@@ -13,7 +13,7 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class TypeCheckVisitor extends SemanticAnalysis {
 
-    protected Stack<Type> typeStack = new Stack<>();
+    private Stack<Type> typeStack = new Stack<>();
 
     @Override
     public void visitBinaryExprNode(BinaryExprNode node) {
@@ -22,22 +22,33 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
         Type b = typeStack.pop();
         Type a = typeStack.pop();
-
-        if (a == Type.FLOAT_TYPE || b == Type.FLOAT_TYPE) {
-            node.setExprType(Type.FLOAT_TYPE);
-        } else {
-            node.setExprType(a);
+        // char, byte and short are treated as if int
+        if (a == Type.CHAR_TYPE || a == Type.BYTE_TYPE || a == Type.SHORT_TYPE) {
+            a = Type.INT_TYPE;
         }
+        if (b == Type.CHAR_TYPE || b == Type.BYTE_TYPE || b == Type.SHORT_TYPE) {
+            b = Type.INT_TYPE;
+        }
+        Type exprType;
+        if (downcastRules.get(a) > downcastRules.get(b)) {
+            exprType = a;
+        } else {
+            exprType = b;
+        }
+        node.setExprType(exprType);
+        typeStack.push(exprType);
     }
 
     @Override
     public void visitLiteralExprNode(LiteralExprNode node) {
-        typeStack.push(node.type);
+        typeStack.push(node.exprType);
     }
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
-        typeStack.push(SymbolTable.getInstance().getType(node.varName));
+        Type idenType = SymbolTable.getInstance().getType(node.varName);
+        typeStack.push(idenType);
+        node.setExprType(idenType);
     }
 
     private static HashMap<Type, Integer> downcastRules = new HashMap<>();

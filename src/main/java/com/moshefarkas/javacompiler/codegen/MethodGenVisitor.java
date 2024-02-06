@@ -5,6 +5,7 @@ import java.util.Stack;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.VarInfo;
@@ -22,11 +23,21 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 public class MethodGenVisitor extends BaseAstVisitor {
 
     private MethodVisitor methodVisitor;
-
     private Stack<Label> labelStack = new Stack<>();
 
     public MethodGenVisitor(MethodVisitor methodVisitor) {
         this.methodVisitor = methodVisitor;
+    }
+
+    private void emitTypeCast(Type targetType, Type toCastType) {
+        if (targetType == toCastType) 
+            return;   // no need to cast to same type
+
+        if (targetType == Type.FLOAT_TYPE) {
+            methodVisitor.visitInsn(toCastType.getOpcode(Opcodes.I2F));
+        } else if (targetType == Type.INT_TYPE) {
+            methodVisitor.visitInsn(toCastType.getOpcode(Opcodes.F2I));
+        }
     }
 
     @Override
@@ -74,23 +85,26 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitBinaryExprNode(BinaryExprNode node) {
-        visit(node.left);
-        visit(node.right);
-        
-        // dispatch based on type
+        Type leftExprType = node.left.exprType;
+        Type rightExprType = node.right.exprType;
 
+        visit(node.left);
+        emitTypeCast(node.exprType, leftExprType);
+        visit(node.right);
+        emitTypeCast(node.exprType, rightExprType);
+        
         switch (node.op) {
             case PLUS:
                 methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IADD));
                 break;
             case MINUS:
-                methodVisitor.visitInsn(Opcodes.ISUB);
+                methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.ISUB));
                 break;
             case DIV:
-                methodVisitor.visitInsn(Opcodes.IDIV);
+                methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IDIV));
                 break;
             case MUL:
-                methodVisitor.visitInsn(Opcodes.IMUL);
+                methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IMUL));
                 break;
             case MOD:
                 methodVisitor.visitInsn(Opcodes.IREM);
@@ -139,7 +153,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
         visit(node.condition);
         visit(node.statement);
-
+        
         methodVisitor.visitLabel(label);
     }
 

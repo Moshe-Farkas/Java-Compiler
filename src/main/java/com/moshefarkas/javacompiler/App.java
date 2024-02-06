@@ -8,7 +8,6 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.objectweb.asm.Type;
 
 import com.moshefarkas.generated.Java8Lexer;
 import com.moshefarkas.generated.Java8Parser;

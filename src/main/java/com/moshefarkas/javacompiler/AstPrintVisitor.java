@@ -3,12 +3,21 @@ package com.moshefarkas.javacompiler;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 
 public class AstPrintVisitor extends BaseAstVisitor {
+
+    // @Override
+    // public void visitBinaryExprNode(BinaryExprNode node) {
+    //     System.out.println("line: " + node.lineNum);
+    //     System.out.println("bin expr: " + node.exprType);
+    //     System.out.println("\t" + node.left);
+    //     System.out.println("\t" + node.right);
+    // }
 
     // @Override
     // public void visitIfStmtNode(IfStmtNode node) {
@@ -44,19 +53,19 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     System.out.println("]");
     // }
 
-    @Override
-    public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
-        System.out.println("line: " + node.lineNum);
-        System.out.println("local var decl: ");
-        System.out.println(" " + node.var.name + ", init: " + node.initializer);
+//     @Override
+//     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
+//         System.out.println("line: " + node.lineNum);
+//         System.out.println("local var decl: ");
+//         System.out.println(" " + node.var.name + ", init: " + node.initializer);
         
-        super.visitLocalVarDecStmtNode(node);
-    }
+//         super.visitLocalVarDecStmtNode(node);
+//     }
 
-    @Override
-    public void visitUnaryExprNode(UnaryExprNode node) {
-        System.out.println("line: " + node.lineNum);
-        System.out.println("unary: "); 
-        System.out.println("\top: " + node.op + ", value: " + node.expr);
-    }
+//     @Override
+//     public void visitUnaryExprNode(UnaryExprNode node) {
+//         System.out.println("line: " + node.lineNum);
+//         System.out.println("unary: "); 
+//         System.out.println("\top: " + node.op + ", value: " + node.expr);
+//     }
 }

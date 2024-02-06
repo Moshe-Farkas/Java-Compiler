@@ -211,7 +211,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
         //     lit.value = null;
         // }
 
-        lit.type = type;
+        lit.setExprType(type);
 
         lit.lineNum = ctx.getStart().getLine();
         return lit;

@@ -24,11 +24,11 @@ public class BinaryExprNode extends ExpressionNode {
     public ExpressionNode right;
     public ExpressionNode left;
 
-    public Type exprType;
+    // public Type exprType;
 
-    public void setExprType(Type type) {
-        this.exprType = type;
-    }
+    // public void setExprType(Type type) {
+    //     this.exprType = type;
+    // }
     
     public void setOp(BinOp op) {
         this.op = op;
@@ -51,6 +51,6 @@ public class BinaryExprNode extends ExpressionNode {
 
     @Override
     public String toString() {
-        return "op: " + op + " left: " + left + " right: " + right;
+        return "type: " + exprType + ", " + "op: " + op + " left: " + left + " right: " + right;
     }
 }
