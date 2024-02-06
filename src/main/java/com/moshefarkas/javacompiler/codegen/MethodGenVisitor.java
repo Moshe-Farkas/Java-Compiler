@@ -70,16 +70,18 @@ public class MethodGenVisitor extends BaseAstVisitor {
     @Override
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
         if (node.var.initialized) {
-            super.visitLocalVarDecStmtNode(node);
+            visit(node.initializer);
             VarInfo var = SymbolTable.getInstance().getInfo(node.var.name);
+            emitTypeCast(var.type, node.initializer.exprType);
             methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
         }
     }
     
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
-        super.visitAssignExprNode(node);
+        visit(node.assignmentValue);
         VarInfo var = SymbolTable.getInstance().getInfo(node.varName);
+        emitTypeCast(var.type, node.assignmentValue.exprType);
         methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
     }
 
