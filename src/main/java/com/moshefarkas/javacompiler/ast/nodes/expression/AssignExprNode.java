@@ -4,12 +4,11 @@ import com.moshefarkas.javacompiler.ast.AstVisitor;
 
 public class AssignExprNode extends ExpressionNode {
 
-    public IdentifierExprNode var;
+    public String varName;
     public ExpressionNode assignmentValue;
 
-    public void setVar(IdentifierExprNode var) {
-        this.var = var;
-        addChild(var);
+    public void setVar(String varName) {
+        this.varName = varName;
     }
 
     public void setAssignmentValue(ExpressionNode assignmentValue) {

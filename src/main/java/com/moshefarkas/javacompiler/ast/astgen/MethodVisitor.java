@@ -2,6 +2,8 @@ package com.moshefarkas.javacompiler.ast.astgen;
 
 import java.util.Stack;
 
+import org.objectweb.asm.Type;
+
 import com.moshefarkas.generated.Java8Parser.BlockContext;
 import com.moshefarkas.generated.Java8Parser.BlockStatementContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionContext;
@@ -16,7 +18,6 @@ import com.moshefarkas.generated.Java8Parser.VariableDeclaratorContext;
 import com.moshefarkas.generated.Java8Parser.VariableDeclaratorIdContext;
 import com.moshefarkas.generated.Java8Parser.WhileStatementContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
-import com.moshefarkas.javacompiler.Value.Type;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
@@ -178,7 +179,7 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         //     | 'boolean'
         //     ;
         if (ctx.BOOLEAN() != null) {
-            currLocalVarDeclType = Type.BOOL;
+            currLocalVarDeclType = Type.BOOLEAN_TYPE;
         } else {
             visit(ctx.numericType());
         }
@@ -193,7 +194,7 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         //     | 'double'
         //     ;
         if (ctx.FLOAT() != null) {
-            currLocalVarDeclType = Type.FLOAT;
+            currLocalVarDeclType = Type.FLOAT_TYPE;
         } 
         return null;
     }
@@ -209,16 +210,16 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         //     ;
       switch (ctx.getText()) {
             case "int":
-                currLocalVarDeclType = Type.INT;
+                currLocalVarDeclType = Type.INT_TYPE;
                 break;
             case "char":
-                currLocalVarDeclType = Type.CHAR;
+                currLocalVarDeclType = Type.CHAR_TYPE;
                 break;
             case "byte":
-                currLocalVarDeclType = Type.BYTE;
+                currLocalVarDeclType = Type.BYTE_TYPE;
                 break;
             case "short":
-                currLocalVarDeclType = Type.SHORT;
+                currLocalVarDeclType = Type.SHORT_TYPE;
                 break;
         } 
         return null;

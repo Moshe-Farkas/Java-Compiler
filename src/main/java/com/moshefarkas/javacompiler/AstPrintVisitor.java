@@ -48,7 +48,7 @@ public class AstPrintVisitor extends BaseAstVisitor {
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
         System.out.println("line: " + node.lineNum);
         System.out.println("local var decl: ");
-        System.out.println(" " + node.var + ", init: " + node.initializer);
+        System.out.println(" " + node.var.name + ", init: " + node.initializer);
         
         super.visitLocalVarDecStmtNode(node);
     }

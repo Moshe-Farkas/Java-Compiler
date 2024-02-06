@@ -3,7 +3,7 @@ package com.moshefarkas.javacompiler;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.moshefarkas.javacompiler.Value.Type;
+import org.objectweb.asm.Type;
 
 public class SymbolTable {
     // singleton of symbol table

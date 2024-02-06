@@ -2,7 +2,8 @@ package com.moshefarkas.javacompiler.semanticanalysis;
 
 import java.util.Stack;
 
-import com.moshefarkas.javacompiler.Value.Type;
+import org.objectweb.asm.Type;
+
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 

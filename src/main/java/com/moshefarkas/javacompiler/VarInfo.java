@@ -1,6 +1,6 @@
 package com.moshefarkas.javacompiler;
 
-import com.moshefarkas.javacompiler.Value.Type;
+import org.objectweb.asm.Type;
 
 public class VarInfo {
     public Type type;

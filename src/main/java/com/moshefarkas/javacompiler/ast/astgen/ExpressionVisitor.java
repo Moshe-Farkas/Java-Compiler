@@ -1,5 +1,7 @@
 package com.moshefarkas.javacompiler.ast.astgen;
 
+import org.objectweb.asm.Type;
+
 import com.moshefarkas.generated.Java8Parser.AdditiveExpressionContext;
 import com.moshefarkas.generated.Java8Parser.AssignmentContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionNameContext;
@@ -9,14 +11,13 @@ import com.moshefarkas.generated.Java8Parser.RelationalExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnaryExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnaryExpressionNotPlusMinusContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
-import com.moshefarkas.javacompiler.Value.Type;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode.UnaryOp;
 
 public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
@@ -190,24 +191,25 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
         LiteralExprNode lit = new LiteralExprNode();
         Type type = null;
         if (ctx.IntegerLiteral() != null) {
-            type = Type.INT;
+            type = Type.INT_TYPE;
             lit.value = Integer.valueOf(ctx.getText());
         } else if (ctx.FloatingPointLiteral() != null) {
-            type = Type.FLOAT;
+            type = Type.FLOAT_TYPE;
             lit.value = Float.valueOf(ctx.getText());
         } else if (ctx.BooleanLiteral() != null) {
-            type = Type.BOOL;
+            type = Type.BOOLEAN_TYPE;
             lit.value = Boolean.valueOf(ctx.getText());
         } else if (ctx.CharacterLiteral() != null) {
-            type = Type.CHAR;
+            type = Type.CHAR_TYPE;
             lit.value = ctx.getText();
-        } else if (ctx.StringLiteral() != null) {
-            type = Type.STRING;
-            lit.value = ctx.getText();
-        } else if (ctx.NullLiteral() != null) {
-            type = Type.NULL;
-            lit.value = null;
-        }
+        } 
+        // else if (ctx.StringLiteral() != null) {
+        //     type = Type.OBJECT_TYPE;
+        //     lit.value = ctx.getText();
+        // } else if (ctx.NullLiteral() != null) {
+        //     type = Type.;
+        //     lit.value = null;
+        // }
 
         lit.type = type;
 
@@ -242,7 +244,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
         ExpressionNode assignmentVal = visit(ctx.expression());
 
         AssignExprNode assignment = new AssignExprNode();
-        assignment.setVar(iden);
+        assignment.setVar(iden.varName);
         assignment.setAssignmentValue(assignmentVal);
         assignment.lineNum = ctx.getStart().getLine();
         return assignment;

@@ -1,6 +1,7 @@
 package com.moshefarkas.javacompiler.ast.nodes.expression;
 
-import com.moshefarkas.javacompiler.Value.Type;
+import org.objectweb.asm.Type;
+
 import com.moshefarkas.javacompiler.ast.AstVisitor;
 
 public class LiteralExprNode extends ExpressionNode {
