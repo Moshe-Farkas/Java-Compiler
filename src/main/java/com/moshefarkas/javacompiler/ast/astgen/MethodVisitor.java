@@ -151,11 +151,13 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         ExpressionVisitor exprVisitor = new ExpressionVisitor();
         ExpressionNode expr;
 
-        if (ctx.assignment() != null) {
-            expr = exprVisitor.visitAssignment(ctx.assignment());
-        } else {
-            throw new UnsupportedOperationException("inside expression statement.");
-        }
+        expr = (ExpressionNode)exprVisitor.visitStatementExpression(ctx);
+
+        // if (ctx.assignment() != null) {
+        //     expr = exprVisitor.visitAssignment(ctx.assignment());
+        // } else {
+        //     throw new UnsupportedOperationException("inside expression statement.");
+        // }
 
         ExprStmtNode exprStmt = new ExprStmtNode();
         exprStmt.setExpression(expr);
@@ -167,7 +169,7 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
     @Override
     public Void visitExpression(ExpressionContext ctx) {
         ExpressionVisitor expressionVisitor = new ExpressionVisitor();
-        ExpressionNode exprNode = expressionVisitor.visit(ctx);
+        ExpressionNode exprNode = (ExpressionNode)expressionVisitor.visit(ctx);
         expressionStack.push(exprNode);
         return null;
     }

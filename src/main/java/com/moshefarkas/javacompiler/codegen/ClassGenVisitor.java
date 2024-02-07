@@ -3,7 +3,10 @@ package com.moshefarkas.javacompiler.codegen;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
+import com.moshefarkas.javacompiler.MethodInfo;
+import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
@@ -36,13 +39,13 @@ public class ClassGenVisitor extends BaseAstVisitor {
     @Override
     public void visitMethodNode(MethodNode node) {
         int accessMod = Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC;
-        String descriptor = "()V";
-        String signature = "()V";
+        String descriptor = SymbolTable.getInstance().getMethodDescriptor(node.methodName);
+
         MethodVisitor method = classWriter.visitMethod(
             accessMod,
             node.methodName, 
             descriptor, 
-            signature, 
+            descriptor, 
             null
         );
         new MethodGenVisitor(method).visitMethodNode(node);
@@ -57,15 +60,6 @@ public class ClassGenVisitor extends BaseAstVisitor {
             null
         );
         main.visitCode();
-
-        // main.visitMethodInsn(
-        //     Opcodes.INVOKESTATIC, 
-        //     "Demo", 
-        //     "meth", 
-        //     "()V", 
-        //     false
-        // );
-
         main.visitInsn(Opcodes.RETURN);
     }
 }

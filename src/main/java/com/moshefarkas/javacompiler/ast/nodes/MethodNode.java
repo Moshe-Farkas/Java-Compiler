@@ -2,23 +2,26 @@ package com.moshefarkas.javacompiler.ast.nodes;
 
 import java.util.List;
 
+import org.objectweb.asm.Type;
+
 import com.moshefarkas.javacompiler.ast.AstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class MethodNode extends AstNode {
-    public String returnType;
-    public List<String> params;
+    public Type returnType;
+    public List<LocalVarDecStmtNode> params;
     public List<String> accessModifiers;
 
     public BlockStmtNode statements;
 
     public String methodName;
 
-    public void setReturnType(String returnType) {
+    public void setReturnType(Type returnType) {
         this.returnType = returnType;
     }
 
-    public void setParams(List<String> params) {
+    public void setParams(List<LocalVarDecStmtNode> params) {
         this.params = params;
     }
 

@@ -15,10 +15,12 @@ import com.moshefarkas.javacompiler.ast.astgen.ClassVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.codegen.ClassGenVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.IdentifierUsageVisitor;
+import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis;
 import com.moshefarkas.javacompiler.semanticanalysis.SymbolTableGenVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.TypeCheckVisitor;
 
 public class App {
+
     public static void main( String[] args ) throws Exception {
         String inputFile = null;
         if ( args.length>0 ) inputFile = args[0];
@@ -38,19 +40,14 @@ public class App {
         visitor.visit(tree);
         
         ClassNode ast = visitor.currentClass;
-        // semantic analysis
         System.out.println("-------------------------------------------");
-        SymbolTableGenVisitor sv = new SymbolTableGenVisitor();
-        sv.visitClassNode(ast);
-        IdentifierUsageVisitor iuv = new IdentifierUsageVisitor();
-        iuv.visitClassNode(ast);
-        TypeCheckVisitor s = new TypeCheckVisitor();
-        s.visitClassNode(ast);
-        if (s.hadErr) {
+        // semantic analysis
+        new SemanticAnalysis(ast);
+        if (SemanticAnalysis.hadErr) {
             return;
         }
-        System.out.println("-------------------------------------------");
         // end semantic analysis
+        System.out.println("-------------------------------------------");
         AstPrintVisitor printVisitor = new AstPrintVisitor();
         printVisitor.visitClassNode(ast);
         System.out.println("-------------------------------------------");

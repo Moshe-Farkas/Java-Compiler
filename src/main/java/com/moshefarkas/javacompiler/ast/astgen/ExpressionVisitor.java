@@ -1,11 +1,18 @@
 package com.moshefarkas.javacompiler.ast.astgen;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.generated.Java8Parser.AdditiveExpressionContext;
+import com.moshefarkas.generated.Java8Parser.ArgumentListContext;
 import com.moshefarkas.generated.Java8Parser.AssignmentContext;
+import com.moshefarkas.generated.Java8Parser.ExpressionContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionNameContext;
+import com.moshefarkas.generated.Java8Parser.ExpressionStatementContext;
 import com.moshefarkas.generated.Java8Parser.LiteralContext;
+import com.moshefarkas.generated.Java8Parser.MethodInvocationContext;
 import com.moshefarkas.generated.Java8Parser.MultiplicativeExpressionContext;
 import com.moshefarkas.generated.Java8Parser.RelationalExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnaryExpressionContext;
@@ -14,13 +21,14 @@ import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
+import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode.UnaryOp;
 
-public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
+public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
 
     // only return binary expr and literal expresions
 
@@ -35,8 +43,8 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
 
         if (ctx.additiveExpression() != null) {
             // aka in a binary + expression
-            ExpressionNode left = visit(ctx.additiveExpression());
-            ExpressionNode right = visit(ctx.multiplicativeExpression());
+            ExpressionNode left = (ExpressionNode)visit(ctx.additiveExpression());
+            ExpressionNode right = (ExpressionNode)visit(ctx.multiplicativeExpression());
             BinaryExprNode binExpr = new BinaryExprNode();
             binExpr.setLeft(left);
             binExpr.setRight(right);
@@ -49,7 +57,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
 
             expr = binExpr;
         } else {
-            expr = visit(ctx.multiplicativeExpression());
+            expr = (ExpressionNode)visit(ctx.multiplicativeExpression());
         }
 
         expr.lineNum = ctx.getStart().getLine();
@@ -69,8 +77,8 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
 
         if (ctx.multiplicativeExpression() != null) {
             // aka in a binary + expression
-            ExpressionNode left = visit(ctx.multiplicativeExpression());
-            ExpressionNode right = visit(ctx.unaryExpression());
+            ExpressionNode left = (ExpressionNode)visit(ctx.multiplicativeExpression());
+            ExpressionNode right = (ExpressionNode)visit(ctx.unaryExpression());
             BinaryExprNode binExpr = new BinaryExprNode();
             binExpr.setLeft(left);
             binExpr.setRight(right);
@@ -85,7 +93,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
 
             expr = binExpr;
         } else {
-            expr = visit(ctx.unaryExpression());
+            expr = (ExpressionNode)visit(ctx.unaryExpression());
         }
 
         expr.lineNum = ctx.getStart().getLine();
@@ -104,11 +112,11 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
         ExpressionNode expr = null;
         if (ctx.SUB() != null) {
             UnaryExprNode unaryExpr = new UnaryExprNode();
-            unaryExpr.expr = visit(ctx.unaryExpression());
+            unaryExpr.expr = (ExpressionNode)visit(ctx.unaryExpression());
             unaryExpr.op = UnaryOp.MINUS;
             expr = unaryExpr;
         } else {
-            expr = super.visitUnaryExpression(ctx);
+            expr = (ExpressionNode)super.visitUnaryExpression(ctx);
         }
 
         expr.lineNum = ctx.getStart().getLine();
@@ -126,14 +134,14 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
         ExpressionNode expr = null;
         if (ctx.TILDE() != null) {
             UnaryExprNode unaryExpr = new UnaryExprNode();
-            unaryExpr.expr = visit(ctx.unaryExpression());
+            unaryExpr.expr = (ExpressionNode)visit(ctx.unaryExpression());
             unaryExpr.op = UnaryOp.TILDE;
         } else if (ctx.BANG() != null) {
             UnaryExprNode unaryExpr = new UnaryExprNode();
-            unaryExpr.expr = visit(ctx.unaryExpression());
+            unaryExpr.expr = (ExpressionNode)visit(ctx.unaryExpression());
             unaryExpr.op = UnaryOp.NOT;
         } else {
-            expr = super.visitUnaryExpressionNotPlusMinus(ctx);
+            expr = (ExpressionNode)super.visitUnaryExpressionNotPlusMinus(ctx);
         }
 
         expr.lineNum = ctx.getStart().getLine();
@@ -154,8 +162,8 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
         ExpressionNode expr = null;
 
         if (ctx.relationalExpression() != null) {
-            ExpressionNode left = visit(ctx.relationalExpression());
-            ExpressionNode right = visit(ctx.shiftExpression());
+            ExpressionNode left = (ExpressionNode)visit(ctx.relationalExpression());
+            ExpressionNode right = (ExpressionNode)visit(ctx.shiftExpression());
             BinaryExprNode binExpr = new BinaryExprNode();
             binExpr.setLeft(left);
             binExpr.setRight(right);
@@ -171,7 +179,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
 
             expr = binExpr;
         } else {
-            expr = visit(ctx.shiftExpression());
+            expr = (ExpressionNode)visit(ctx.shiftExpression());
         }
         
         expr.lineNum = ctx.getStart().getLine();
@@ -201,7 +209,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
             lit.value = Boolean.valueOf(ctx.getText());
         } else if (ctx.CharacterLiteral() != null) {
             type = Type.CHAR_TYPE;
-            lit.value = ctx.getText();
+            lit.value = ctx.getText().charAt(1);
         } 
         // else if (ctx.StringLiteral() != null) {
         //     type = Type.OBJECT_TYPE;
@@ -241,12 +249,44 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<ExpressionNode> {
         //     ;
         
         IdentifierExprNode iden = (IdentifierExprNode)visit(ctx.leftHandSide());
-        ExpressionNode assignmentVal = visit(ctx.expression());
+        ExpressionNode assignmentVal = (ExpressionNode)visit(ctx.expression());
 
         AssignExprNode assignment = new AssignExprNode();
         assignment.setVar(iden.varName);
         assignment.setAssignmentValue(assignmentVal);
         assignment.lineNum = ctx.getStart().getLine();
         return assignment;
+    }
+
+    @Override
+    public ExpressionNode visitMethodInvocation(MethodInvocationContext ctx) {
+        // methodInvocation
+        //     : methodName '(' argumentList? ')'
+        //     | typeName '.' typeArguments? Identifier '(' argumentList? ')'
+        //     | expressionName '.' typeArguments? Identifier '(' argumentList? ')'
+        //     | primary '.' typeArguments? Identifier '(' argumentList? ')'
+        //     | 'super' '.' typeArguments? Identifier '(' argumentList? ')'
+        //     | typeName '.' 'super' '.' typeArguments? Identifier '(' argumentList? ')'
+        //     ;
+        String methodName = ctx.methodName().Identifier().getText();
+        CallExprNode callExpr = new CallExprNode();
+        callExpr.setMethodName(methodName);
+        if (ctx.argumentList() != null) {
+            callExpr.setArguments(visitArgumentList(ctx.argumentList()));
+        }
+        callExpr.lineNum = ctx.getStart().getLine();
+        return callExpr;
+    }
+
+    @Override
+    public List<ExpressionNode> visitArgumentList(ArgumentListContext ctx) {
+        // argumentList
+        //     : expression (',' expression)*
+        //     ;
+        List<ExpressionNode> arguments = new ArrayList<>();
+        for (ExpressionContext exprCtx : ctx.expression()) {
+            arguments.add((ExpressionNode)visitExpression(exprCtx));
+        }
+        return arguments;
     }
 }

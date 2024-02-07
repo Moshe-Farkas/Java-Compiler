@@ -7,12 +7,14 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import com.moshefarkas.javacompiler.MethodInfo;
 import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
@@ -71,7 +73,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
         if (node.var.initialized) {
             visit(node.initializer);
-            VarInfo var = SymbolTable.getInstance().getInfo(node.var.name);
+            VarInfo var = SymbolTable.getInstance().getVarInfo(node.var.name);
             emitTypeCast(var.type, node.initializer.exprType);
             methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
         }
@@ -80,9 +82,30 @@ public class MethodGenVisitor extends BaseAstVisitor {
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
         visit(node.assignmentValue);
-        VarInfo var = SymbolTable.getInstance().getInfo(node.varName);
+        VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
         emitTypeCast(var.type, node.assignmentValue.exprType);
         methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
+    }
+
+    @Override
+    public void visitCallExprNode(CallExprNode node) {
+        Type[] paramTypes = SymbolTable.getInstance().getParamTypes(node.methodName);
+        for (int i = 0; i < node.arguments.size(); i++) {
+            visit(node.arguments.get(i));
+            Type argType = node.arguments.get(i).exprType;
+            Type paramType = paramTypes[i];
+            emitTypeCast(paramType, argType);
+        }
+
+        String descriptor = SymbolTable.getInstance().getMethodDescriptor(node.methodName);
+
+        methodVisitor.visitMethodInsn(
+            Opcodes.INVOKESTATIC, 
+            "Demo", 
+            node.methodName, 
+            descriptor, 
+            false
+        );
     }
 
     @Override
@@ -143,7 +166,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
-        VarInfo var = SymbolTable.getInstance().getInfo(node.varName);
+        VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
         int op = var.type.getOpcode(Opcodes.ILOAD);
         methodVisitor.visitVarInsn(op, var.localIndex);
     }

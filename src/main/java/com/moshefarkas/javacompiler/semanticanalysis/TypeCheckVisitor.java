@@ -7,6 +7,7 @@ import org.objectweb.asm.Type;
 import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
@@ -46,7 +47,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
-        Type idenType = SymbolTable.getInstance().getType(node.varName);
+        Type idenType = SymbolTable.getInstance().getVarType(node.varName);
         typeStack.push(idenType);
         node.setExprType(idenType);
     }
@@ -72,11 +73,31 @@ public class TypeCheckVisitor extends SemanticAnalysis {
     public void visitAssignExprNode(AssignExprNode node) {
         visit(node.assignmentValue);
         Type assignmentType = typeStack.pop();
-        Type varType = SymbolTable.getInstance().getType(node.varName);
+        Type varType = SymbolTable.getInstance().getVarType(node.varName);
 
         if (!validAssignment(varType, assignmentType)) {
             error(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, node.lineNum, 
             String.format("cannot assign epxression of type `%s` to type `%s`.", assignmentType, varType));
+        }
+    }
+
+    @Override
+    public void visitCallExprNode(CallExprNode node) {
+        Type[] paramTypes = SymbolTable.getInstance().getParamTypes(node.methodName);
+        for (int i = 0; i < node.arguments.size(); i++) {
+            visit(node.arguments.get(i));
+            Type argType = typeStack.pop();
+            Type paramType = paramTypes[i];
+            if (!validAssignment(paramType, argType)) {
+                error(
+                    ErrorType.MISMATCHED_ARGUMENTS, 
+                    node.lineNum, 
+                    String.format(
+                        "Expcected type `%s` but got `%s` as an arg instead.", 
+                        paramType, argType
+                    )
+                );
+            }
         }
     }
 
@@ -87,7 +108,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         }
         visit(node.initializer);
         Type assignmentType = typeStack.pop();
-        Type varType = SymbolTable.getInstance().getType(node.var.name);
+        Type varType = SymbolTable.getInstance().getVarType(node.var.name);
 
         if (!validAssignment(varType, assignmentType)) {
             error(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, node.lineNum, 
