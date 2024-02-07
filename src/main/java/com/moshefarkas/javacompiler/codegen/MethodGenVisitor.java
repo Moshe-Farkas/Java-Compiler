@@ -2,12 +2,12 @@ package com.moshefarkas.javacompiler.codegen;
 
 import java.util.Stack;
 
+import org.antlr.v4.parse.ANTLRParser.id_return;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import com.moshefarkas.javacompiler.MethodInfo;
 import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
@@ -15,6 +15,7 @@ import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
@@ -38,7 +39,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
         if (targetType == Type.FLOAT_TYPE) {
             methodVisitor.visitInsn(toCastType.getOpcode(Opcodes.I2F));
         } else if (targetType == Type.INT_TYPE) {
-            methodVisitor.visitInsn(toCastType.getOpcode(Opcodes.F2I));
+            methodVisitor.visitInsn(Opcodes.F2I);
         }
     }
 
@@ -85,6 +86,12 @@ public class MethodGenVisitor extends BaseAstVisitor {
         VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
         emitTypeCast(var.type, node.assignmentValue.exprType);
         methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
+    }
+    
+    @Override
+    public void visitCastExprNode(CastExprNode node) {
+        visit(node.expression);
+        emitTypeCast(node.targetCast, node.expression.exprType);
     }
 
     @Override

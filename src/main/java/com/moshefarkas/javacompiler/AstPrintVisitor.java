@@ -5,6 +5,7 @@ import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
@@ -13,12 +14,20 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 public class AstPrintVisitor extends BaseAstVisitor {
 
     @Override
-    public void visitCallExprNode(CallExprNode node) {
+    public void visitCastExprNode(CastExprNode node) {
         System.out.println("line: " + node.lineNum);
-        System.out.println("call expr: ");    
-        System.out.println("\tname: " + node.methodName);
-        System.out.println("\targs: " + node.arguments);
+        System.out.println("\tcast expression: ");
+        System.out.println("\tTarget cast: " + node.targetCast);
+        System.out.println("\tExpression: " + node.expression);
     }
+
+    // @Override
+    // public void visitCallExprNode(CallExprNode node) {
+    //     System.out.println("line: " + node.lineNum);
+    //     System.out.println("call expr: ");    
+    //     System.out.println("\tname: " + node.methodName);
+    //     System.out.println("\targs: " + node.arguments);
+    // }
 
     // @Override
     // public void visitBinaryExprNode(BinaryExprNode node) {

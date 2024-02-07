@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.objectweb.asm.Opcodes;
 
 import com.moshefarkas.generated.Java8Lexer;
 import com.moshefarkas.generated.Java8Parser;
@@ -18,6 +19,8 @@ import com.moshefarkas.javacompiler.semanticanalysis.IdentifierUsageVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis;
 import com.moshefarkas.javacompiler.semanticanalysis.SymbolTableGenVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.TypeCheckVisitor;
+
+import jdk.internal.org.objectweb.asm.Type;
 
 public class App {
 

@@ -8,12 +8,16 @@ import org.objectweb.asm.Type;
 import com.moshefarkas.generated.Java8Parser.AdditiveExpressionContext;
 import com.moshefarkas.generated.Java8Parser.ArgumentListContext;
 import com.moshefarkas.generated.Java8Parser.AssignmentContext;
+import com.moshefarkas.generated.Java8Parser.CastExpressionContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionNameContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionStatementContext;
+import com.moshefarkas.generated.Java8Parser.FloatingPointTypeContext;
+import com.moshefarkas.generated.Java8Parser.IntegralTypeContext;
 import com.moshefarkas.generated.Java8Parser.LiteralContext;
 import com.moshefarkas.generated.Java8Parser.MethodInvocationContext;
 import com.moshefarkas.generated.Java8Parser.MultiplicativeExpressionContext;
+import com.moshefarkas.generated.Java8Parser.PrimitiveTypeContext;
 import com.moshefarkas.generated.Java8Parser.RelationalExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnaryExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnaryExpressionNotPlusMinusContext;
@@ -22,6 +26,7 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
@@ -288,5 +293,71 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
             arguments.add((ExpressionNode)visitExpression(exprCtx));
         }
         return arguments;
+    }
+
+    @Override
+    public Object visitCastExpression(CastExpressionContext ctx) {
+        // castExpression
+        //     : '(' primitiveType ')' unaryExpression
+        //     | '(' referenceType additionalBound* ')' unaryExpressionNotPlusMinus
+        //     | '(' referenceType additionalBound* ')' lambdaExpression
+        //     ;
+
+        CastExprNode castExprNode = new CastExprNode();
+        if (ctx.primitiveType() != null) {
+            Type targetCast = (Type)visit(ctx.primitiveType());
+            ExpressionNode expr = (ExpressionNode)visit(ctx.unaryExpression());
+
+            castExprNode.setExpression(expr);
+            castExprNode.setTargetCast(targetCast);
+        } else {
+            throw new UnsupportedOperationException("inside cast expr in expr visitor.");
+        }
+
+        return castExprNode;
+    }
+
+    @Override
+    public Object visitFloatingPointType(FloatingPointTypeContext ctx) {
+        if (ctx.FLOAT() != null) {
+            return Type.FLOAT_TYPE;
+        } else {
+            throw new UnsupportedOperationException("inside floating point type expr visitor");
+        }
+    }
+
+    @Override
+    public Object visitIntegralType(IntegralTypeContext ctx) {
+        // integralType
+        //     : 'byte'
+        //     | 'short'
+        //     | 'int'
+        //     | 'long'
+        //     | 'char'
+        //     ;
+        if (ctx.BYTE() != null) {
+            return Type.BYTE_TYPE;
+        } else if (ctx.SHORT() != null) {
+            return Type.SHORT_TYPE;
+        } else if (ctx.INT() != null) {
+            return Type.INT_TYPE;
+        } else if (ctx.CHAR() != null) {
+            return Type.CHAR_TYPE;
+        } else {
+            throw new UnsupportedOperationException("inside floating point type expr visitor");
+        }
+    }
+
+    @Override
+    public Object visitPrimitiveType(PrimitiveTypeContext ctx) {
+        // primitiveType
+        //     : annotation* numericType
+        //     | annotation* 'boolean'
+        //     ;
+        if (ctx.BOOLEAN() != null) { 
+            return Type.BOOLEAN_TYPE;
+        } else {
+            return visit(ctx.numericType());
+        }
     }
 }

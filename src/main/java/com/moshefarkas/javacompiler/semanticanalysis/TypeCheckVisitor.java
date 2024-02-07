@@ -8,6 +8,7 @@ import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
@@ -31,7 +32,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
             b = Type.INT_TYPE;
         }
         Type exprType;
-        if (downcastRules.get(a) > downcastRules.get(b)) {
+        if (wideningRules.get(a) > wideningRules.get(b)) {
             exprType = a;
         } else {
             exprType = b;
@@ -52,18 +53,18 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         node.setExprType(idenType);
     }
 
-    private static HashMap<Type, Integer> downcastRules = new HashMap<>();
+    private static HashMap<Type, Integer> wideningRules = new HashMap<>();
     static {
         // check if valid downcast
-        downcastRules.put(Type.BYTE_TYPE, 0);
-        downcastRules.put(Type.SHORT_TYPE, 1);
-        downcastRules.put(Type.CHAR_TYPE, 2);
-        downcastRules.put(Type.INT_TYPE, 3);
-        downcastRules.put(Type.FLOAT_TYPE, 4);
+        wideningRules.put(Type.BYTE_TYPE, 0);
+        wideningRules.put(Type.SHORT_TYPE, 1);
+        wideningRules.put(Type.CHAR_TYPE, 2);
+        wideningRules.put(Type.INT_TYPE, 3);
+        wideningRules.put(Type.FLOAT_TYPE, 4);
     }
 
     private boolean validAssignment(Type varType, Type assignType) {
-        if (downcastRules.get(varType) >= downcastRules.get(assignType)) {
+        if (wideningRules.get(varType) >= wideningRules.get(assignType)) {
             return true;
         }
         return false;
@@ -114,5 +115,16 @@ public class TypeCheckVisitor extends SemanticAnalysis {
             error(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, node.lineNum, 
             String.format("cannot assign epxression of type `%s` to type `%s`.", assignmentType, varType));
         }
+    }
+
+    @Override
+    public void visitCastExprNode(CastExprNode node) {
+        // opposite of widening rules
+        // need to set the expr type to be the cast type
+        visit(node.expression); 
+        
+        // only if valid
+        typeStack.push(node.targetCast);
+        node.exprType = node.targetCast;
     }
 }
