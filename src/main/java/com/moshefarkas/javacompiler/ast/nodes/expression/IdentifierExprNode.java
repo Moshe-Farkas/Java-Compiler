@@ -12,7 +12,7 @@ public class IdentifierExprNode extends ExpressionNode {
 
     @Override 
     public String toString() {
-        return varName;
+        return "name: " + varName + ", type: " + exprType;
     }
 
     public void setVarName(String varName) {

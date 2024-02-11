@@ -38,7 +38,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
         if (targetType == Type.FLOAT_TYPE) {
             methodVisitor.visitInsn(toCastType.getOpcode(Opcodes.I2F));
-        } else if (targetType == Type.INT_TYPE) {
+        } else if (targetType == Type.INT_TYPE && toCastType == Type.FLOAT_TYPE) {
             methodVisitor.visitInsn(Opcodes.F2I);
         }
     }
@@ -83,7 +83,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
         visit(node.assignmentValue);
-        VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
+        VarInfo var = SymbolTable.getInstance().getVarInfo(node.identifier.varName);
         emitTypeCast(var.type, node.assignmentValue.exprType);
         methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
     }
@@ -152,6 +152,12 @@ public class MethodGenVisitor extends BaseAstVisitor {
                 break;
             case LT_EQ:
                 methodVisitor.visitJumpInsn(Opcodes.IF_ICMPGT, labelStack.pop());
+                break;
+            case EQ_EQ:
+                methodVisitor.visitJumpInsn(node.exprType.getOpcode(Opcodes.IF_ICMPNE), labelStack.pop());
+                break;
+            case NOT_EQ:
+                methodVisitor.visitJumpInsn(node.exprType.getOpcode(Opcodes.IF_ICMPEQ), labelStack.pop());
                 break;
         }
     }

@@ -9,6 +9,7 @@ import com.moshefarkas.generated.Java8Parser.AdditiveExpressionContext;
 import com.moshefarkas.generated.Java8Parser.ArgumentListContext;
 import com.moshefarkas.generated.Java8Parser.AssignmentContext;
 import com.moshefarkas.generated.Java8Parser.CastExpressionContext;
+import com.moshefarkas.generated.Java8Parser.EqualityExpressionContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionNameContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionStatementContext;
@@ -37,6 +38,34 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
 
     // only return binary expr and literal expresions
 
+    @Override
+    public Object visitEqualityExpression(EqualityExpressionContext ctx) {
+        // equalityExpression
+        //     : relationalExpression
+        //     | equalityExpression '==' relationalExpression
+        //     | equalityExpression '!=' relationalExpression
+        //     ;
+        ExpressionNode expr = null;        
+        if (ctx.equalityExpression() != null) {
+            ExpressionNode left = (ExpressionNode)visit(ctx.equalityExpression());
+            ExpressionNode right = (ExpressionNode)visit(ctx.relationalExpression());
+            BinaryExprNode binaryExpr = new BinaryExprNode();
+            binaryExpr.setLeft(left);
+            binaryExpr.setRight(right);
+            if (ctx.EQUAL() != null) {
+                binaryExpr.setOp(BinOp.EQ_EQ);
+            } else {
+                binaryExpr.setOp(BinOp.NOT_EQ);
+            }
+            expr = binaryExpr;
+        } else {
+            expr = (ExpressionNode)visit(ctx.relationalExpression());
+        }
+
+        expr.lineNum = ctx.getStart().getLine();
+        return expr;
+    }
+        
     @Override
     public ExpressionNode visitAdditiveExpression(AdditiveExpressionContext ctx) {
         // additiveExpression
@@ -257,7 +286,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         ExpressionNode assignmentVal = (ExpressionNode)visit(ctx.expression());
 
         AssignExprNode assignment = new AssignExprNode();
-        assignment.setVar(iden.varName);
+        assignment.setIden(iden);
         assignment.setAssignmentValue(assignmentVal);
         assignment.lineNum = ctx.getStart().getLine();
         return assignment;

@@ -7,6 +7,8 @@ public class SemanticAnalysis extends BaseAstVisitor {
 
     protected SemanticAnalysis() {}
     public SemanticAnalysis(ClassNode ast) {
+        test_error = null;
+        hadErr = false;
         SymbolTableGenVisitor sv = new SymbolTableGenVisitor();
         sv.visitClassNode(ast);
         if (hadErr) return;
@@ -26,6 +28,7 @@ public class SemanticAnalysis extends BaseAstVisitor {
         DUPLICATE_VAR,
         DUPLICATE_METHOD,
         UNINITIALIZED_VAR,
+        INVALID_CAST,
     } 
 
     protected ErrorType test_error;

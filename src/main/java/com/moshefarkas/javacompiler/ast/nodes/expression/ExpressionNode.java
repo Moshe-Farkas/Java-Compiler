@@ -8,7 +8,6 @@ import com.moshefarkas.javacompiler.ast.nodes.AstNode;
 public class ExpressionNode extends AstNode {
 
     public Type exprType;
-
     public void setExprType(Type type) {
         this.exprType = type;
     }

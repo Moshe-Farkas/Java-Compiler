@@ -15,12 +15,7 @@ import com.moshefarkas.generated.Java8Parser;
 import com.moshefarkas.javacompiler.ast.astgen.ClassVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.codegen.ClassGenVisitor;
-import com.moshefarkas.javacompiler.semanticanalysis.IdentifierUsageVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis;
-import com.moshefarkas.javacompiler.semanticanalysis.SymbolTableGenVisitor;
-import com.moshefarkas.javacompiler.semanticanalysis.TypeCheckVisitor;
-
-import jdk.internal.org.objectweb.asm.Type;
 
 public class App {
 

@@ -6,6 +6,7 @@ import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
@@ -32,7 +33,8 @@ public class AstPrintVisitor extends BaseAstVisitor {
     // @Override
     // public void visitBinaryExprNode(BinaryExprNode node) {
     //     System.out.println("line: " + node.lineNum);
-    //     System.out.println("bin expr: " + node.exprType);
+    //     System.out.println("bin op: " + node.op);
+    //     System.out.println("\texpr type: " + node.exprType);
     //     System.out.println("\t" + node.left);
     //     System.out.println("\t" + node.right);
     // }

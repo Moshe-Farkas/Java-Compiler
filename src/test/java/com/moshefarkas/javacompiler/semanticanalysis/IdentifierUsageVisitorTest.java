@@ -5,11 +5,10 @@ import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
-import com.moshefarkas.javacompiler.BaseMock;
 import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis.ErrorType;
 
-public class IdentifierUsageVisitorTest extends BaseMock {
+public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
 
     private IdentifierUsageVisitor visitor;
 
@@ -22,17 +21,16 @@ public class IdentifierUsageVisitorTest extends BaseMock {
         visitor.visitClassNode(ast);
     }
 
-    // need to check undefined error and unintizaled
     @Test
     public void testUndefinedVar() {
         compileNewSource("int a = b;");
         assertEquals(ErrorType.UNDEFINED_VAR, visitor.test_error);
 
         // compileNewSource("int a = a;");
-        // assertEquals(ErrorType.UNDEFINED_VAR, visitor.test_error);
+        //sertEquals(ErrorType.UNDEFINED_VAR, visitor.test_error);
 
-        // compileNewSource("t = 90;");
-        // assertEquals(ErrorType.UNDEFINED_VAR, visitor.test_error);
+        compileNewSource("t = 90;");
+        assertEquals(ErrorType.UNDEFINED_VAR, visitor.test_error);
     }
 
     @Test
@@ -40,7 +38,10 @@ public class IdentifierUsageVisitorTest extends BaseMock {
         compileNewSource("int a; int b = a;");
         assertEquals(ErrorType.UNINITIALIZED_VAR, visitor.test_error);
 
-        compileNewSource("int a = 56 - '3'; int b = a;");
+        compileNewSource("int a = 4.9f; int b = a;");
         assertNotEquals(ErrorType.UNINITIALIZED_VAR, visitor.test_error);
+
+        compileNewSource("int b; int a; a = a + b;");
+        assertEquals(ErrorType.UNINITIALIZED_VAR, visitor.test_error);
     }
 }

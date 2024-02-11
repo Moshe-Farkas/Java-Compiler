@@ -3,6 +3,7 @@ package com.moshefarkas.javacompiler.semanticanalysis;
 import java.util.HashMap;
 import java.util.Stack;
 import org.objectweb.asm.Type;
+import org.stringtemplate.v4.debug.EvalExprEvent;
 
 import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
@@ -14,6 +15,8 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class TypeCheckVisitor extends SemanticAnalysis {
+
+    // only should check assign and local var. needs to setExprType from gotten type
 
     private Stack<Type> typeStack = new Stack<>();
 
@@ -56,7 +59,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
     private static HashMap<Type, Integer> wideningRules = new HashMap<>();
     static {
         // check if valid downcast
-        wideningRules.put(Type.BYTE_TYPE, 0);
+        wideningRules.put(Type.BYTE_TYPE, 0); // byte is same as int
         wideningRules.put(Type.SHORT_TYPE, 1);
         wideningRules.put(Type.CHAR_TYPE, 2);
         wideningRules.put(Type.INT_TYPE, 3);
@@ -67,19 +70,29 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         if (wideningRules.get(varType) >= wideningRules.get(assignType)) {
             return true;
         }
+        // i into type b is allowed
+        if (varType == Type.BYTE_TYPE && assignType == Type.INT_TYPE) { return true; }
         return false;
     }
 
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
+        // Type assignmentType = new TypeEvalVisitor().evalType(node.assignmentValue);
+        // Type varType = SymbolTable.getInstance().getVarType(node.identifier.varName);
+        // if (!validAssignment(varType, assignmentType)) {
+        //     error(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, node.lineNum, 
+        //     String.format("cannot assign epxression of type `%s` to type `%s`.", assignmentType, varType));
+        // }
+
         visit(node.assignmentValue);
         Type assignmentType = typeStack.pop();
-        Type varType = SymbolTable.getInstance().getVarType(node.varName);
+        Type varType = SymbolTable.getInstance().getVarType(node.identifier.varName);
 
         if (!validAssignment(varType, assignmentType)) {
             error(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, node.lineNum, 
             String.format("cannot assign epxression of type `%s` to type `%s`.", assignmentType, varType));
         }
+        node.assignmentValue.setExprType(assignmentType);
     }
 
     @Override
@@ -100,6 +113,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
                 );
             }
         }
+        node.setExprType(SymbolTable.getInstance().getReturnType(node.methodName));
     }
 
     @Override
@@ -107,23 +121,45 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         if (!node.var.initialized) {
             return;
         }
+        // Type initializerType = new TypeEvalVisitor().evalType(node.initializer);
+        // Type varType = SymbolTable.getInstance().getVarType(node.var.name);
+        // if (!validAssignment(varType, initializerType)) {
+        //     error(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, node.lineNum, 
+        //     String.format("cannot assign epxression of type `%s` to type `%s`.", initializerType, varType));
+        // }
+
+
         visit(node.initializer);
-        Type assignmentType = typeStack.pop();
+        Type initializerType = typeStack.pop();
         Type varType = SymbolTable.getInstance().getVarType(node.var.name);
 
-        if (!validAssignment(varType, assignmentType)) {
+        if (!validAssignment(varType, initializerType)) {
             error(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, node.lineNum, 
-            String.format("cannot assign epxression of type `%s` to type `%s`.", assignmentType, varType));
+            String.format("cannot assign epxression of type `%s` to type `%s`.", initializerType, varType));
         }
+        node.initializer.setExprType(initializerType);
+    }
+
+    private boolean validCast(Type targetCast, Type toCast) {
+        if (targetCast == Type.INT_TYPE && toCast == Type.FLOAT_TYPE)
+            return true;
+        if (targetCast == Type.FLOAT_TYPE && toCast == Type.INT_TYPE)
+            return true;
+        
+        return false;
     }
 
     @Override
     public void visitCastExprNode(CastExprNode node) {
-        // opposite of widening rules
-        // need to set the expr type to be the cast type
         visit(node.expression); 
+        Type exprType = typeStack.pop();
+        if (!validCast(node.targetCast, exprType)) {
+            error(
+                ErrorType.INVALID_CAST, 
+                node.lineNum, 
+                String.format("cannot cast type `%s` to type `%s`.", exprType, node.targetCast));
+        }
         
-        // only if valid
         typeStack.push(node.targetCast);
         node.exprType = node.targetCast;
     }
