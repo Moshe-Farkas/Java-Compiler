@@ -6,11 +6,13 @@ import org.objectweb.asm.Type;
 import org.stringtemplate.v4.debug.EvalExprEvent;
 
 import com.moshefarkas.javacompiler.SymbolTable;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.VarIdenExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
@@ -49,8 +51,15 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         typeStack.push(node.exprType);
     }
 
+    // @Override
+    // public void visitIdentifierExprNode(IdentifierExprNode node) {
+        // Type idenType = SymbolTable.getInstance().getVarType(node.varName);
+        // typeStack.push(idenType);
+        // node.setExprType(idenType);
+    // }
+
     @Override
-    public void visitIdentifierExprNode(IdentifierExprNode node) {
+    public void visitVarIdenExprNode(VarIdenExprNode node) {
         Type idenType = SymbolTable.getInstance().getVarType(node.varName);
         typeStack.push(idenType);
         node.setExprType(idenType);
@@ -67,6 +76,14 @@ public class TypeCheckVisitor extends SemanticAnalysis {
     }
 
     private boolean validAssignment(Type varType, Type assignType) {
+        if (varType.getSort() == Type.ARRAY || assignType.getSort() == Type.ARRAY) {
+            if (varType.equals(assignType)) {
+                return true;
+            }
+            System.out.println(varType == assignType);
+            return false;
+        }
+
         if (wideningRules.get(varType) >= wideningRules.get(assignType)) {
             return true;
         }
@@ -77,20 +94,14 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
-        // Type assignmentType = new TypeEvalVisitor().evalType(node.assignmentValue);
-        // Type varType = SymbolTable.getInstance().getVarType(node.identifier.varName);
-        // if (!validAssignment(varType, assignmentType)) {
-        //     error(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, node.lineNum, 
-        //     String.format("cannot assign epxression of type `%s` to type `%s`.", assignmentType, varType));
-        // }
-
+        visit(node.identifier);
+        Type idenType = typeStack.pop();
         visit(node.assignmentValue);
         Type assignmentType = typeStack.pop();
-        Type varType = SymbolTable.getInstance().getVarType(node.identifier.varName);
 
-        if (!validAssignment(varType, assignmentType)) {
+        if (!validAssignment(idenType, assignmentType)) {
             error(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, node.lineNum, 
-            String.format("cannot assign epxression of type `%s` to type `%s`.", assignmentType, varType));
+            String.format("cannot assign epxression of type `%s` to type `%s`.", assignmentType, idenType));
         }
         node.assignmentValue.setExprType(assignmentType);
     }
@@ -162,5 +173,15 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         
         typeStack.push(node.targetCast);
         node.exprType = node.targetCast;
+    }
+
+    @Override
+    public void visitArrayInitializer(ArrayInitializer node) {
+        visit(node.arraySize);
+        Type indexType = typeStack.pop();
+        if (indexType != Type.INT_TYPE) {
+            throw new UnsupportedOperationException("inside array init in type check vis");
+        }
+        typeStack.push(node.type);
     }
 }

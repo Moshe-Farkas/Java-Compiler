@@ -12,16 +12,21 @@ import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.ArrAccessExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.VarIdenExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
+
+import jdk.nashorn.internal.runtime.regexp.joni.constants.OPCode;
 
 public class MethodGenVisitor extends BaseAstVisitor {
 
@@ -82,10 +87,23 @@ public class MethodGenVisitor extends BaseAstVisitor {
     
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
-        visit(node.assignmentValue);
-        VarInfo var = SymbolTable.getInstance().getVarInfo(node.identifier.varName);
-        emitTypeCast(var.type, node.assignmentValue.exprType);
-        methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
+        if (node.identifier instanceof ArrAccessExprNode) {
+
+            ArrAccessExprNode accessExprNode = (ArrAccessExprNode)node.identifier;
+            throw new UnsupportedOperationException("inside vis assign expr in method gen vis");
+
+        } else if (node.identifier instanceof VarIdenExprNode) {
+            VarIdenExprNode varIdenExprNode = (VarIdenExprNode)node.identifier;
+            visit(node.assignmentValue);
+            VarInfo var = SymbolTable.getInstance().getVarInfo(varIdenExprNode.varName);
+            emitTypeCast(var.type, node.assignmentValue.exprType);
+            methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
+        }
+
+        // visit(node.assignmentValue);
+        // VarInfo var = SymbolTable.getInstance().getVarInfo(node.identifier.varName);
+        // emitTypeCast(var.type, node.assignmentValue.exprType);
+        // methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
     }
     
     @Override
@@ -178,7 +196,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
     }
 
     @Override
-    public void visitIdentifierExprNode(IdentifierExprNode node) {
+    public void visitVarIdenExprNode(VarIdenExprNode node) {
         VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
         int op = var.type.getOpcode(Opcodes.ILOAD);
         methodVisitor.visitVarInsn(op, var.localIndex);
@@ -208,5 +226,24 @@ public class MethodGenVisitor extends BaseAstVisitor {
         methodVisitor.visitJumpInsn(Opcodes.GOTO, jumpBack);
 
         methodVisitor.visitLabel(toEnd);
+    }
+
+    @Override
+    public void visitArrAccessExprNode(ArrAccessExprNode node) {
+        visit(node.identifer); 
+        visit(node.index);
+    }
+
+    @Override
+    public void visitArrayInitializer(ArrayInitializer node) {
+        visit(node.arraySize);
+
+        if (node.type.getSort() == Type.INT) {
+            methodVisitor.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_INT);
+        } else if (node.type.getSort() == Type.FLOAT) {
+            methodVisitor.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_FLOAT);
+        } else {
+            throw new UnsupportedOperationException("inside vis arr init in method gen vis");
+        }
     }
 }

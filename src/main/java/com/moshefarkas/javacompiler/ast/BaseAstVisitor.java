@@ -3,12 +3,15 @@ package com.moshefarkas.javacompiler.ast;
 import com.moshefarkas.javacompiler.ast.nodes.AstNode;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.ArrAccessExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.VarIdenExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
@@ -75,10 +78,10 @@ public class BaseAstVisitor implements AstVisitor {
         node.visitChildren(this);
     }
 
-    @Override
-    public void visitIdentifierExprNode(IdentifierExprNode node) {
-        node.visitChildren(this);
-    }
+    // @Override
+    // public void visitIdentifierExprNode(IdentifierExprNode node) {
+    //     node.visitChildren(this);
+    // }
 
     @Override
     public void visitMethodNode(MethodNode node) {
@@ -100,6 +103,21 @@ public class BaseAstVisitor implements AstVisitor {
         node.visitChildren(this);
     }
     
+    @Override
+    public void visitArrAccessExprNode(ArrAccessExprNode node) {
+        node.visitChildren(this);
+    }
+
+    @Override
+    public void visitVarIdenExprNode(VarIdenExprNode node) {
+        node.visitChildren(this);
+    }
+
+    @Override
+    public void visitArrayInitializer(ArrayInitializer node) {
+        node.visitChildren(this);
+    }
+
     public void visit(AstNode node) {
         node.accept(this);
     }

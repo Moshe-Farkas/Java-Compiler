@@ -2,6 +2,7 @@ package com.moshefarkas.javacompiler.ast.astgen;
 
 import java.util.Stack;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.generated.Java8Parser.BlockContext;
@@ -13,12 +14,14 @@ import com.moshefarkas.generated.Java8Parser.IntegralTypeContext;
 import com.moshefarkas.generated.Java8Parser.LocalVariableDeclarationContext;
 import com.moshefarkas.generated.Java8Parser.MethodBodyContext;
 import com.moshefarkas.generated.Java8Parser.StatementExpressionContext;
+import com.moshefarkas.generated.Java8Parser.UnannArrayTypeContext;
 import com.moshefarkas.generated.Java8Parser.UnannPrimitiveTypeContext;
 import com.moshefarkas.generated.Java8Parser.VariableDeclaratorContext;
 import com.moshefarkas.generated.Java8Parser.VariableDeclaratorIdContext;
 import com.moshefarkas.generated.Java8Parser.WhileStatementContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.VarInfo;
+import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ExprStmtNode;
@@ -35,8 +38,8 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
 
     private int localVarIndex = 0;
     private VarInfo currLocalVarDecl;
+    // private Type currLocalVarDeclType;
     private ExpressionNode currVarInitializer = null;
-    private Type currLocalVarDeclType;
         
     @Override
     public Void visitMethodBody(MethodBodyContext ctx) {
@@ -46,9 +49,7 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         //     ;
         // this needs to set global block to statementStack.pop(); after visiting ctx.block
         // need to delete all local var stuff.
-
         visit(ctx.block());
-
         BlockStmtNode methodBlock = (BlockStmtNode)statementStack.pop();
         statements = methodBlock;
         return null;
@@ -116,15 +117,18 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         // localVariableDeclaration
         //     : variableModifier* unannType variableDeclaratorList
         //     ;
+
+        // local var node needs exprNode as initializer and varInfo for vafinfo.
+        // unannType can be a primitive type or an array/rerference type
         
         // need to reset fields
+
         currLocalVarDecl = new VarInfo();
         currLocalVarDecl.localIndex = localVarIndex++;
-        currLocalVarDeclType = null;
         currVarInitializer = null;
 
         visit(ctx.unannType());
-        currLocalVarDecl.type = currLocalVarDeclType;
+        // currLocalVarDecl.type = currLocalVarDeclType;
         visit(ctx.variableDeclaratorList());
         
         LocalVarDecStmtNode lclVarNode = new LocalVarDecStmtNode();
@@ -135,6 +139,9 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
 
         statementStack.push(lclVarNode);
         return null;
+        
+        // statementStack.push((LocalVarDecStmtNode)(new LocalVarDecVisitor().visit(ctx)));
+        // return null;
     }
 
     @Override
@@ -181,13 +188,12 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         //     | 'boolean'
         //     ;
         if (ctx.BOOLEAN() != null) {
-            currLocalVarDeclType = Type.BOOLEAN_TYPE;
+            currLocalVarDecl.type = Type.BOOLEAN_TYPE;
         } else {
             visit(ctx.numericType());
         }
         return null;
     }
-
 
     @Override
     public Void visitFloatingPointType(FloatingPointTypeContext ctx) {
@@ -196,7 +202,7 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         //     | 'double'
         //     ;
         if (ctx.FLOAT() != null) {
-            currLocalVarDeclType = Type.FLOAT_TYPE;
+            currLocalVarDecl.type = Type.FLOAT_TYPE;
         } 
         return null;
     }
@@ -210,20 +216,22 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         //     | 'long'
         //     | 'char'
         //     ;
+        Type declType = null;
       switch (ctx.getText()) {
             case "int":
-                currLocalVarDeclType = Type.INT_TYPE;
+                declType = Type.INT_TYPE;
                 break;
             case "char":
-                currLocalVarDeclType = Type.CHAR_TYPE;
+                declType = Type.CHAR_TYPE;
                 break;
             case "byte":
-                currLocalVarDeclType = Type.BYTE_TYPE;
+                declType = Type.BYTE_TYPE;
                 break;
             case "short":
-                currLocalVarDeclType = Type.SHORT_TYPE;
+                declType = Type.SHORT_TYPE;
                 break;
         } 
+        currLocalVarDecl.type = declType;
         return null;
     }
 
@@ -249,6 +257,24 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         //     : Identifier dims?
         //     ;
         currLocalVarDecl.name = ctx.Identifier().getText();
+        return null;
+    }
+
+    @Override
+    public Void visitUnannArrayType(UnannArrayTypeContext ctx) {
+        // unannArrayType
+        //     : unannPrimitiveType dims
+        //     | unannClassOrInterfaceType dims
+        //     | unannTypeVariable dims
+        //     ;
+        currLocalVarDecl.isArray = true;
+        currLocalVarDecl.dims = ctx.dims().LBRACK().size();
+        visitUnannPrimitiveType(ctx.unannPrimitiveType());
+        String dims = "";
+        for (int i = 0; i < currLocalVarDecl.dims; i++) {
+            dims += "[";
+        }
+        currLocalVarDecl.type = Type.getType(dims + currLocalVarDecl.type.getDescriptor());
         return null;
     }
 }

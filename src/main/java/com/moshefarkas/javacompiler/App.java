@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 import com.moshefarkas.generated.Java8Lexer;
 import com.moshefarkas.generated.Java8Parser;
@@ -20,6 +21,12 @@ import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis;
 public class App {
 
     public static void main( String[] args ) throws Exception {
+        
+        
+    
+        // System.exit(0);
+
+
         String inputFile = null;
         if ( args.length>0 ) inputFile = args[0];
         InputStream is = System.in;
@@ -39,11 +46,19 @@ public class App {
         
         ClassNode ast = visitor.currentClass;
         System.out.println("-------------------------------------------");
+
+
+        AstPrintVisitor oktemp = new AstPrintVisitor();
+        oktemp.visitClassNode(ast);
+
+
+
         // semantic analysis
         new SemanticAnalysis(ast);
         if (SemanticAnalysis.hadErr) {
             return;
         }
+
         // end semantic analysis
         System.out.println("-------------------------------------------");
         AstPrintVisitor printVisitor = new AstPrintVisitor();

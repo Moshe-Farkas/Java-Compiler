@@ -43,5 +43,8 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
 
         compileNewSource("int b; int a; a = a + b;");
         assertEquals(ErrorType.UNINITIALIZED_VAR, visitor.test_error);
+
+        compileNewSource("int a[]; int b = a[0];");
+        assertEquals(ErrorType.UNINITIALIZED_VAR, visitor.test_error);
     }
 }

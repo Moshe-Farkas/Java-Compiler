@@ -48,6 +48,12 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
 
         compileSource("int a = 0; int b; b = 9 + a * a;");
         assertEquals(null, visitor.test_error);
+
+        compileSource("int a; a = (float)90;");
+        assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
+
+        compileSource("float a; a = (int)5f;");
+        assertEquals(null, visitor.test_error);
     }
 
     @Test
@@ -63,5 +69,14 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
 
         compileSource("charMeth(8);");
         assertEquals(ErrorType.MISMATCHED_ARGUMENTS, visitor.test_error);
+    }
+
+    @Test 
+    public void testArrayDeclarations() {
+        compileSource("float a[] = new int[3];");
+        assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
+
+        compileSource("int[][] a = new int[3][1];");
+        assertEquals(null, visitor.test_error);
     }
 }

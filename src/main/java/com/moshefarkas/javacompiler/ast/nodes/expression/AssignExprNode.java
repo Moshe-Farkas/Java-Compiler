@@ -8,6 +8,11 @@ public class AssignExprNode extends ExpressionNode {
     public IdentifierExprNode identifier;
     public ExpressionNode assignmentValue;
 
+    // array stuff
+    // public int subscriptIndex;
+    // public Type arrayType;
+
+
     // public void setVar(String varName) {
     //     this.varName = varName;
     // }
