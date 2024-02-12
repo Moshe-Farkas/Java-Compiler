@@ -19,11 +19,13 @@ import com.moshefarkas.javacompiler.codegen.ClassGenVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis;
 
 public class App {
-
     public static void main( String[] args ) throws Exception {
         
-        
+        // int[][] a = new int[][] {{}, {}};
+        // System.out.println(a.getClass().getName());
     
+        // int a[][];
+        // a = new int[5][];
         // System.exit(0);
 
 

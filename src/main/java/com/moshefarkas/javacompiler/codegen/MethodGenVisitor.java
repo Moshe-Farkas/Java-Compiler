@@ -236,11 +236,11 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitArrayInitializer(ArrayInitializer node) {
-        visit(node.arraySize);
+        visit(node.arraySizes.get(0));
 
-        if (node.type.getSort() == Type.INT) {
+        if (node.type.getElementType() == Type.INT_TYPE) {
             methodVisitor.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_INT);
-        } else if (node.type.getSort() == Type.FLOAT) {
+        } else if (node.type.getElementType() == Type.FLOAT_TYPE) {
             methodVisitor.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_FLOAT);
         } else {
             throw new UnsupportedOperationException("inside vis arr init in method gen vis");

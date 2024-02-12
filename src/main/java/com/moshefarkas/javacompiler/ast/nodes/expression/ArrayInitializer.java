@@ -9,12 +9,22 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class ArrayInitializer extends ExpressionNode {
 
-    public List<LocalVarDecStmtNode> vars;
-    public ExpressionNode arraySize;
+    public List<ArrayLiteralElement> vars;
+    public List<ExpressionNode> arraySizes;
     public int dims;
     public Type type;
 
-    public void setVars(List<LocalVarDecStmtNode> vars) {
+    public static class ArrayLiteralElement { }
+
+    public static class ArrExprLitNode extends ArrayLiteralElement {
+        public ExpressionNode expr;
+    }
+
+    public static class NestedArrNode extends ArrayLiteralElement {
+        public ArrayLiteralElement nestedNode;
+    }
+
+    public void setVars(List<ArrayLiteralElement> vars) {
         this.vars = vars;
         throw new UnsupportedOperationException("inside array init class");
     }
@@ -27,9 +37,12 @@ public class ArrayInitializer extends ExpressionNode {
         this.type = type;
     }
 
-    public void setSetArraySize(ExpressionNode size) {
-        this.arraySize = size;
-        addChild(size);
+    public void setSetArraySizes(List<ExpressionNode> sizes) {
+        this.arraySizes = sizes;
+        for (ExpressionNode n : sizes)
+            addChild(n);
+        // throw new UnsupportedOperationException("inside set arr sizes in arrayinit node");
+        // addChild(size);
     }
 
     @Override
@@ -39,6 +52,6 @@ public class ArrayInitializer extends ExpressionNode {
 
     @Override
     public String toString() { 
-        return "array init. size: " + arraySize + ", type: " + type;
+        return "array init. dims: " + dims + " static sizes: " + arraySizes + ", type: " + type;
     }
 }

@@ -80,7 +80,6 @@ public class TypeCheckVisitor extends SemanticAnalysis {
             if (varType.equals(assignType)) {
                 return true;
             }
-            System.out.println(varType == assignType);
             return false;
         }
 
@@ -177,7 +176,8 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitArrayInitializer(ArrayInitializer node) {
-        visit(node.arraySize);
+        visit(node.arraySizes.get(0));
+        
         Type indexType = typeStack.pop();
         if (indexType != Type.INT_TYPE) {
             throw new UnsupportedOperationException("inside array init in type check vis");

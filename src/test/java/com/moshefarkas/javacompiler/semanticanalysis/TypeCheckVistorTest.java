@@ -78,5 +78,20 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
 
         compileSource("int[][] a = new int[3][1];");
         assertEquals(null, visitor.test_error);
+
+        compileSource("int[] a; a = new int[5];");
+        assertEquals(null, visitor.test_error);
+
+        compileSource("int[] a; a = new int[4][5];");
+        assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
+
+        compileSource("int[][] a; a = new int[4];");
+        assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
+
+        compileSource("int[][] a; a = new int[4][9];");
+        assertEquals(null, visitor.test_error);
+
+        compileSource("int[][] a; a = new int[4][];");
+        assertEquals(null, visitor.test_error);
     }
 }

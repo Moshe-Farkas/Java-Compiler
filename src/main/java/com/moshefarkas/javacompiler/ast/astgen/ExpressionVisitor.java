@@ -13,6 +13,7 @@ import com.moshefarkas.generated.Java8Parser.ArrayAccess_lfno_primaryContext;
 import com.moshefarkas.generated.Java8Parser.ArrayCreationExpressionContext;
 import com.moshefarkas.generated.Java8Parser.AssignmentContext;
 import com.moshefarkas.generated.Java8Parser.CastExpressionContext;
+import com.moshefarkas.generated.Java8Parser.DimExprContext;
 import com.moshefarkas.generated.Java8Parser.EqualityExpressionContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionNameContext;
@@ -478,17 +479,26 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         // array initilizer: list of varDecls.
         // for empty array creation this list will be empty.
         
-        if (ctx.dims() != null)
-            throw new UnsupportedOperationException("inside array creation in expr visitor");
-
+        // if (ctx.dims() != null)
+        //     throw new UnsupportedOperationException("inside array creation in expr visitor");
         ArrayInitializer arrayInitializer = new ArrayInitializer();
-
-        ExpressionNode size = (ExpressionNode)visitExpression(ctx.dimExprs().dimExpr(0).expression());
-        arrayInitializer.setSetArraySize(size);
+        List<ExpressionNode> sizes = new ArrayList<>();
+        String dimsStr = "";
+        for (DimExprContext dexc : ctx.dimExprs().dimExpr()) {
+            sizes.add((ExpressionNode)visitExpression(dexc.expression()));
+            dimsStr += "[";
+        }
+        arrayInitializer.setSetArraySizes(sizes);
+        int dims = sizes.size();
+        if (ctx.dims() != null)
+            for (int i = 0; i < ctx.dims().LBRACK().size(); i++) {
+                dims++;
+                dimsStr += "[";
+            }
+        arrayInitializer.setDims(dims);
 
         Type arrayInitType = (Type)visitPrimitiveType(ctx.primitiveType());
-
-        arrayInitializer.setType(Type.getType("[" + arrayInitType.getDescriptor()));
+        arrayInitializer.setType(Type.getType(dimsStr + arrayInitType.getDescriptor()));
 
         return  arrayInitializer;
     }
