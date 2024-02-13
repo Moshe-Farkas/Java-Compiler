@@ -260,7 +260,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
         if (node.arraySizes.size() > 1) {
             methodVisitor.visitMultiANewArrayInsn(node.exprType.toString(), node.arraySizes.size());
         } else {
-            methodVisitor.visitTypeInsn(Opcodes.ANEWARRAY, node.exprType.toString());
+            methodVisitor.visitTypeInsn(Opcodes.ANEWARRAY, "[" + node.exprType.getElementType());
         }
     }
 
