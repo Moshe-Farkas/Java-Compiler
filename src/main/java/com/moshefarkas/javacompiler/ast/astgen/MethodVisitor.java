@@ -139,9 +139,6 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
 
         statementStack.push(lclVarNode);
         return null;
-        
-        // statementStack.push((LocalVarDecStmtNode)(new LocalVarDecVisitor().visit(ctx)));
-        // return null;
     }
 
     @Override

@@ -1,41 +1,22 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
-import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
-import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.ArrAccessExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.VarIdenExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
-import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
-import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 
 public class AstPrintVisitor extends BaseAstVisitor {
 
     @Override
     public void visitArrAccessExprNode(ArrAccessExprNode node) {
         System.out.println("line: " + node.lineNum);
-        visit(node.identifer);
-        System.out.println("index: " + node.index);
-    }
-
-    @Override
-    public void visitVarIdenExprNode(VarIdenExprNode node) {
-        System.out.println("var name: " + node.varName);
-    }
-
-    @Override
-    public void visitArrayInitializer(ArrayInitializer node) {
-        System.out.println("line: " + node.lineNum);
         System.out.println(node);
     }
+
+    // @Override
+    // public void visitArrayInitializer(ArrayInitializer node) {
+    //     System.out.println("line: " + node.lineNum);
+    //     System.out.println(node);
+    // }
 
     // @Override
     // public void visitCastExprNode(CastExprNode node) {
@@ -79,13 +60,12 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     super.visitWhileStmtNode(node);
     // }
 
-    // @Override
-    // public void visitAssignExprNode(AssignExprNode node) {
-    //     System.out.println("line: " + node.lineNum);
-    //     System.out.println("assignment: ");
-    //     System.out.println("\t name: " + node.var);
-    //     System.out.println("\t expression: " + node.assignmentValue);
-    // }
+    @Override
+    public void visitAssignExprNode(AssignExprNode node) {
+        System.out.println("line: " + node.lineNum);
+        System.out.println("\tassignment: " + node.assignmentValue);
+        System.out.println("\tnode r-value: " + node.identifier);
+    }
 
     // @Override
     // public void visitMethodNode(MethodNode node) {

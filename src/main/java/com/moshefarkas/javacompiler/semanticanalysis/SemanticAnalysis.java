@@ -1,5 +1,6 @@
 package com.moshefarkas.javacompiler.semanticanalysis;
 
+import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 

@@ -4,18 +4,8 @@ import com.moshefarkas.javacompiler.ast.AstVisitor;
 
 public class AssignExprNode extends ExpressionNode {
 
-    // public String varName;
     public IdentifierExprNode identifier;
     public ExpressionNode assignmentValue;
-
-    // array stuff
-    // public int subscriptIndex;
-    // public Type arrayType;
-
-
-    // public void setVar(String varName) {
-    //     this.varName = varName;
-    // }
 
     public void setIden(IdentifierExprNode iden) {
         this.identifier = iden;

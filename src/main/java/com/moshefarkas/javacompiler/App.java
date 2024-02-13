@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
+import org.antlr.v4.parse.ANTLRParser.optionValue_return;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -25,7 +26,9 @@ public class App {
         // System.out.println(a.getClass().getName());
     
         // int a[][];
-        // a = new int[5][];
+        // a = new int[5];
+        
+
         // System.exit(0);
 
 
@@ -50,9 +53,8 @@ public class App {
         System.out.println("-------------------------------------------");
 
 
-        AstPrintVisitor oktemp = new AstPrintVisitor();
-        oktemp.visitClassNode(ast);
-
+        // AstPrintVisitor oktemp = new AstPrintVisitor();
+        // oktemp.visitClassNode(ast);
 
 
         // semantic analysis

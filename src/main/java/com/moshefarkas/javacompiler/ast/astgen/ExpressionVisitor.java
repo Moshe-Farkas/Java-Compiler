@@ -8,7 +8,6 @@ import org.objectweb.asm.Type;
 import com.moshefarkas.generated.Java8Parser.AdditiveExpressionContext;
 import com.moshefarkas.generated.Java8Parser.ArgumentListContext;
 import com.moshefarkas.generated.Java8Parser.ArrayAccessContext;
-import com.moshefarkas.generated.Java8Parser.ArrayAccess_lf_primaryContext;
 import com.moshefarkas.generated.Java8Parser.ArrayAccess_lfno_primaryContext;
 import com.moshefarkas.generated.Java8Parser.ArrayCreationExpressionContext;
 import com.moshefarkas.generated.Java8Parser.AssignmentContext;
@@ -22,12 +21,12 @@ import com.moshefarkas.generated.Java8Parser.IntegralTypeContext;
 import com.moshefarkas.generated.Java8Parser.LiteralContext;
 import com.moshefarkas.generated.Java8Parser.MethodInvocationContext;
 import com.moshefarkas.generated.Java8Parser.MultiplicativeExpressionContext;
-import com.moshefarkas.generated.Java8Parser.PostfixExpressionContext;
 import com.moshefarkas.generated.Java8Parser.PrimitiveTypeContext;
 import com.moshefarkas.generated.Java8Parser.RelationalExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnaryExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnaryExpressionNotPlusMinusContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
@@ -36,8 +35,6 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.ArrAccessExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.VarIdenExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode.UnaryOp;
@@ -283,7 +280,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
             throw new UnsupportedOperationException("inside visit epxression name");
         }
         
-        VarIdenExprNode iden = new VarIdenExprNode();
+        IdentifierExprNode iden = new IdentifierExprNode();
         iden.setVarName(ctx.Identifier().getText());
         // IdentifierExprNode iden = new VarIdenExprNode();
 
@@ -430,6 +427,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         }
 
         accessExprNode.lineNum = ctx.getStart().getLine();
+        accessExprNode.setVarName(iden.varName);
         return accessExprNode;
     }
 
@@ -456,6 +454,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         }
 
         accessExprNode.lineNum = ctx.getStart().getLine();
+        accessExprNode.setVarName(iden.varName);
         return accessExprNode;
     }
 

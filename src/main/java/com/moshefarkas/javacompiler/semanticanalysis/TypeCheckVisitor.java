@@ -2,17 +2,17 @@ package com.moshefarkas.javacompiler.semanticanalysis;
 
 import java.util.HashMap;
 import java.util.Stack;
+
 import org.objectweb.asm.Type;
-import org.stringtemplate.v4.debug.EvalExprEvent;
 
 import com.moshefarkas.javacompiler.SymbolTable;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.VarIdenExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
@@ -51,15 +51,8 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         typeStack.push(node.exprType);
     }
 
-    // @Override
-    // public void visitIdentifierExprNode(IdentifierExprNode node) {
-        // Type idenType = SymbolTable.getInstance().getVarType(node.varName);
-        // typeStack.push(idenType);
-        // node.setExprType(idenType);
-    // }
-
     @Override
-    public void visitVarIdenExprNode(VarIdenExprNode node) {
+    public void visitIdentifierExprNode(IdentifierExprNode node) {
         Type idenType = SymbolTable.getInstance().getVarType(node.varName);
         typeStack.push(idenType);
         node.setExprType(idenType);
@@ -79,7 +72,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         if (varType.getSort() == Type.ARRAY || assignType.getSort() == Type.ARRAY) {
             if (varType.equals(assignType)) {
                 return true;
-            }
+            } 
             return false;
         }
 
@@ -131,13 +124,6 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         if (!node.var.initialized) {
             return;
         }
-        // Type initializerType = new TypeEvalVisitor().evalType(node.initializer);
-        // Type varType = SymbolTable.getInstance().getVarType(node.var.name);
-        // if (!validAssignment(varType, initializerType)) {
-        //     error(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, node.lineNum, 
-        //     String.format("cannot assign epxression of type `%s` to type `%s`.", initializerType, varType));
-        // }
-
 
         visit(node.initializer);
         Type initializerType = typeStack.pop();
@@ -183,5 +169,19 @@ public class TypeCheckVisitor extends SemanticAnalysis {
             throw new UnsupportedOperationException("inside array init in type check vis");
         }
         typeStack.push(node.type);
+    }
+
+    @Override
+    public void visitArrAccessExprNode(ArrAccessExprNode node) {
+        visit(node.identifer);
+        Type subIdenType = typeStack.pop();
+        Type innerIdenType = null;
+        if (subIdenType.getSort() == Type.ARRAY) {
+            // remove one dimmension
+            String typeStr = subIdenType.toString();
+            innerIdenType = Type.getType(typeStr.toString().substring(1));
+        }
+        node.setExprType(innerIdenType);
+        typeStack.push(innerIdenType);
     }
 }

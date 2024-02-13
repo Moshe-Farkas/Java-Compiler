@@ -2,7 +2,6 @@ package com.moshefarkas.javacompiler.codegen;
 
 import java.util.Stack;
 
-import org.antlr.v4.parse.ANTLRParser.id_return;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -12,21 +11,18 @@ import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.ArrAccessExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.VarIdenExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
-
-import jdk.nashorn.internal.runtime.regexp.joni.constants.OPCode;
 
 public class MethodGenVisitor extends BaseAstVisitor {
 
@@ -87,23 +83,29 @@ public class MethodGenVisitor extends BaseAstVisitor {
     
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
-        if (node.identifier instanceof ArrAccessExprNode) {
+        // if (node.identifier instanceof ArrAccessExprNode) {
 
-            ArrAccessExprNode accessExprNode = (ArrAccessExprNode)node.identifier;
-            throw new UnsupportedOperationException("inside vis assign expr in method gen vis");
+        //     // ArrAccessExprNode accessExprNode = (ArrAccessExprNode)node.identifier;
+        //     // throw new UnsupportedOperationException("inside vis assign expr in method gen vis");
 
-        } else if (node.identifier instanceof VarIdenExprNode) {
-            VarIdenExprNode varIdenExprNode = (VarIdenExprNode)node.identifier;
-            visit(node.assignmentValue);
-            VarInfo var = SymbolTable.getInstance().getVarInfo(varIdenExprNode.varName);
-            emitTypeCast(var.type, node.assignmentValue.exprType);
-            methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
-        }
+        //     // methodVisitor.visitVarInsn(Opcodes.ALOAD, 7);
+        //     visit(node.identifier);
+        //     visit(node.assignmentValue);
 
-        // visit(node.assignmentValue);
-        // VarInfo var = SymbolTable.getInstance().getVarInfo(node.identifier.varName);
-        // emitTypeCast(var.type, node.assignmentValue.exprType);
-        // methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
+
+        // } else if (node.identifier instanceof VarIdenExprNode) {
+        //     VarIdenExprNode varIdenExprNode = (VarIdenExprNode)node.identifier;
+        //     visit(node.assignmentValue);
+        //     VarInfo var = SymbolTable.getInstance().getVarInfo(varIdenExprNode.varName);
+        //     emitTypeCast(var.type, node.assignmentValue.exprType);
+        //     methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
+        // }
+
+
+        visit(node.assignmentValue);
+        VarInfo var = SymbolTable.getInstance().getVarInfo(node.identifier.varName);
+        emitTypeCast(var.type, node.assignmentValue.exprType);
+        methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
     }
     
     @Override
@@ -196,7 +198,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
     }
 
     @Override
-    public void visitVarIdenExprNode(VarIdenExprNode node) {
+    public void visitIdentifierExprNode(IdentifierExprNode node) {
         VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
         int op = var.type.getOpcode(Opcodes.ILOAD);
         methodVisitor.visitVarInsn(op, var.localIndex);

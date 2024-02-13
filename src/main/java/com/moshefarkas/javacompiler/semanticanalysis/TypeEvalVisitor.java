@@ -9,7 +9,6 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode.VarIdenExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 
 public class TypeEvalVisitor extends SemanticAnalysis {
@@ -45,15 +44,8 @@ public class TypeEvalVisitor extends SemanticAnalysis {
         node.setExprType(exprType);
     }
 
-    // @Override
-    // public void visitIdentifierExprNode(IdentifierExprNode node) {
-    //     Type idenType = SymbolTable.getInstance().getVarType(node.varName);
-    //     typeStack.push(idenType);
-    //     node.setExprType(idenType);
-    // }
-
     @Override
-    public void visitVarIdenExprNode(VarIdenExprNode node) {
+    public void visitIdentifierExprNode(IdentifierExprNode node) {
         Type idenType = SymbolTable.getInstance().getVarType(node.varName);
         typeStack.push(idenType);
         node.setExprType(idenType);
