@@ -17,6 +17,7 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
@@ -83,29 +84,26 @@ public class MethodGenVisitor extends BaseAstVisitor {
     
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
-        // if (node.identifier instanceof ArrAccessExprNode) {
+        if (node.identifier instanceof ArrAccessExprNode) {
+            genArrAccStore((ArrAccessExprNode)node.identifier, node.assignmentValue);
+        } else {
+            visit(node.assignmentValue);
+            VarInfo var = SymbolTable.getInstance().getVarInfo(node.identifier.varName);
+            emitTypeCast(var.type, node.assignmentValue.exprType);
+            methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
+        }
+    }
 
-        //     // ArrAccessExprNode accessExprNode = (ArrAccessExprNode)node.identifier;
-        //     // throw new UnsupportedOperationException("inside vis assign expr in method gen vis");
+    private void genArrAccStore(ArrAccessExprNode node, ExpressionNode assignmentValue) {
+        // if (node.identifer instanceof ArrAccessExprNode)
+        //     genArrAccStore((ArrAccessExprNode)node.identifer, assignmentValue);
 
-        //     // methodVisitor.visitVarInsn(Opcodes.ALOAD, 7);
-        //     visit(node.identifier);
-        //     visit(node.assignmentValue);
-
-
-        // } else if (node.identifier instanceof VarIdenExprNode) {
-        //     VarIdenExprNode varIdenExprNode = (VarIdenExprNode)node.identifier;
-        //     visit(node.assignmentValue);
-        //     VarInfo var = SymbolTable.getInstance().getVarInfo(varIdenExprNode.varName);
-        //     emitTypeCast(var.type, node.assignmentValue.exprType);
-        //     methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
-        // }
-
-
-        visit(node.assignmentValue);
-        VarInfo var = SymbolTable.getInstance().getVarInfo(node.identifier.varName);
-        emitTypeCast(var.type, node.assignmentValue.exprType);
-        methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
+        VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
+        methodVisitor.visitVarInsn(Opcodes.ALOAD, var.localIndex);
+        visit(node.index);
+        visit(assignmentValue);
+        emitTypeCast(node.exprType, assignmentValue.exprType);
+        methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IASTORE));
     }
     
     @Override
