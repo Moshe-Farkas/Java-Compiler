@@ -434,10 +434,12 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         ArrAccessExprNode accessExprNode = new ArrAccessExprNode();
         accessExprNode.setIdentifer(iden);
         accessExprNode.setIndex(index);
+        accessExprNode.setVarName(iden.varName);
         
         for (int i = 1; i < epxressions.size(); i++) {
             ArrAccessExprNode temp = new ArrAccessExprNode();
             temp.setIdentifer(accessExprNode);
+            temp.setVarName(iden.varName);
             temp.setIndex((ExpressionNode)visitExpression(epxressions.get(i)));
             temp.lineNum = lineNum;
             accessExprNode = temp;            

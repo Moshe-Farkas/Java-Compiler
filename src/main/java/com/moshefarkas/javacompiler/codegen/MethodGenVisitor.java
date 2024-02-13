@@ -1,7 +1,9 @@
 package com.moshefarkas.javacompiler.codegen;
 
+import java.nio.channels.AcceptPendingException;
 import java.util.Stack;
 
+import org.antlr.v4.parse.ANTLRParser.id_return;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -13,7 +15,6 @@ import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
-import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer.ArrExprLitNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
@@ -96,17 +97,25 @@ public class MethodGenVisitor extends BaseAstVisitor {
     }
 
     private void genArrAccStore(ArrAccessExprNode node, ExpressionNode assignmentValue) {
-        // if (node.identifer instanceof ArrAccessExprNode)
-        //     genArrAccStore((ArrAccessExprNode)node.identifer, assignmentValue);
-
         VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
         methodVisitor.visitVarInsn(Opcodes.ALOAD, var.localIndex);
         visit(node.index);
+        if (node.identifer instanceof ArrAccessExprNode) {
+            recursiveArrAccStore((ArrAccessExprNode)node.identifer);
+        }
+
         visit(assignmentValue);
         emitTypeCast(node.exprType, assignmentValue.exprType);
         methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IASTORE));
     }
-    
+
+    private void recursiveArrAccStore(ArrAccessExprNode node) {
+            methodVisitor.visitInsn(Opcodes.AALOAD);
+            visit(node.index);
+            if (node.identifer instanceof ArrAccessExprNode)
+                recursiveArrAccStore((ArrAccessExprNode)node.identifer);
+    }
+
     @Override
     public void visitCastExprNode(CastExprNode node) {
         visit(node.expression);
@@ -238,7 +247,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
     @Override
     public void visitArrayInitializer(ArrayInitializer node) {
         for (ExpressionNode size : node.arraySizes) {
-            visitExpressionNode(size);
+            visit(size);
         }
         if (node.dims > 1) {
             multiDimArrayInitializer(node);
