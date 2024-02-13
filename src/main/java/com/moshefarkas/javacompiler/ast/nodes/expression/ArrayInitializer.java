@@ -5,7 +5,6 @@ import java.util.List;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.ast.AstVisitor;
-import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class ArrayInitializer extends ExpressionNode {
 
@@ -41,8 +40,6 @@ public class ArrayInitializer extends ExpressionNode {
         this.arraySizes = sizes;
         for (ExpressionNode n : sizes)
             addChild(n);
-        // throw new UnsupportedOperationException("inside set arr sizes in arrayinit node");
-        // addChild(size);
     }
 
     @Override

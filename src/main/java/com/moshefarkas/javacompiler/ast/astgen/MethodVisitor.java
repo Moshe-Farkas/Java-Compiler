@@ -2,7 +2,6 @@ package com.moshefarkas.javacompiler.ast.astgen;
 
 import java.util.Stack;
 
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.generated.Java8Parser.BlockContext;
@@ -21,7 +20,6 @@ import com.moshefarkas.generated.Java8Parser.VariableDeclaratorIdContext;
 import com.moshefarkas.generated.Java8Parser.WhileStatementContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.VarInfo;
-import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ExprStmtNode;
@@ -154,14 +152,7 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         //     ;
         ExpressionVisitor exprVisitor = new ExpressionVisitor();
         ExpressionNode expr;
-
         expr = (ExpressionNode)exprVisitor.visitStatementExpression(ctx);
-
-        // if (ctx.assignment() != null) {
-        //     expr = exprVisitor.visitAssignment(ctx.assignment());
-        // } else {
-        //     throw new UnsupportedOperationException("inside expression statement.");
-        // }
 
         ExprStmtNode exprStmt = new ExprStmtNode();
         exprStmt.setExpression(expr);

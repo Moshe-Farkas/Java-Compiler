@@ -184,11 +184,6 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         } else if (ctx.castExpression() != null) {
             expr = (ExpressionNode)visitCastExpression(ctx.castExpression());
         }
-        
-        // else {
-        //     expr = (ExpressionNode)super.visitUnaryExpressionNotPlusMinus(ctx);
-        // }
-
         expr.lineNum = ctx.getStart().getLine();
         return expr;
     }
@@ -255,17 +250,11 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         } else if (ctx.CharacterLiteral() != null) {
             type = Type.CHAR_TYPE;
             lit.value = ctx.getText().charAt(1);
-        } 
-        // else if (ctx.StringLiteral() != null) {
-        //     type = Type.OBJECT_TYPE;
-        //     lit.value = ctx.getText();
-        // } else if (ctx.NullLiteral() != null) {
-        //     type = Type.;
-        //     lit.value = null;
-        // }
+        } else {
+            throw new UnsupportedOperationException("inside visitLiteral in expr visitor");
+        }
 
         lit.setExprType(type);
-
         lit.lineNum = ctx.getStart().getLine();
         return lit;
     }
@@ -411,24 +400,11 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         //         | primaryNoNewArray_lfno_primary_lfno_arrayAccess_lfno_primary '[' expression ']'
         //     ) (primaryNoNewArray_lfno_primary_lf_arrayAccess_lfno_primary '[' expression ']')*
         //     ;
-
-        IdentifierExprNode iden = (IdentifierExprNode)visitExpressionName(ctx.expressionName());
-        ExpressionNode index = (ExpressionNode)visitExpression(ctx.expression(0));
-        ArrAccessExprNode accessExprNode = new ArrAccessExprNode();
-        accessExprNode.setIdentifer(iden);
-        accessExprNode.setIndex(index);
-        
-        for (int i = 1; i < ctx.expression().size(); i++) {
-            ArrAccessExprNode temp = new ArrAccessExprNode();
-            temp.setIdentifer(accessExprNode);
-            temp.setIndex((ExpressionNode)visitExpression(ctx.expression(i)));
-            temp.lineNum = ctx.getStart().getLine();
-            accessExprNode = temp;            
-        }
-
-        accessExprNode.lineNum = ctx.getStart().getLine();
-        accessExprNode.setVarName(iden.varName);
-        return accessExprNode;
+        return rvalurArrayAccess(
+            ctx.expressionName(), 
+            ctx.expression(), 
+            ctx.getStart().getLine()
+        );
     }
 
     @Override
@@ -439,33 +415,38 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         //     )*
         //     ;
         // needs expressionName, epxression list, 
-        IdentifierExprNode iden = (IdentifierExprNode)visitExpressionName(ctx.expressionName());
-        ExpressionNode index = (ExpressionNode)visitExpression(ctx.expression(0));
+        return rvalurArrayAccess(
+            ctx.expressionName(), 
+            ctx.expression(), 
+            ctx.getStart().getLine()
+        );
+    }
+
+    private ArrAccessExprNode rvalurArrayAccess(
+        ExpressionNameContext exprName,
+        List<ExpressionContext> epxressions,
+        int lineNum
+        ) 
+    {
+
+        IdentifierExprNode iden = (IdentifierExprNode)visitExpressionName(exprName);
+        ExpressionNode index = (ExpressionNode)visitExpression(epxressions.get(0));
         ArrAccessExprNode accessExprNode = new ArrAccessExprNode();
         accessExprNode.setIdentifer(iden);
         accessExprNode.setIndex(index);
         
-        for (int i = 1; i < ctx.expression().size(); i++) {
+        for (int i = 1; i < epxressions.size(); i++) {
             ArrAccessExprNode temp = new ArrAccessExprNode();
             temp.setIdentifer(accessExprNode);
-            temp.setIndex((ExpressionNode)visitExpression(ctx.expression(i)));
-            temp.lineNum = ctx.getStart().getLine();
+            temp.setIndex((ExpressionNode)visitExpression(epxressions.get(i)));
+            temp.lineNum = lineNum;
             accessExprNode = temp;            
         }
 
-        accessExprNode.lineNum = ctx.getStart().getLine();
+        accessExprNode.lineNum = lineNum;
         accessExprNode.setVarName(iden.varName);
         return accessExprNode;
     }
-
-    // private ArrAccessExprNode rvalurArrayAccess(
-    //     ExpressionNameContext exprName,
-    //     List<ExpressionContext> epxressions
-    //     ) 
-    // {
-
-    //     return accessExprNode;
-    // }
 
     @Override
     public ArrayInitializer visitArrayCreationExpression(ArrayCreationExpressionContext ctx) {
@@ -478,8 +459,6 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         // array initilizer: list of varDecls.
         // for empty array creation this list will be empty.
         
-        // if (ctx.dims() != null)
-        //     throw new UnsupportedOperationException("inside array creation in expr visitor");
         ArrayInitializer arrayInitializer = new ArrayInitializer();
         List<ExpressionNode> sizes = new ArrayList<>();
         String dimsStr = "";

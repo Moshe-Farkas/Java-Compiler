@@ -24,15 +24,6 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
     public List<MethodNode> methods = new ArrayList<>();
     public List<MethodNode> fields = new ArrayList<>();
 
-    // private List<String> currentMethodAccessModifiers;
-    // private List<LocalVarDecStmtNode> currentMethodParams;
-    // private Type currentMethodRetType;
-    // private String currentMethodName;
-
-
-    // methods will return their object that they create
-
-
     @Override
     public Void visitMethodDeclaration(MethodDeclarationContext ctx) {
         // methodDeclaration
@@ -95,9 +86,6 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         Type returnType = (Type)visit(ctx.result());
         // [0]: methodNam, [1]: params
         Object[] nameAndParams = (Object[])visit(ctx.methodDeclarator());
-
-
-        
         return new Object[] {returnType, nameAndParams[0], nameAndParams[1]};
     }
 
