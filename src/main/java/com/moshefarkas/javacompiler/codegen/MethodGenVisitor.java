@@ -13,6 +13,7 @@ import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer.ArrExprLitNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
@@ -236,8 +237,25 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitArrayInitializer(ArrayInitializer node) {
-        visit(node.arraySizes.get(0));
+        for (ExpressionNode size : node.arraySizes) {
+            visitExpressionNode(size);
+        }
+        if (node.dims > 1) {
+            multiDimArrayInitializer(node);
+        } else {
+            singleDimArrayInitializer(node);
+        }
+    }
 
+    private void multiDimArrayInitializer(ArrayInitializer node) {
+        if (node.arraySizes.size() > 1) {
+            methodVisitor.visitMultiANewArrayInsn(node.exprType.toString(), node.arraySizes.size());
+        } else {
+            methodVisitor.visitTypeInsn(Opcodes.ANEWARRAY, node.exprType.toString());
+        }
+    }
+
+    private void singleDimArrayInitializer(ArrayInitializer node) {
         if (node.type.getElementType() == Type.INT_TYPE) {
             methodVisitor.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_INT);
         } else if (node.type.getElementType() == Type.FLOAT_TYPE) {

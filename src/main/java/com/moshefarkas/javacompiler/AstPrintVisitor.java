@@ -1,8 +1,8 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class AstPrintVisitor extends BaseAstVisitor {
 
@@ -12,11 +12,11 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     System.out.println(node);
     // }
 
-    // @Override
-    // public void visitArrayInitializer(ArrayInitializer node) {
-    //     System.out.println("line: " + node.lineNum);
-    //     System.out.println(node);
-    // }
+    @Override
+    public void visitArrayInitializer(ArrayInitializer node) {
+        System.out.println("line: " + node.lineNum);
+        System.out.println(node);
+    }
 
     // @Override
     // public void visitCastExprNode(CastExprNode node) {

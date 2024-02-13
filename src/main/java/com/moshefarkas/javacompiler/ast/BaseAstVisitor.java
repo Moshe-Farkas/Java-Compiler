@@ -44,7 +44,7 @@ public class BaseAstVisitor implements AstVisitor {
 
     @Override
     public void visitExpressionNode(ExpressionNode node) {
-        node.visitChildren(this);
+        node.accept(this);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class BaseAstVisitor implements AstVisitor {
 
     @Override
     public void visitStatementNode(StatementNode node) {
-        node.visitChildren(this);
+        node.accept(this);
     }
 
     @Override
