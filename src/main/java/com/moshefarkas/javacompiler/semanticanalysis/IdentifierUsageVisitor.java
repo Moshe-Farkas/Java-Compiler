@@ -49,9 +49,9 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
                 error(
                     ErrorType.INVALID_METHOD_HEADER, 
                     node.lineNum, 
-                    String.format("Cannot use the modifer `%s` more than once.", modifer)
+                    "Cannot use a modifer more than once."
                 );
-                node.methodModifiers.remove(modifer);
+                node.methodModifiers.remove((Object)modifer);
             }
 
             switch (modifer) {

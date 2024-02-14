@@ -30,7 +30,6 @@ public class ClassGenVisitor extends BaseAstVisitor {
 
         super.visitClassNode(node);
 
-
         // temp remove 
         emitMain();
         classWriter.visitEnd();
@@ -38,7 +37,10 @@ public class ClassGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitMethodNode(MethodNode node) {
-        int accessMod = Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC;
+        int accessMod = 0;
+        for (int modifer : node.methodModifiers) {
+            accessMod += modifer;
+        }
         String descriptor = SymbolTable.getInstance().getMethodDescriptor(node.methodName);
 
         MethodVisitor method = classWriter.visitMethod(
