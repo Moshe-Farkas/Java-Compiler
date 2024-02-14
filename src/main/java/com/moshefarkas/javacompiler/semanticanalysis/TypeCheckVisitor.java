@@ -3,6 +3,7 @@ package com.moshefarkas.javacompiler.semanticanalysis;
 import java.util.HashMap;
 import java.util.Stack;
 
+import org.antlr.v4.parse.ANTLRParser.delegateGrammar_return;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.SymbolTable;
@@ -15,7 +16,9 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ExprStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class TypeCheckVisitor extends SemanticAnalysis {
@@ -26,26 +29,72 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitBinaryExprNode(BinaryExprNode node) {
+        // need to handle boolean binary expression
         visit(node.left);
         visit(node.right);
+        switch (node.op) {
+            case EQ_EQ:
+            case GT   :
+            case GT_EQ:
+            case LT   :
+            case LT_EQ:
+                binaryBoolOp(node);
+                break;
+            default:
+                Type b = typeStack.pop();
+                Type a = typeStack.pop();
+                // char, byte and short are treated as if int
+                if (a == Type.CHAR_TYPE || a == Type.BYTE_TYPE || a == Type.SHORT_TYPE) {
+                    a = Type.INT_TYPE;
+                }
+                if (b == Type.CHAR_TYPE || b == Type.BYTE_TYPE || b == Type.SHORT_TYPE) {
+                    b = Type.INT_TYPE;
+                }
+                Type exprType;
+                if (wideningRules.get(a) > wideningRules.get(b)) {
+                    exprType = a;
+                } else {
+                    exprType = b;
+                }
+                node.setExprType(exprType);
+                node.setCastType(exprType);
+                typeStack.push(exprType);
+        }
 
+        // Type b = typeStack.pop();
+        // Type a = typeStack.pop();
+        // // char, byte and short are treated as if int
+        // if (a == Type.CHAR_TYPE || a == Type.BYTE_TYPE || a == Type.SHORT_TYPE) {
+        //     a = Type.INT_TYPE;
+        // }
+        // if (b == Type.CHAR_TYPE || b == Type.BYTE_TYPE || b == Type.SHORT_TYPE) {
+        //     b = Type.INT_TYPE;
+        // }
+        // Type exprType;
+        // if (wideningRules.get(a) > wideningRules.get(b)) {
+        //     exprType = a;
+        // } else {
+        //     exprType = b;
+        // }
+        // node.setExprType(exprType);
+        // typeStack.push(exprType);
+    }
+
+    private void binaryBoolOp(BinaryExprNode node) {
+        // already visited left and right exprs
         Type b = typeStack.pop();
         Type a = typeStack.pop();
-        // char, byte and short are treated as if int
-        if (a == Type.CHAR_TYPE || a == Type.BYTE_TYPE || a == Type.SHORT_TYPE) {
-            a = Type.INT_TYPE;
-        }
-        if (b == Type.CHAR_TYPE || b == Type.BYTE_TYPE || b == Type.SHORT_TYPE) {
-            b = Type.INT_TYPE;
-        }
-        Type exprType;
+        
+        Type castType;
         if (wideningRules.get(a) > wideningRules.get(b)) {
-            exprType = a;
+            castType = a;
         } else {
-            exprType = b;
+            castType = b;
         }
-        node.setExprType(exprType);
-        typeStack.push(exprType);
+        node.setCastType(castType);
+
+        node.setExprType(Type.BOOLEAN_TYPE);
+        typeStack.push(Type.BOOLEAN_TYPE);
     }
 
     @Override
@@ -71,6 +120,8 @@ public class TypeCheckVisitor extends SemanticAnalysis {
     }
 
     private boolean validAssignment(Type varType, Type assignType) {
+        if (varType == Type.BOOLEAN_TYPE && assignType == Type.BOOLEAN_TYPE)
+            return true;
         if (varType.getSort() == Type.ARRAY || assignType.getSort() == Type.ARRAY) {
             if (varType.equals(assignType)) {
                 return true;
@@ -94,8 +145,11 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         Type assignmentType = typeStack.pop();
 
         if (!validAssignment(idenType, assignmentType)) {
-            error(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, node.lineNum, 
-            String.format("cannot assign epxression of type `%s` to type `%s`.", assignmentType, idenType));
+            error(
+                ErrorType.MISMATCHED_ASSIGNMENT_TYPE, 
+                node.lineNum, 
+                errorString("cannot assign epxression of type `%s` to type `%s`.", assignmentType, idenType)
+            );
         }
         node.assignmentValue.setExprType(assignmentType);
     }
@@ -111,8 +165,8 @@ public class TypeCheckVisitor extends SemanticAnalysis {
                 error(
                     ErrorType.MISMATCHED_ARGUMENTS, 
                     node.lineNum, 
-                    String.format(
-                        "Expcected type `%s` but got `%s` as an arg instead.", 
+                    errorString(
+                        "Expcected type `%s` but got `%s` as an arg instead.",
                         paramType, argType
                     )
                 );
@@ -132,8 +186,14 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         Type varType = SymbolTable.getInstance().getVarType(node.var.name);
 
         if (!validAssignment(varType, initializerType)) {
-            error(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, node.lineNum, 
-            String.format("cannot assign epxression of type `%s` to type `%s`.", initializerType, varType));
+            error(
+                ErrorType.MISMATCHED_ASSIGNMENT_TYPE, 
+                node.lineNum, 
+                errorString(
+                    "cannot assign epxression of type `%s` to type `%s`.",
+                    initializerType, varType
+                )
+            );
         }
         node.initializer.setExprType(initializerType);
     }
@@ -155,7 +215,11 @@ public class TypeCheckVisitor extends SemanticAnalysis {
             error(
                 ErrorType.INVALID_CAST, 
                 node.lineNum, 
-                String.format("cannot cast type `%s` to type `%s`.", exprType, node.targetCast));
+                errorString(
+                    "cannot cast type `%s` to type `%s`.", 
+                    exprType, node.targetCast
+                )
+            );
         }
         
         typeStack.push(node.targetCast);
@@ -171,7 +235,10 @@ public class TypeCheckVisitor extends SemanticAnalysis {
                 error(
                     ErrorType.INVALID_ARRAY_INIT, 
                     node.lineNum, 
-                    String.format("cannot use type `%s` to init an array", indexType)
+                    errorString(
+                        "cannot use type `%s` to init an array",
+                        indexType
+                    )
                 );
             }
         }
@@ -192,5 +259,21 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         }
         node.setExprType(innerIdenType);
         typeStack.push(innerIdenType);
+    }
+
+    @Override
+    public void visitIfStmtNode(IfStmtNode node) {
+        visit(node.condition);
+        Type conditionType = typeStack.pop();
+        if (conditionType != Type.BOOLEAN_TYPE) {
+            error(
+                ErrorType.MISMATCHED_TYPE, 
+                node.lineNum, 
+                errorString(
+                    "Can't use epxression of type `%s`. Condition need to be bool.", 
+                    conditionType
+                )
+            );
+        }
     }
 }

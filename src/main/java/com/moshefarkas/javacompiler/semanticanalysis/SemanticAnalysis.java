@@ -1,6 +1,7 @@
 package com.moshefarkas.javacompiler.semanticanalysis;
 
-import com.moshefarkas.javacompiler.SymbolTable;
+import org.objectweb.asm.Type;
+
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 
@@ -41,5 +42,42 @@ public class SemanticAnalysis extends BaseAstVisitor {
         System.err.println("\u001B[31m" + errType + " on line " + lineNum + ": " + errMsg + "\u001B[0m");
         test_error = errType;
         hadErr = true;
+    }
+
+    protected String errorString(String format, Object... args) {
+        for (int i = 0; i < args.length; i++) {
+            Object arg = args[i];
+            if (arg instanceof Type) {
+                args[i] = humanReadableType((Type)arg);
+            }
+        }
+        return String.format(format, args);
+    }
+
+    private String humanReadableType(Type type) {
+        String res = "inside human readable type";
+        String dims = "";
+        if (type.getSort() == Type.ARRAY) {
+            for (int i = type.getDimensions(); i > 0; i--)
+                dims += "[]";
+            type = type.getElementType();
+        }
+
+        if (type.equals(Type.INT_TYPE)) {
+            res = "int";
+        } else if (type.equals(Type.FLOAT_TYPE)) {
+            res = "float";
+        } else if (type.equals(Type.BOOLEAN_TYPE)) {
+            res = "boolean";
+        } else if (type.equals(Type.CHAR_TYPE)) {
+            res = "char";
+        } else if (type.equals(Type.BYTE_TYPE)) {
+            res = "byte";
+        } else if (type.equals(Type.SHORT_TYPE)) {
+            res = "short";
+        } else if (type.equals(Type.VOID_TYPE)) {
+            res = "void";
+        }
+        return res + dims;
     }
 }

@@ -1,9 +1,22 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
-import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class AstPrintVisitor extends BaseAstVisitor {
+
+    @Override
+    public String toString() {
+        return "AstPrintVisitor []";
+    }
+
+    // @Override
+    // public void visitLiteralExprNode(LiteralExprNode node) {
+    //     System.out.println("line: " + node.lineNum);
+    //     System.out.println(node.exprType);
+    //     super.visitLiteralExprNode(node);
+    // }
 
     // @Override
     // public void visitArrAccessExprNode(ArrAccessExprNode node) {
@@ -66,13 +79,14 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     System.out.println("\tnode r-value: " + node.identifier);
     // }
 
-    @Override
-    public void visitMethodNode(MethodNode node) {
-        System.out.println("line: " + node.lineNum);
-        System.out.println("\tmethod modifiers: " + node.methodModifiers);
-        System.out.println("\tmethod: " + node.methodName);
-        System.out.println("\tparams: " + node.params);
-    }
+    // @Override
+    // public void visitMethodNode(MethodNode node) {
+    //     System.out.println("line: " + node.lineNum);
+    //     System.out.println("\tmethod modifiers: " + node.methodModifiers);
+    //     System.out.println("\tmethod: " + node.methodName);
+    //     System.out.println("\tparams: " + node.params);
+    //     super.visitMethodNode(node);
+    // }
 
     // @Override
     // public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
@@ -89,4 +103,6 @@ public class AstPrintVisitor extends BaseAstVisitor {
 //         System.out.println("unary: "); 
 //         System.out.println("\top: " + node.op + ", value: " + node.expr);
 //     }
+
+
 }

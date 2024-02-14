@@ -23,12 +23,11 @@ public class BinaryExprNode extends ExpressionNode {
     public BinOp op;
     public ExpressionNode right;
     public ExpressionNode left;
-
-    // public Type exprType;
-
-    // public void setExprType(Type type) {
-    //     this.exprType = type;
-    // }
+    public Type castType;
+    
+    public void setCastType(Type castType) {
+        this.castType = castType;
+    }
     
     public void setOp(BinOp op) {
         this.op = op;

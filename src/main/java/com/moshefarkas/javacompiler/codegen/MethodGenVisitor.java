@@ -4,11 +4,13 @@ import java.nio.channels.AcceptPendingException;
 import java.util.Stack;
 
 import org.antlr.v4.parse.ANTLRParser.id_return;
+import org.antlr.v4.parse.ANTLRParser.optionsSpec_return;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import com.ibm.icu.impl.coll.BOCSU;
 import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
@@ -149,9 +151,9 @@ public class MethodGenVisitor extends BaseAstVisitor {
         Type rightExprType = node.right.exprType;
 
         visit(node.left);
-        emitTypeCast(node.exprType, leftExprType);
+        emitTypeCast(node.castType, leftExprType);
         visit(node.right);
-        emitTypeCast(node.exprType, rightExprType);
+        emitTypeCast(node.castType, rightExprType);
         
         switch (node.op) {
             case PLUS:
@@ -202,8 +204,20 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitLiteralExprNode(LiteralExprNode node) {
-        methodVisitor.visitLdcInsn(node.value);
+        if (node.exprType == Type.BOOLEAN_TYPE) {
+            emitBoolConst((boolean)node.value);
+        } else {
+            methodVisitor.visitLdcInsn(node.value);
+        }
     }
+
+    private void emitBoolConst(boolean val) {
+        if (val)
+            methodVisitor.visitInsn(Opcodes.ICONST_1);
+        else 
+            methodVisitor.visitInsn(Opcodes.ICONST_0);
+    }
+
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {

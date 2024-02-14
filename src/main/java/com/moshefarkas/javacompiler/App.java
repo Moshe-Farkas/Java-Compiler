@@ -4,12 +4,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
-import org.antlr.v4.parse.ANTLRParser.optionValue_return;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.generated.Java8Lexer;
