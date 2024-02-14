@@ -12,8 +12,10 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.ExprStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class TypeCheckVisitor extends SemanticAnalysis {
@@ -162,13 +164,20 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitArrayInitializer(ArrayInitializer node) {
-        visit(node.arraySizes.get(0));
-        
-        Type indexType = typeStack.pop();
-        if (indexType != Type.INT_TYPE) {
-            throw new UnsupportedOperationException("inside array init in type check vis");
+        for (ExpressionNode size : node.arraySizes) {
+            visit(size);
+            Type indexType = typeStack.pop();
+            if (indexType != Type.INT_TYPE) {
+                error(
+                    ErrorType.INVALID_ARRAY_INIT, 
+                    node.lineNum, 
+                    String.format("cannot use type `%s` to init an array", indexType)
+                );
+            }
         }
+
         typeStack.push(node.type);
+        node.setExprType(node.type);
     }
 
     @Override

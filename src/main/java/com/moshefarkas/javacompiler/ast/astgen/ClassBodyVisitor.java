@@ -14,6 +14,7 @@ import com.moshefarkas.generated.Java8Parser.MethodDeclaratorContext;
 import com.moshefarkas.generated.Java8Parser.MethodHeaderContext;
 import com.moshefarkas.generated.Java8Parser.MethodModifierContext;
 import com.moshefarkas.generated.Java8Parser.ResultContext;
+import com.moshefarkas.generated.Java8Parser.UnannArrayTypeContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
@@ -178,6 +179,10 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         LocalVarDecStmtNode varNode = new LocalVarDecStmtNode();
         VarInfo var = new VarInfo();
         Type type = (Type)visit(ctx.unannType());
+        if (type.getDimensions() > 0) {
+            var.isArray = true;
+            var.dims = type.getDimensions();
+        }
         String paramName = ctx.variableDeclaratorId().Identifier().getText();
         var.initialized = false;
         var.localIndex = 0;
@@ -187,5 +192,20 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         varNode.setVar(var);
         varNode.lineNum = ctx.getStart().getLine();
         return varNode;
+    }
+
+    @Override
+    public Type visitUnannArrayType(UnannArrayTypeContext ctx) {
+        // unannArrayType
+        //     : unannPrimitiveType dims
+        //     | unannClassOrInterfaceType dims
+        //     | unannTypeVariable dims
+        //     ;
+        int dims = ctx.dims().LBRACK().size();
+        String typeStr = "";
+        for (int i = 0; i < dims; i++) {
+            typeStr += "[";
+        }
+        return Type.getType(typeStr + (Type)visitUnannPrimitiveType(ctx.unannPrimitiveType()));
     }
 }

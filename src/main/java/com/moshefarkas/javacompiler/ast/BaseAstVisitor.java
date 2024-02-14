@@ -23,96 +23,58 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 public class BaseAstVisitor implements AstVisitor {
 
     @Override
-    public void visitAssignExprNode(AssignExprNode node) {
-        node.visitChildren(this);
-    }
+    public void visitAssignExprNode(AssignExprNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitBinaryExprNode(BinaryExprNode node) {
-        node.visitChildren(this);
-    }
+    public void visitBinaryExprNode(BinaryExprNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitBlockStmtNode(BlockStmtNode node) {
-        node.visitChildren(this);
-    }
+    public void visitBlockStmtNode(BlockStmtNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitCallExprNode(CallExprNode node) {
-        node.visitChildren(this);
-    }
+    public void visitCallExprNode(CallExprNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitExpressionNode(ExpressionNode node) {
-        node.visitChildren(this);
-    }
+    public void visitExpressionNode(ExpressionNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitIfStmtNode(IfStmtNode node) {
-        node.visitChildren(this);
-    }
+    public void visitIfStmtNode(IfStmtNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitExprStmtNode(ExprStmtNode node) {
-        node.visitChildren(this);
-    }
+    public void visitExprStmtNode(ExprStmtNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitLiteralExprNode(LiteralExprNode node) {
-        node.visitChildren(this);
-    }
+    public void visitLiteralExprNode(LiteralExprNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
-        node.visitChildren(this);
-    }
+    public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitWhileStmtNode(WhileStmtNode node) {
-        node.visitChildren(this);
-    }
+    public void visitWhileStmtNode(WhileStmtNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitClassNode(ClassNode node) {
-        node.visitChildren(this);
-    }
+    public void visitClassNode(ClassNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitIdentifierExprNode(IdentifierExprNode node) {
-        node.visitChildren(this);
-    }
+    public void visitIdentifierExprNode(IdentifierExprNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitMethodNode(MethodNode node) {
-        node.visitChildren(this);
-    }
+    public void visitMethodNode(MethodNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitStatementNode(StatementNode node) {
-        node.visitChildren(this);
-    }
+    public void visitStatementNode(StatementNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitUnaryExprNode(UnaryExprNode node) {
-        node.visitChildren(this);
-    }
+    public void visitUnaryExprNode(UnaryExprNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitCastExprNode(CastExprNode node) {
-        node.visitChildren(this);
-    }
+    public void visitCastExprNode(CastExprNode node) { node.visitChildren(this); }
     
     @Override
-    public void visitArrAccessExprNode(ArrAccessExprNode node) {
-        node.visitChildren(this);
-    }
+    public void visitArrAccessExprNode(ArrAccessExprNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitArrayInitializer(ArrayInitializer node) {
-        node.visitChildren(this);
-    }
+    public void visitArrayInitializer(ArrayInitializer node) { node.visitChildren(this); }
 
-    public void visit(AstNode node) {
-        node.accept(this);
-    }
+    public void visit(AstNode node) { node.accept(this); }
 }

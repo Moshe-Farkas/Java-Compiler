@@ -16,11 +16,15 @@ public class BaseSemanticAnalysis {
     private String startSource = "public class Test {\r\n" + //
             "\tpublic void method1() {";
     private String endSource = "\t}\r\n" + 
-                             "public void intMeth(int a2){}"   +
-                             "public void floatMeth(float b2){}" + 
-                             "public void charMeth(char c2){}"  + 
-                             "public void byteMeth(byte d2){}"    +
-                             "public void emptyMeth(){}" + "}";
+                             "public void intMeth(int a2){}"          +
+                             "public void floatMeth(float b2){}"      + 
+                             "public void charMeth(char c2){}"        + 
+                             "public void byteMeth(byte d2){}"        +
+                             "public void emptyMeth(){}"              + 
+                             "public void intArr1Dim(int[] e2){}"     +
+                             "public void intArr2Dim(int[][] e2){}"   +
+                             "public void floatArr1Dim(float[] e2){}" +
+                             "}";
         
     public void compile(String source) {
         source = startSource + source + endSource;

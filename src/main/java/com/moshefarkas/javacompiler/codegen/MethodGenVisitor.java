@@ -258,6 +258,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     private void multiDimArrayInitializer(ArrayInitializer node) {
         if (node.arraySizes.size() > 1) {
+            System.out.println(node);
             methodVisitor.visitMultiANewArrayInsn(node.exprType.toString(), node.arraySizes.size());
         } else {
             methodVisitor.visitTypeInsn(Opcodes.ANEWARRAY, "[" + node.exprType.getElementType());

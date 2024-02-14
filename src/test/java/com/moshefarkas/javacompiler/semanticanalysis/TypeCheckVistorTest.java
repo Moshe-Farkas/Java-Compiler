@@ -69,6 +69,18 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
 
         compileSource("charMeth(8);");
         assertEquals(ErrorType.MISMATCHED_ARGUMENTS, visitor.test_error);
+
+        compileSource("intArr1Dim(new int[4]);");
+        assertEquals(null, visitor.test_error);
+
+        compileSource("intArr1Dim(new int[4][]);");
+        assertEquals(ErrorType.MISMATCHED_ARGUMENTS, visitor.test_error);
+
+        compileSource("intArr2Dim(new int[4][]);");
+        assertEquals(null, visitor.test_error);
+
+        compileSource("intArr2Dim(new float[4][]);");
+        assertEquals(ErrorType.MISMATCHED_ARGUMENTS, visitor.test_error);
     }
 
     @Test 
@@ -112,6 +124,13 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
         // compileSource("int[][][] a = new int[4][][]; int[][] b = a[0][0];");
         // assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
 
-        compileSource("int[] a = new int[9];");
+        compileSource("int[] a = new int['l'];");
+        assertEquals(ErrorType.INVALID_ARRAY_INIT, visitor.test_error);
+
+        compileSource("int[][] a = new int['p'][5f];");
+        assertEquals(ErrorType.INVALID_ARRAY_INIT, visitor.test_error);
+
+        compileSource("int[][] a = new int[(int)5f][5];");
+        assertEquals(null, visitor.test_error);
     }
 }

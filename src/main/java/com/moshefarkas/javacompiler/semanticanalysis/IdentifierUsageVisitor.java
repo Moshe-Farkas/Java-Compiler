@@ -3,6 +3,7 @@ package com.moshefarkas.javacompiler.semanticanalysis;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.SymbolTable;
+import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 
@@ -15,7 +16,7 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
         String varName = node.varName;
         if (!SymbolTable.getInstance().hasVar(varName)) {
             error(ErrorType.UNDEFINED_VAR, node.lineNum, varName);
-        } else if (!SymbolTable.getInstance().getVarInfo(varName).initialized) {
+        } else if (SymbolTable.getInstance().getVarInfo(varName).initialized == false) {
             error(ErrorType.UNINITIALIZED_VAR, node.lineNum, varName);
         } 
     }
@@ -30,3 +31,4 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
         super.visitCallExprNode(node);
     }
 }
+

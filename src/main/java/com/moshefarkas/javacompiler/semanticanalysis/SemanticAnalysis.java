@@ -30,6 +30,7 @@ public class SemanticAnalysis extends BaseAstVisitor {
         DUPLICATE_METHOD,
         UNINITIALIZED_VAR,
         INVALID_CAST,
+        INVALID_ARRAY_INIT,
     } 
 
     protected ErrorType test_error;

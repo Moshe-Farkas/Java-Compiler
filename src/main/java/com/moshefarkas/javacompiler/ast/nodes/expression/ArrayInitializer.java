@@ -49,6 +49,6 @@ public class ArrayInitializer extends ExpressionNode {
 
     @Override
     public String toString() { 
-        return "array init. dims: " + dims + " static sizes: " + arraySizes + ", type: " + type;
+        return "array init. dims: " + dims + " static sizes: " + arraySizes + ", type: " + exprType;
     }
 }
