@@ -81,6 +81,9 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
 
         compileSource("intArr2Dim(new float[4][]);");
         assertEquals(ErrorType.MISMATCHED_ARGUMENTS, visitor.test_error);
+
+        compileSource("int[] a = new int[4]; intArr1Dim(a);");
+        assertEquals(null, visitor.test_error);
     }
 
     @Test 

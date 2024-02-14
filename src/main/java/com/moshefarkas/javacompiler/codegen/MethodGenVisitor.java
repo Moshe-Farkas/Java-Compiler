@@ -242,6 +242,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
     public void visitArrAccessExprNode(ArrAccessExprNode node) {
         visit(node.identifer); 
         visit(node.index);
+        methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IALOAD));
     }
 
     @Override
