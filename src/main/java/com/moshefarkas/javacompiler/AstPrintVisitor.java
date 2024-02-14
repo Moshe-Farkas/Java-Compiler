@@ -1,8 +1,7 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
-import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
-import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 
 public class AstPrintVisitor extends BaseAstVisitor {
 
@@ -12,11 +11,11 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     System.out.println(node);
     // }
 
-    @Override
-    public void visitArrayInitializer(ArrayInitializer node) {
-        System.out.println("line: " + node.lineNum);
-        System.out.println(node);
-    }
+    // @Override
+    // public void visitArrayInitializer(ArrayInitializer node) {
+    //     System.out.println("line: " + node.lineNum);
+    //     System.out.println(node);
+    // }
 
     // @Override
     // public void visitCastExprNode(CastExprNode node) {
@@ -26,13 +25,13 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     System.out.println("\tExpression: " + node.expression);
     // }
 
-    @Override
-    public void visitCallExprNode(CallExprNode node) {
-        System.out.println("line: " + node.lineNum);
-        System.out.println("call expr: ");    
-        System.out.println("\tname: " + node.methodName);
-        System.out.println("\targs: " + node.arguments);
-    }
+    // @Override
+    // public void visitCallExprNode(CallExprNode node) {
+    //     System.out.println("line: " + node.lineNum);
+    //     System.out.println("call expr: ");    
+    //     System.out.println("\tname: " + node.methodName);
+    //     System.out.println("\targs: " + node.arguments);
+    // }
 
     // @Override
     // public void visitBinaryExprNode(BinaryExprNode node) {
@@ -67,12 +66,13 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     System.out.println("\tnode r-value: " + node.identifier);
     // }
 
-    // @Override
-    // public void visitMethodNode(MethodNode node) {
-    //     System.out.println("line: " + node.lineNum);
-    //     System.out.println("method: " + node.methodName);
-    //     System.out.println("params: " + node.params);
-    // }
+    @Override
+    public void visitMethodNode(MethodNode node) {
+        System.out.println("line: " + node.lineNum);
+        System.out.println("\tmethod modifiers: " + node.methodModifiers);
+        System.out.println("\tmethod: " + node.methodName);
+        System.out.println("\tparams: " + node.params);
+    }
 
     // @Override
     // public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {

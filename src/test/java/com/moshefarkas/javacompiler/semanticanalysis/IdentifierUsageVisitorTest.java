@@ -21,6 +21,15 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
         visitor.visitClassNode(ast);
     }
 
+    private void compileNewMethodheader(String header) {
+        SymbolTable.getInstance().test_reset();
+        visitor = new IdentifierUsageVisitor();
+        compileHeader(header);
+        SymbolTableGenVisitor v = new SymbolTableGenVisitor();
+        v.visitClassNode(ast);
+        visitor.visitClassNode(ast);
+    }
+
     @Test
     public void testUndefinedVar() {
         compileNewSource("int a = b;");
@@ -46,5 +55,23 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
 
         compileNewSource("int a[]; int b = a[0];");
         assertEquals(ErrorType.UNINITIALIZED_VAR, visitor.test_error);
+    }
+
+    @Test
+    public void testMethodModifiers() {
+        compileNewMethodheader("public private static");
+        assertEquals(ErrorType.INVALID_METHOD_HEADER, visitor.test_error);
+
+        compileNewMethodheader("public public");
+        assertEquals(ErrorType.INVALID_METHOD_HEADER, visitor.test_error);
+
+        compileNewMethodheader("public static");
+        assertEquals(null, visitor.test_error);
+
+        compileNewMethodheader("public abstract");
+        assertEquals(null, visitor.test_error);
+
+        compileNewMethodheader("public static abstract");
+        assertEquals(ErrorType.INVALID_METHOD_HEADER, visitor.test_error);
     }
 }

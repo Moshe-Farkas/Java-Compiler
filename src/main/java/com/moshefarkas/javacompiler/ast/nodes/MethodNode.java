@@ -11,7 +11,7 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 public class MethodNode extends AstNode {
     public Type returnType;
     public List<LocalVarDecStmtNode> params;
-    public List<String> accessModifiers;
+    public List<String> methodModifiers;
 
     public BlockStmtNode statements;
 
@@ -25,8 +25,8 @@ public class MethodNode extends AstNode {
         this.params = params;
     }
 
-    public void setAccessModifiers(List<String> accessModifiers) {
-        this.accessModifiers = accessModifiers;
+    public void setMethodModifiers(List<String> accessModifiers) {
+        this.methodModifiers = accessModifiers;
     }
 
     public void setStatements(BlockStmtNode statements) {
@@ -40,7 +40,7 @@ public class MethodNode extends AstNode {
 
     @Override
     public String toString() {
-        return "ret type: " + returnType + ", " + "name: " + methodName + ", " + accessModifiers + ", statements: " + statements;
+        return "ret type: " + returnType + ", " + "name: " + methodName + ", " + methodModifiers + ", statements: " + statements;
     }
 
     @Override

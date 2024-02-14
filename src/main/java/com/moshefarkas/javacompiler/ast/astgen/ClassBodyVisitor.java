@@ -31,7 +31,6 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         //     : methodModifier* methodHeader methodBody
         //     ;
         List<String> methodAccessModifiers = new ArrayList<>();
-        // List<MethodInfo> methodParams          = new ArrayList<>();
         
         for (MethodModifierContext mmc : ctx.methodModifier()) {
             methodAccessModifiers.add((String)visit(mmc));
@@ -46,7 +45,7 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         MethodNode methodNode = new MethodNode();
         methodNode.setMethodName(methodName);
         methodNode.setReturnType(returnType);
-        methodNode.setAccessModifiers(methodAccessModifiers);
+        methodNode.setMethodModifiers(methodAccessModifiers);
         methodNode.setParams(methodParams);
 
 

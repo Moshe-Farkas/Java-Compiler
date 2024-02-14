@@ -25,9 +25,27 @@ public class BaseSemanticAnalysis {
                              "public void intArr2Dim(int[][] e2){}"   +
                              "public void floatArr1Dim(float[] e2){}" +
                              "}";
+    
+    private String startSourceMethods = "public class Test {";
         
     public void compile(String source) {
         source = startSource + source + endSource;
+        CharStream input = CharStreams.fromString(source);
+        Java8Lexer lexer = new Java8Lexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        Java8Parser parser = new Java8Parser(tokens);
+        ParseTree tree = parser.compilationUnit(); 
+        if (parser.getNumberOfSyntaxErrors() > 0) {
+            System.exit(1);
+        }
+        ClassVisitor astGen = new ClassVisitor();
+        astGen.visit(tree);
+        ast = astGen.currentClass;
+    }
+
+    protected void compileHeader(String header) {
+        String source = startSourceMethods + header + " int meth(){}" + "}";
+        System.out.println(source);
         CharStream input = CharStreams.fromString(source);
         Java8Lexer lexer = new Java8Lexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);

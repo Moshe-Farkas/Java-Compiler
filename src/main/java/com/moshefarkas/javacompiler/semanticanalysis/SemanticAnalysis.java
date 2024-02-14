@@ -22,6 +22,7 @@ public class SemanticAnalysis extends BaseAstVisitor {
     }
 
     protected enum ErrorType {
+        INVALID_METHOD_HEADER,
         MISMATCHED_ARGUMENTS,
         MISMATCHED_TYPE,
         MISMATCHED_ASSIGNMENT_TYPE,
