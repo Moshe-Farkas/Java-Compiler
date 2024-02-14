@@ -20,6 +20,8 @@ import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
+import jdk.internal.org.objectweb.asm.Opcodes;
+
 public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
 
     public List<MethodNode> methods = new ArrayList<>();
@@ -30,10 +32,10 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         // methodDeclaration
         //     : methodModifier* methodHeader methodBody
         //     ;
-        List<String> methodAccessModifiers = new ArrayList<>();
+        List<Integer> methodAccessModifiers = new ArrayList<>();
         
         for (MethodModifierContext mmc : ctx.methodModifier()) {
-            methodAccessModifiers.add((String)visit(mmc));
+            methodAccessModifiers.add(visitMethodModifier(mmc));
         }
 
         // [0]: return type, [1] method name, [2] params list
@@ -60,7 +62,7 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
     }
 
     @Override
-    public String visitMethodModifier(MethodModifierContext ctx) {
+    public Integer visitMethodModifier(MethodModifierContext ctx) {
         // methodModifier
         //     : annotation
         //     | 'public'
@@ -73,7 +75,22 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         //     | 'native'
         //     | 'strictfp'
         //     ;
-        return ctx.getText();
+        switch (ctx.getText()) {
+            case "public":
+                return Opcodes.ACC_PUBLIC;
+            case "private":
+                return Opcodes.ACC_PRIVATE;
+            case "protected":
+                return Opcodes.ACC_PROTECTED;
+            case "abstract":
+                return Opcodes.ACC_ABSTRACT;
+            case "static":
+                return Opcodes.ACC_STATIC;
+            case "final":
+                return Opcodes.ACC_FINAL;
+            default:
+                throw new UnsupportedOperationException("inside visit method modifier in class body vis");
+        }
     }
 
     @Override

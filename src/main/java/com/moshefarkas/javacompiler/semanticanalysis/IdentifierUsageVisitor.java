@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.antlr.v4.parse.ANTLRParser.modeSpec_return;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.SymbolTable;
@@ -43,7 +44,7 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
         boolean seenAccessMod = false;
 
         for (int i = 0; i < node.methodModifiers.size(); i++) {
-            String modifer = node.methodModifiers.get(i);
+            int modifer = node.methodModifiers.get(i);
             if (Collections.frequency(node.methodModifiers, modifer) > 1) {
                 error(
                     ErrorType.INVALID_METHOD_HEADER, 
@@ -54,9 +55,9 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
             }
 
             switch (modifer) {
-                case "private"  :
-                case "public"   :
-                case "protected":
+                case Opcodes.ACC_PRIVATE:
+                case Opcodes.ACC_PUBLIC:
+                case Opcodes.ACC_PROTECTED:
                     if (seenAccessMod) {
                         error(
                             ErrorType.INVALID_METHOD_HEADER, 
@@ -66,9 +67,9 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
                     }
                     seenAccessMod = true;
                     break;
-                case "static":
-                case "asbtract":
-                    String temp = modifer.equals("static") ? "abstract" : "static";
+                case Opcodes.ACC_STATIC:
+                case Opcodes.ACC_ABSTRACT:
+                    int temp = modifer == Opcodes.ACC_STATIC ? Opcodes.ACC_ABSTRACT : Opcodes.ACC_STATIC;
                     if (node.methodModifiers.contains(temp)) {
                         error(
                             ErrorType.INVALID_METHOD_HEADER, 

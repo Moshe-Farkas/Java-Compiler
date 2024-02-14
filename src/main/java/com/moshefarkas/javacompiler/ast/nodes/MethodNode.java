@@ -11,7 +11,7 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 public class MethodNode extends AstNode {
     public Type returnType;
     public List<LocalVarDecStmtNode> params;
-    public List<String> methodModifiers;
+    public List<Integer> methodModifiers;  // uses OpCode.ACC_XXX for modifers
 
     public BlockStmtNode statements;
 
@@ -25,7 +25,7 @@ public class MethodNode extends AstNode {
         this.params = params;
     }
 
-    public void setMethodModifiers(List<String> accessModifiers) {
+    public void setMethodModifiers(List<Integer> accessModifiers) {
         this.methodModifiers = accessModifiers;
     }
 
