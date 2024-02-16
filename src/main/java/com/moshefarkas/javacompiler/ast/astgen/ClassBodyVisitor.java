@@ -3,6 +3,7 @@ package com.moshefarkas.javacompiler.ast.astgen;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.generated.Java8Parser.FloatingPointTypeContext;
@@ -19,8 +20,6 @@ import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
-
-import jdk.internal.org.objectweb.asm.Opcodes;
 
 public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
 

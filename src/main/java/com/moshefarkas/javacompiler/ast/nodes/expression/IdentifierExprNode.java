@@ -1,5 +1,6 @@
 package com.moshefarkas.javacompiler.ast.nodes.expression;
 
+import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.AstVisitor;
 
 public class IdentifierExprNode extends ExpressionNode {

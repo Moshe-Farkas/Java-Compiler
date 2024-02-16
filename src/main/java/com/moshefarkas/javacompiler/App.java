@@ -8,7 +8,6 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.objectweb.asm.Type;
 
 import com.moshefarkas.generated.Java8Lexer;
 import com.moshefarkas.generated.Java8Parser;
@@ -26,6 +25,19 @@ public class App {
         // int a[][];
         // a = new int[5];
 
+        // char a = 'p';
+        // char b = 'r';
+        // Object c = a + b;
+        // System.out.println(c.getClass());
+
+        // int a = Math.sqrt('f', "s") + Math.sqrt("fk");
+
+        // int a = true + true;
+        // int a = true + 5 / 6;
+
+        // if ((true == 6) == 6 == false) {
+
+        // }
         // System.exit(0);
 
 

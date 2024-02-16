@@ -136,4 +136,16 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
         compileSource("int[][] a = new int[(int)5f][5];");
         assertEquals(null, visitor.test_error);
     }
+
+    @Test 
+    public void testBinaryBoolExpr() {
+        compileSource("if (true == false) {}");
+        assertEquals(null, visitor.test_error);
+
+        compileSource("if (5 == false) {}");
+        assertEquals(ErrorType.INVALID_OPERATOR_TYPES, visitor.test_error);
+
+        compileSource("if (true >= false) {}");
+        assertEquals(ErrorType.INVALID_OPERATOR_TYPES, visitor.test_error);
+    }
 }

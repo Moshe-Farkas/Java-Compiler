@@ -23,10 +23,10 @@ public class BinaryExprNode extends ExpressionNode {
     public BinOp op;
     public ExpressionNode right;
     public ExpressionNode left;
-    public Type castType;
+    public Type domType; // if a side needs to be casted to a type
     
-    public void setCastType(Type castType) {
-        this.castType = castType;
+    public void setDomType(Type domType) {
+        this.domType = domType;
     }
     
     public void setOp(BinOp op) {

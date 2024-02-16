@@ -15,6 +15,10 @@ public abstract class AstNode {
         }
     }
 
+    public List<AstNode> getChildren() {
+        return children;
+    }
+
     public void visitChildren(AstVisitor v) {
         for (AstNode child : children) {
             child.accept(v);

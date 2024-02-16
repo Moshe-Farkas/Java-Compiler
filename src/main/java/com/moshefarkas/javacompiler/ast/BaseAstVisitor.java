@@ -4,7 +4,7 @@ import com.moshefarkas.javacompiler.ast.nodes.AstNode;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
@@ -21,7 +21,6 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.StatementNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 
 public class BaseAstVisitor implements AstVisitor {
-
     @Override
     public void visitAssignExprNode(AssignExprNode node) { node.visitChildren(this); }
 
@@ -35,7 +34,15 @@ public class BaseAstVisitor implements AstVisitor {
     public void visitCallExprNode(CallExprNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitExpressionNode(ExpressionNode node) { node.visitChildren(this); }
+    public void visitExpressionNode(ExpressionNode node) {
+        node.accept(this); 
+    }
+
+    @Override
+    public void visitStatementNode(StatementNode node) {
+        node.visitChildren(this); 
+        // node.accept(this);
+    }
 
     @Override
     public void visitIfStmtNode(IfStmtNode node) { node.visitChildren(this); }
@@ -62,9 +69,6 @@ public class BaseAstVisitor implements AstVisitor {
     public void visitMethodNode(MethodNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitStatementNode(StatementNode node) { node.visitChildren(this); }
-
-    @Override
     public void visitUnaryExprNode(UnaryExprNode node) { node.visitChildren(this); }
 
     @Override
@@ -74,7 +78,7 @@ public class BaseAstVisitor implements AstVisitor {
     public void visitArrAccessExprNode(ArrAccessExprNode node) { node.visitChildren(this); }
 
     @Override
-    public void visitArrayInitializer(ArrayInitializer node) { node.visitChildren(this); }
+    public void visitArrayInitializer(ArrayInitializerNode node) { node.visitChildren(this); }
 
     public void visit(AstNode node) { node.accept(this); }
 }

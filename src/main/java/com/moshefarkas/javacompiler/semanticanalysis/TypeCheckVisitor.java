@@ -2,13 +2,11 @@ package com.moshefarkas.javacompiler.semanticanalysis;
 
 import java.util.HashMap;
 import java.util.Stack;
-
-import org.antlr.v4.parse.ANTLRParser.delegateGrammar_return;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
@@ -17,84 +15,106 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
-import com.moshefarkas.javacompiler.ast.nodes.statement.ExprStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class TypeCheckVisitor extends SemanticAnalysis {
 
-    // only should check assign and local var. needs to setExprType from gotten type
+    // todo synchronize for assignments stmt
+
+    private class SemanticError extends RuntimeException {}
 
     private Stack<Type> typeStack = new Stack<>();
+
+    private Type lookupType(Type a, Type b) {
+        //            int    float bool   char  byte
+        // int        int    float null    I     I
+        // float      float  float null    F     F
+        // bool       null   null, bool    null null
+        // char       I       F    null    I     I
+        // byte       I       F    null    I     I
+
+        if (a == Type.INT_TYPE) {
+            if (b == Type.INT_TYPE)     return Type.INT_TYPE;
+            if (b == Type.FLOAT_TYPE)   return Type.FLOAT_TYPE;
+            if (b == Type.BOOLEAN_TYPE) return null;
+            if (b == Type.CHAR_TYPE)    return Type.INT_TYPE;
+            if (b == Type.BYTE_TYPE)    return Type.INT_TYPE;
+        } else if (a == Type.FLOAT_TYPE) {
+            if (b == Type.FLOAT_TYPE)   return Type.FLOAT_TYPE;
+            if (b == Type.INT_TYPE)     return Type.FLOAT_TYPE;
+            if (b == Type.CHAR_TYPE)    return Type.FLOAT_TYPE;
+            if (b == Type.BYTE_TYPE)    return Type.FLOAT_TYPE;
+            if (b == Type.BOOLEAN_TYPE) return null;
+        } else if (a == Type.CHAR_TYPE) {
+            if (b == Type.FLOAT_TYPE)   return Type.FLOAT_TYPE;
+            if (b == Type.INT_TYPE)     return Type.INT_TYPE;
+            if (b == Type.CHAR_TYPE)    return Type.INT_TYPE;
+            if (b == Type.BYTE_TYPE)    return Type.INT_TYPE;
+            if (b == Type.BOOLEAN_TYPE) return null;
+        } else if (a == Type.BYTE_TYPE) {
+            if (b == Type.FLOAT_TYPE)   return Type.FLOAT_TYPE;
+            if (b == Type.INT_TYPE)     return Type.INT_TYPE;
+            if (b == Type.CHAR_TYPE)    return Type.INT_TYPE;
+            if (b == Type.BYTE_TYPE)    return Type.INT_TYPE;
+        }
+
+        if (a == Type.BOOLEAN_TYPE && b == Type.BOOLEAN_TYPE) return Type.BOOLEAN_TYPE;
+        return null;
+    }
 
     @Override
     public void visitBinaryExprNode(BinaryExprNode node) {
         // need to handle boolean binary expression
         visit(node.left);
         visit(node.right);
+        Type a = typeStack.pop();
+        Type b = typeStack.pop();
+
         switch (node.op) {
             case EQ_EQ:
             case GT   :
             case GT_EQ:
             case LT   :
             case LT_EQ:
-                binaryBoolOp(node);
+                binaryBoolOp(node, a, b);
                 break;
             default:
-                Type b = typeStack.pop();
-                Type a = typeStack.pop();
-                // char, byte and short are treated as if int
-                if (a == Type.CHAR_TYPE || a == Type.BYTE_TYPE || a == Type.SHORT_TYPE) {
-                    a = Type.INT_TYPE;
-                }
-                if (b == Type.CHAR_TYPE || b == Type.BYTE_TYPE || b == Type.SHORT_TYPE) {
-                    b = Type.INT_TYPE;
-                }
-                Type exprType;
-                if (wideningRules.get(a) > wideningRules.get(b)) {
-                    exprType = a;
-                } else {
-                    exprType = b;
-                }
-                node.setExprType(exprType);
-                node.setCastType(exprType);
-                typeStack.push(exprType);
+                binaryOp(node, a, b);
         }
-
-        // Type b = typeStack.pop();
-        // Type a = typeStack.pop();
-        // // char, byte and short are treated as if int
-        // if (a == Type.CHAR_TYPE || a == Type.BYTE_TYPE || a == Type.SHORT_TYPE) {
-        //     a = Type.INT_TYPE;
-        // }
-        // if (b == Type.CHAR_TYPE || b == Type.BYTE_TYPE || b == Type.SHORT_TYPE) {
-        //     b = Type.INT_TYPE;
-        // }
-        // Type exprType;
-        // if (wideningRules.get(a) > wideningRules.get(b)) {
-        //     exprType = a;
-        // } else {
-        //     exprType = b;
-        // }
-        // node.setExprType(exprType);
-        // typeStack.push(exprType);
     }
 
-    private void binaryBoolOp(BinaryExprNode node) {
-        // already visited left and right exprs
-        Type b = typeStack.pop();
-        Type a = typeStack.pop();
-        
-        Type castType;
-        if (wideningRules.get(a) > wideningRules.get(b)) {
-            castType = a;
-        } else {
-            castType = b;
+    private void binaryBoolOp(BinaryExprNode node, Type a, Type b) {
+        // need to set dom type
+        Type castType = lookupType(a, b);
+        if (castType == null) {
+            error(
+                ErrorType.INVALID_OPERATOR_TYPES, // migrate to invalid op type
+                node.lineNum, 
+                errorString("Can't use `%s` for type `%s` with type `%s`.", node.op, a, b)
+            );
+            throw new SemanticError();
         }
-        node.setCastType(castType);
 
+        node.setDomType(castType);
         node.setExprType(Type.BOOLEAN_TYPE);
         typeStack.push(Type.BOOLEAN_TYPE);
+    }
+
+    private void binaryOp(BinaryExprNode node, Type a, Type b) {
+        Type castType = lookupType(a, b);
+        if (a == Type.BOOLEAN_TYPE && b == Type.BOOLEAN_TYPE) castType = null;
+        if (castType == null) {
+            error(
+                ErrorType.INVALID_OPERATOR_TYPES, // migrate to invalid op type
+                node.lineNum, 
+                errorString("Can't use `%s` for type `%s` with type `%s`.", node.op, a, b)
+            );
+            throw new SemanticError();
+        }
+        node.setDomType(castType);
+        node.setExprType(castType);
+        typeStack.push(castType);
     }
 
     @Override
@@ -180,22 +200,23 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         if (!node.var.initialized) {
             return;
         }
+        // - localVarDecls: if the init failed then exit, else compare the the init expr type to the var type
+        try {
+            visit(node.initializer);
+            Type initializerType = typeStack.pop();
+            Type varType = SymbolTable.getInstance().getVarType(node.var.name);
 
-        visit(node.initializer);
-        Type initializerType = typeStack.pop();
-        Type varType = SymbolTable.getInstance().getVarType(node.var.name);
-
-        if (!validAssignment(varType, initializerType)) {
-            error(
-                ErrorType.MISMATCHED_ASSIGNMENT_TYPE, 
-                node.lineNum, 
-                errorString(
-                    "cannot assign epxression of type `%s` to type `%s`.",
-                    initializerType, varType
-                )
-            );
-        }
-        node.initializer.setExprType(initializerType);
+            if (!validAssignment(varType, initializerType)) {
+                error(
+                    ErrorType.MISMATCHED_ASSIGNMENT_TYPE, 
+                    node.lineNum, 
+                    errorString(
+                        "cannot assign epxression of type `%s` to type `%s`.",
+                        initializerType, varType
+                    )
+                );
+            }
+        } catch (SemanticError e) {typeStack.clear();}
     }
 
     private boolean validCast(Type targetCast, Type toCast) {
@@ -227,7 +248,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
     }
 
     @Override
-    public void visitArrayInitializer(ArrayInitializer node) {
+    public void visitArrayInitializer(ArrayInitializerNode node) {
         for (ExpressionNode size : node.arraySizes) {
             visit(size);
             Type indexType = typeStack.pop();
@@ -263,17 +284,21 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitIfStmtNode(IfStmtNode node) {
-        visit(node.condition);
-        Type conditionType = typeStack.pop();
-        if (conditionType != Type.BOOLEAN_TYPE) {
-            error(
-                ErrorType.MISMATCHED_TYPE, 
-                node.lineNum, 
-                errorString(
-                    "Can't use epxression of type `%s`. Condition need to be bool.", 
-                    conditionType
-                )
-            );
-        }
+        try {
+            visit(node.condition);
+            Type conditionType = typeStack.pop();
+            if (conditionType != Type.BOOLEAN_TYPE) {
+                error(
+                    ErrorType.MISMATCHED_TYPE, 
+                    node.lineNum, 
+                    errorString(
+                        "Can't use epxression of type `%s`. Condition need to be bool.", 
+                        conditionType
+                    )
+                );
+            }
+        } catch (SemanticError e) { typeStack.clear(); }
+        
+        visit(node.statement);
     }
 }

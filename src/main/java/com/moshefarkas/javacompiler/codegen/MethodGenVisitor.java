@@ -16,7 +16,7 @@ import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
@@ -151,9 +151,9 @@ public class MethodGenVisitor extends BaseAstVisitor {
         Type rightExprType = node.right.exprType;
 
         visit(node.left);
-        emitTypeCast(node.castType, leftExprType);
+        emitTypeCast(node.domType, leftExprType);
         visit(node.right);
-        emitTypeCast(node.castType, rightExprType);
+        emitTypeCast(node.domType, rightExprType);
         
         switch (node.op) {
             case PLUS:
@@ -260,7 +260,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
     }
 
     @Override
-    public void visitArrayInitializer(ArrayInitializer node) {
+    public void visitArrayInitializer(ArrayInitializerNode node) {
         for (ExpressionNode size : node.arraySizes) {
             visit(size);
         }
@@ -271,7 +271,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
         }
     }
 
-    private void multiDimArrayInitializer(ArrayInitializer node) {
+    private void multiDimArrayInitializer(ArrayInitializerNode node) {
         if (node.arraySizes.size() > 1) {
             System.out.println(node);
             methodVisitor.visitMultiANewArrayInsn(node.exprType.toString(), node.arraySizes.size());
@@ -280,7 +280,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
         }
     }
 
-    private void singleDimArrayInitializer(ArrayInitializer node) {
+    private void singleDimArrayInitializer(ArrayInitializerNode node) {
         if (node.type.getElementType() == Type.INT_TYPE) {
             methodVisitor.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_INT);
         } else if (node.type.getElementType() == Type.FLOAT_TYPE) {

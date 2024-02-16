@@ -6,7 +6,7 @@ import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.ast.AstVisitor;
 
-public class ArrayInitializer extends ExpressionNode {
+public class ArrayInitializerNode extends ExpressionNode {
 
     public List<ArrayLiteralElement> vars;
     public List<ExpressionNode> arraySizes;

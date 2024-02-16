@@ -27,7 +27,7 @@ import com.moshefarkas.generated.Java8Parser.UnaryExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnaryExpressionNotPlusMinusContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializer;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
@@ -271,7 +271,6 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         
         IdentifierExprNode iden = new IdentifierExprNode();
         iden.setVarName(ctx.Identifier().getText());
-        // IdentifierExprNode iden = new VarIdenExprNode();
 
         iden.lineNum = ctx.getStart().getLine();
         return iden;
@@ -451,7 +450,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
     }
 
     @Override
-    public ArrayInitializer visitArrayCreationExpression(ArrayCreationExpressionContext ctx) {
+    public ArrayInitializerNode visitArrayCreationExpression(ArrayCreationExpressionContext ctx) {
         // arrayCreationExpression
         //     : 'new' primitiveType dimExprs dims?
         //     | 'new' classOrInterfaceType dimExprs dims?
@@ -461,7 +460,7 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         // array initilizer: list of varDecls.
         // for empty array creation this list will be empty.
         
-        ArrayInitializer arrayInitializer = new ArrayInitializer();
+        ArrayInitializerNode arrayInitializer = new ArrayInitializerNode();
         List<ExpressionNode> sizes = new ArrayList<>();
         String dimsStr = "";
         for (DimExprContext dexc : ctx.dimExprs().dimExpr()) {

@@ -4,6 +4,7 @@ import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
 
 public class SemanticAnalysis extends BaseAstVisitor {
 
@@ -18,12 +19,13 @@ public class SemanticAnalysis extends BaseAstVisitor {
         iuv.visitClassNode(ast);
         if (hadErr) return;
         TypeCheckVisitor s = new TypeCheckVisitor();
-        s.visitClassNode(ast);
+        s.visit(ast);
         if (hadErr) return;
     }
 
     protected enum ErrorType {
         INVALID_METHOD_HEADER,
+        INVALID_OPERATOR_TYPES,
         MISMATCHED_ARGUMENTS,
         MISMATCHED_TYPE,
         MISMATCHED_ASSIGNMENT_TYPE,
@@ -49,6 +51,8 @@ public class SemanticAnalysis extends BaseAstVisitor {
             Object arg = args[i];
             if (arg instanceof Type) {
                 args[i] = humanReadableType((Type)arg);
+            } else if (arg instanceof BinOp) {
+                args[i] = humanReadableBinOp((BinOp)arg);
             }
         }
         return String.format(format, args);
@@ -79,5 +83,33 @@ public class SemanticAnalysis extends BaseAstVisitor {
             res = "void";
         }
         return res + dims;
+    }
+
+    private String humanReadableBinOp(BinOp op) {
+        switch (op) {
+            case DIV:
+                return "/";
+            case MUL:
+                return "*";
+            case PLUS:
+                return "+";
+            case MINUS:
+                return "-";
+            case MOD:
+                return "%";
+            case EQ_EQ:
+                return "==";
+            case NOT_EQ:
+                return "!=";
+            case GT:
+                return ">";
+            case GT_EQ:
+                return ">=";
+            case LT:
+                return "<";
+            case LT_EQ:
+                return "<=";
+        }
+        return "fix me";
     }
 }
