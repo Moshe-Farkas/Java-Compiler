@@ -147,5 +147,14 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
 
         compileSource("if (true >= false) {}");
         assertEquals(ErrorType.INVALID_OPERATOR_TYPES, visitor.test_error);
+
+        compileSource("if (true + false == false) {}");
+        assertEquals(ErrorType.INVALID_OPERATOR_TYPES, visitor.test_error);
+
+        compileSource("if (true == false == false) {}");
+        assertEquals(null, visitor.test_error);
+
+        compileSource("if (true == 5) {}");
+        assertEquals(ErrorType.INVALID_OPERATOR_TYPES, visitor.test_error);
     }
 }

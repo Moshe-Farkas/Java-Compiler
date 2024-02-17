@@ -16,6 +16,7 @@ import com.moshefarkas.generated.Java8Parser.MethodHeaderContext;
 import com.moshefarkas.generated.Java8Parser.MethodModifierContext;
 import com.moshefarkas.generated.Java8Parser.ResultContext;
 import com.moshefarkas.generated.Java8Parser.UnannArrayTypeContext;
+import com.moshefarkas.generated.Java8Parser.UnannPrimitiveTypeContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
@@ -207,6 +208,18 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         varNode.setVar(var);
         varNode.lineNum = ctx.getStart().getLine();
         return varNode;
+    }
+
+    @Override
+    public Type visitUnannPrimitiveType(UnannPrimitiveTypeContext ctx) {
+        // unannPrimitiveType
+        //     : numericType
+        //     | 'boolean'
+        //     ;
+        if (ctx.BOOLEAN() != null) {
+            return Type.BOOLEAN_TYPE;
+        }
+        return (Type)visit(ctx.numericType());
     }
 
     @Override

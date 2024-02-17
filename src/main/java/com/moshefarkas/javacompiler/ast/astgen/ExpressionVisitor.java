@@ -21,6 +21,7 @@ import com.moshefarkas.generated.Java8Parser.IntegralTypeContext;
 import com.moshefarkas.generated.Java8Parser.LiteralContext;
 import com.moshefarkas.generated.Java8Parser.MethodInvocationContext;
 import com.moshefarkas.generated.Java8Parser.MultiplicativeExpressionContext;
+import com.moshefarkas.generated.Java8Parser.PrimaryNoNewArray_lfno_primaryContext;
 import com.moshefarkas.generated.Java8Parser.PrimitiveTypeContext;
 import com.moshefarkas.generated.Java8Parser.RelationalExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnaryExpressionContext;
@@ -480,5 +481,27 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         arrayInitializer.setType(Type.getType(dimsStr + arrayInitType.getDescriptor()));
 
         return  arrayInitializer;
+    }
+
+    @Override
+    public Object visitPrimaryNoNewArray_lfno_primary(PrimaryNoNewArray_lfno_primaryContext ctx) {
+        // primaryNoNewArray_lfno_primary
+        //     : literal
+        //     | typeName ('[' ']')* '.' 'class'
+        //     | unannPrimitiveType ('[' ']')* '.' 'class'
+        //     | 'void' '.' 'class'
+        //     | 'this'
+        //     | typeName '.' 'this'
+        //     | '(' expression ')'
+        //     | classInstanceCreationExpression_lfno_primary
+        //     | fieldAccess_lfno_primary
+        //     | arrayAccess_lfno_primary
+        //     | methodInvocation_lfno_primary
+        //     | methodReference_lfno_primary
+        //     ;
+        if (ctx.LPAREN() != null) {
+            return visit(ctx.expression());
+        }
+        return super.visitPrimaryNoNewArray_lfno_primary(ctx);
     }
 }

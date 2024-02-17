@@ -147,6 +147,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitBinaryExprNode(BinaryExprNode node) {
+        // if a bool operator then needs to make a label
         Type leftExprType = node.left.exprType;
         Type rightExprType = node.right.exprType;
 
@@ -169,7 +170,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
                 methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IMUL));
                 break;
             case MOD:
-                methodVisitor.visitInsn(Opcodes.IREM);
+                methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IREM));
                 break;
             case GT:
                 methodVisitor.visitJumpInsn(Opcodes.IF_ICMPLE, labelStack.pop());
@@ -218,7 +219,6 @@ public class MethodGenVisitor extends BaseAstVisitor {
             methodVisitor.visitInsn(Opcodes.ICONST_0);
     }
 
-
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
         VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
@@ -231,10 +231,30 @@ public class MethodGenVisitor extends BaseAstVisitor {
         Label label = new Label();
         labelStack.push(label);
 
-        visit(node.condition);
+        // visit(node.condition);
+
+        ifCondition(node.condition);
+
         visit(node.statement);
         
         methodVisitor.visitLabel(label);
+    }
+
+    private void ifCondition(ExpressionNode node) {
+        if (node instanceof BinaryExprNode) {
+            BinaryExprNode binNode = (BinaryExprNode)node;
+            visit(binNode.left);
+            emitTypeCast(binNode.domType, binNode.left.exprType);
+            visit(binNode.right);
+            emitTypeCast(binNode.domType, binNode.right.exprType);
+            methodVisitor.visitJumpInsn(
+                binNode.exprType.getOpcode(Opcodes.IF_ICMPEQ), 
+                labelStack.pop()
+            );
+        } else {
+            visit(node);
+            methodVisitor.visitJumpInsn(Opcodes.IFEQ, labelStack.pop());
+        }
     }
 
     @Override

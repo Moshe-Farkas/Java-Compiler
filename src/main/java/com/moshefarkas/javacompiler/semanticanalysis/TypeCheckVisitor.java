@@ -14,7 +14,6 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
@@ -59,7 +58,6 @@ public class TypeCheckVisitor extends SemanticAnalysis {
             if (b == Type.BYTE_TYPE)    return Type.INT_TYPE;
         }
 
-        if (a == Type.BOOLEAN_TYPE && b == Type.BOOLEAN_TYPE) return Type.BOOLEAN_TYPE;
         return null;
     }
 
@@ -70,9 +68,14 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         visit(node.right);
         Type a = typeStack.pop();
         Type b = typeStack.pop();
-
         switch (node.op) {
             case EQ_EQ:
+            case NOT_EQ:
+                if (a == Type.BOOLEAN_TYPE && b == Type.BOOLEAN_TYPE) {
+                    node.setExprType(Type.BOOLEAN_TYPE);
+                    typeStack.push(Type.BOOLEAN_TYPE);
+                    break;
+                }
             case GT   :
             case GT_EQ:
             case LT   :
@@ -142,6 +145,8 @@ public class TypeCheckVisitor extends SemanticAnalysis {
     private boolean validAssignment(Type varType, Type assignType) {
         if (varType == Type.BOOLEAN_TYPE && assignType == Type.BOOLEAN_TYPE)
             return true;
+        if (varType == Type.BOOLEAN_TYPE || assignType == Type.BOOLEAN_TYPE)
+            return false;
         if (varType.getSort() == Type.ARRAY || assignType.getSort() == Type.ARRAY) {
             if (varType.equals(assignType)) {
                 return true;
@@ -178,19 +183,21 @@ public class TypeCheckVisitor extends SemanticAnalysis {
     public void visitCallExprNode(CallExprNode node) {
         Type[] paramTypes = SymbolTable.getInstance().getParamTypes(node.methodName);
         for (int i = 0; i < node.arguments.size(); i++) {
-            visit(node.arguments.get(i));
-            Type argType = typeStack.pop();
-            Type paramType = paramTypes[i];
-            if (!validAssignment(paramType, argType)) {
-                error(
-                    ErrorType.MISMATCHED_ARGUMENTS, 
-                    node.lineNum, 
-                    errorString(
-                        "Expcected type `%s` but got `%s` as an arg instead.",
-                        paramType, argType
-                    )
-                );
-            }
+            try {
+                visit(node.arguments.get(i));
+                Type argType = typeStack.pop();
+                Type paramType = paramTypes[i];
+                if (!validAssignment(paramType, argType)) {
+                    error(
+                        ErrorType.MISMATCHED_ARGUMENTS, 
+                        node.lineNum, 
+                        errorString(
+                            "Expcected type `%s` but got `%s` as an arg instead.",
+                            paramType, argType
+                        )
+                    );
+                }
+            } catch (SemanticError e) {typeStack.clear();}
         }
         node.setExprType(SymbolTable.getInstance().getReturnType(node.methodName));
     }
@@ -200,7 +207,6 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         if (!node.var.initialized) {
             return;
         }
-        // - localVarDecls: if the init failed then exit, else compare the the init expr type to the var type
         try {
             visit(node.initializer);
             Type initializerType = typeStack.pop();
