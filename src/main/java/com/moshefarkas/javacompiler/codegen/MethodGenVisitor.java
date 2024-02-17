@@ -145,9 +145,22 @@ public class MethodGenVisitor extends BaseAstVisitor {
         );
     }
 
+    private void binBoolExpr(BinaryExprNode node) {
+        // now need to emit correct opcode based on node.expr and node.op
+        Label gotoFalse = new Label();
+        methodVisitor.visitJumpInsn(Opcodes.IF_ICMPNE, gotoFalse);
+        emitBoolConst(true);
+        Label gotoEnd = new Label();
+        methodVisitor.visitJumpInsn(Opcodes.GOTO, gotoEnd);
+        methodVisitor.visitLabel(gotoFalse);
+        emitBoolConst(false);
+        methodVisitor.visitLabel(gotoEnd);
+    }
+
     @Override
     public void visitBinaryExprNode(BinaryExprNode node) {
-        // if a bool operator then needs to make a label
+        // if node.op == >, >=, <, <=, ==, != then push a label to stack
+
         Type leftExprType = node.left.exprType;
         Type rightExprType = node.right.exprType;
 
@@ -155,6 +168,17 @@ public class MethodGenVisitor extends BaseAstVisitor {
         emitTypeCast(node.domType, leftExprType);
         visit(node.right);
         emitTypeCast(node.domType, rightExprType);
+    
+        switch (node.op) {
+            case EQ_EQ:
+            case NOT_EQ:
+            case GT:
+            case GT_EQ:
+            case LT:
+            case LT_EQ:
+                binBoolExpr(node);
+                return;
+        }
         
         switch (node.op) {
             case PLUS:
@@ -230,25 +254,16 @@ public class MethodGenVisitor extends BaseAstVisitor {
     public void visitIfStmtNode(IfStmtNode node) {
         Label label = new Label();
         labelStack.push(label);
-
-        // visit(node.condition);
-
         ifCondition(node.condition);
-
         visit(node.statement);
-        
         methodVisitor.visitLabel(label);
     }
 
     private void ifCondition(ExpressionNode node) {
         if (node instanceof BinaryExprNode) {
-            BinaryExprNode binNode = (BinaryExprNode)node;
-            visit(binNode.left);
-            emitTypeCast(binNode.domType, binNode.left.exprType);
-            visit(binNode.right);
-            emitTypeCast(binNode.domType, binNode.right.exprType);
+            visit(node);
             methodVisitor.visitJumpInsn(
-                binNode.exprType.getOpcode(Opcodes.IF_ICMPEQ), 
+                Opcodes.IFEQ,
                 labelStack.pop()
             );
         } else {
