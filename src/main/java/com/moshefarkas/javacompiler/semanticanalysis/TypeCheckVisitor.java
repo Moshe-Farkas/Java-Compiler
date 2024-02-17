@@ -72,6 +72,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
             case EQ_EQ:
             case NOT_EQ:
                 if (a == Type.BOOLEAN_TYPE && b == Type.BOOLEAN_TYPE) {
+                    node.setDomType(Type.BOOLEAN_TYPE);
                     node.setExprType(Type.BOOLEAN_TYPE);
                     typeStack.push(Type.BOOLEAN_TYPE);
                     break;

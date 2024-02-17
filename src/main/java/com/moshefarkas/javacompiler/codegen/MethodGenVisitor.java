@@ -4,11 +4,13 @@ import java.nio.channels.AcceptPendingException;
 import java.util.Stack;
 
 import org.antlr.v4.parse.ANTLRParser.id_return;
+import org.antlr.v4.parse.ANTLRParser.modeSpec_return;
 import org.antlr.v4.parse.ANTLRParser.optionsSpec_return;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.stringtemplate.v4.compiler.STParser.memberExpr_return;
 
 import com.ibm.icu.impl.coll.BOCSU;
 import com.moshefarkas.javacompiler.SymbolTable;
@@ -145,10 +147,61 @@ public class MethodGenVisitor extends BaseAstVisitor {
         );
     }
 
-    private void binBoolExpr(BinaryExprNode node) {
+    private void binBoolExpr(BinaryExprNode node, int op) {
         // now need to emit correct opcode based on node.expr and node.op
+        // == -> cmp_ne 
+        // != -> cmp_eq
+        if (node.domType == Type.FLOAT_TYPE) {
+            binBoolFloatExrp(node);
+            return;
+        }
+        
         Label gotoFalse = new Label();
-        methodVisitor.visitJumpInsn(Opcodes.IF_ICMPNE, gotoFalse);
+        methodVisitor.visitJumpInsn(node.domType.getOpcode(op), gotoFalse);
+        emitBoolConst(true);
+        Label gotoEnd = new Label();
+        methodVisitor.visitJumpInsn(Opcodes.GOTO, gotoEnd);
+        methodVisitor.visitLabel(gotoFalse);
+        emitBoolConst(false);
+        methodVisitor.visitLabel(gotoEnd);
+    }
+
+    private void binBoolFloatExrp(BinaryExprNode node) {
+        Label gotoFalse = new Label();
+        int comparisionOp;
+        int jumpInsOp;
+        switch (node.op) {
+            case EQ_EQ: 
+                comparisionOp = Opcodes.FCMPL;
+                jumpInsOp = Opcodes.IFNE;
+                break;
+            case NOT_EQ:
+                comparisionOp = Opcodes.FCMPL;
+                jumpInsOp = Opcodes.IFEQ;
+                break;
+            case GT:
+                comparisionOp = Opcodes.FCMPL;
+                jumpInsOp = Opcodes.IFLE;
+                break;
+            case GT_EQ:
+                comparisionOp = Opcodes.FCMPL;
+                jumpInsOp = Opcodes.IFLT;
+                break;
+            case LT:
+                comparisionOp = Opcodes.FCMPG;
+                jumpInsOp = Opcodes.IFGE;
+                break;
+            case LT_EQ:
+                comparisionOp = Opcodes.FCMPG;
+                jumpInsOp = Opcodes.IFGT;
+                break;
+            default:
+                comparisionOp = -1;
+                jumpInsOp = -1;
+        }
+
+        methodVisitor.visitInsn(comparisionOp);
+        methodVisitor.visitJumpInsn(jumpInsOp, gotoFalse);
         emitBoolConst(true);
         Label gotoEnd = new Label();
         methodVisitor.visitJumpInsn(Opcodes.GOTO, gotoEnd);
@@ -159,8 +212,6 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitBinaryExprNode(BinaryExprNode node) {
-        // if node.op == >, >=, <, <=, ==, != then push a label to stack
-
         Type leftExprType = node.left.exprType;
         Type rightExprType = node.right.exprType;
 
@@ -170,50 +221,42 @@ public class MethodGenVisitor extends BaseAstVisitor {
         emitTypeCast(node.domType, rightExprType);
     
         switch (node.op) {
-            case EQ_EQ:
-            case NOT_EQ:
             case GT:
-            case GT_EQ:
-            case LT:
-            case LT_EQ:
-                binBoolExpr(node);
-                return;
-        }
-        
-        switch (node.op) {
-            case PLUS:
-                methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IADD));
-                break;
-            case MINUS:
-                methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.ISUB));
-                break;
-            case DIV:
-                methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IDIV));
-                break;
-            case MUL:
-                methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IMUL));
-                break;
-            case MOD:
-                methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IREM));
-                break;
-            case GT:
-                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPLE, labelStack.pop());
+                binBoolExpr(node, Opcodes.IF_ICMPLE);
                 break;
             case GT_EQ:
-                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPLT, labelStack.pop());
+                binBoolExpr(node, Opcodes.IF_ICMPLT);
                 break;
             case LT:
-                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPGE, labelStack.pop());
+                binBoolExpr(node, Opcodes.IF_ICMPGE);
                 break;
             case LT_EQ:
-                methodVisitor.visitJumpInsn(Opcodes.IF_ICMPGT, labelStack.pop());
+                binBoolExpr(node, Opcodes.IF_ICMPGT);
                 break;
             case EQ_EQ:
-                methodVisitor.visitJumpInsn(node.exprType.getOpcode(Opcodes.IF_ICMPNE), labelStack.pop());
+                binBoolExpr(node, Opcodes.IF_ICMPNE);
                 break;
             case NOT_EQ:
-                methodVisitor.visitJumpInsn(node.exprType.getOpcode(Opcodes.IF_ICMPEQ), labelStack.pop());
+                binBoolExpr(node, Opcodes.IF_ICMPEQ);
                 break;
+            default:
+                switch (node.op) {
+                    case PLUS:
+                        methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IADD));
+                        break;
+                    case MINUS:
+                        methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.ISUB));
+                        break;
+                    case DIV:
+                        methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IDIV));
+                        break;
+                    case MUL:
+                        methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IMUL));
+                        break;
+                    case MOD:
+                        methodVisitor.visitInsn(node.exprType.getOpcode(Opcodes.IREM));
+                        break;
+                }
         }
     }
 
@@ -254,22 +297,13 @@ public class MethodGenVisitor extends BaseAstVisitor {
     public void visitIfStmtNode(IfStmtNode node) {
         Label label = new Label();
         labelStack.push(label);
-        ifCondition(node.condition);
+        visit(node.condition);
+        methodVisitor.visitJumpInsn(
+            Opcodes.IFEQ,
+            labelStack.pop()
+        );
         visit(node.statement);
         methodVisitor.visitLabel(label);
-    }
-
-    private void ifCondition(ExpressionNode node) {
-        if (node instanceof BinaryExprNode) {
-            visit(node);
-            methodVisitor.visitJumpInsn(
-                Opcodes.IFEQ,
-                labelStack.pop()
-            );
-        } else {
-            visit(node);
-            methodVisitor.visitJumpInsn(Opcodes.IFEQ, labelStack.pop());
-        }
     }
 
     @Override
