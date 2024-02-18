@@ -1,18 +1,15 @@
 package com.moshefarkas.javacompiler.semanticanalysis;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 
-import org.antlr.v4.parse.ANTLRParser.modeSpec_return;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
+import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class IdentifierUsageVisitor extends SemanticAnalysis {
 
@@ -81,6 +78,13 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
             }
             super.visitMethodNode(node);
         }
+    }
+
+    @Override
+    public void visitBlockStmtNode(BlockStmtNode node) {
+        SymbolTable.getInstance().enterScope();
+        super.visitBlockStmtNode(node);
+        SymbolTable.getInstance().exitScope();
     }
 }
 

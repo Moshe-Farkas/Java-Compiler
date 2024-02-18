@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis.ErrorType;
+import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
     private SymbolTableGenVisitor visitor;

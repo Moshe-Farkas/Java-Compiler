@@ -6,10 +6,10 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.MethodInfo;
-import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class ClassGenVisitor extends BaseAstVisitor {
     

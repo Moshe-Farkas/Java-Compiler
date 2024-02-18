@@ -13,7 +13,6 @@ import org.objectweb.asm.Type;
 import org.stringtemplate.v4.compiler.STParser.memberExpr_return;
 
 import com.ibm.icu.impl.coll.BOCSU;
-import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
@@ -27,9 +26,11 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
+import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class MethodGenVisitor extends BaseAstVisitor {
 
@@ -49,6 +50,13 @@ public class MethodGenVisitor extends BaseAstVisitor {
         } else if (targetType == Type.INT_TYPE && toCastType == Type.FLOAT_TYPE) {
             methodVisitor.visitInsn(Opcodes.F2I);
         }
+    }
+
+    @Override
+    public void visitBlockStmtNode(BlockStmtNode node) {
+        SymbolTable.getInstance().enterScope();
+        super.visitBlockStmtNode(node);
+        SymbolTable.getInstance().exitScope();
     }
 
     @Override

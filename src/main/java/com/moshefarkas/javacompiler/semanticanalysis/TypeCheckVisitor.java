@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Stack;
 import org.objectweb.asm.Type;
 
-import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
@@ -14,8 +13,10 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.CastExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class TypeCheckVisitor extends SemanticAnalysis {
 
@@ -307,5 +308,12 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         } catch (SemanticError e) { typeStack.clear(); }
         
         visit(node.statement);
+    }
+
+    @Override
+    public void visitBlockStmtNode(BlockStmtNode node) {
+        SymbolTable.getInstance().enterScope();
+        super.visitBlockStmtNode(node);
+        SymbolTable.getInstance().exitScope();
     }
 }

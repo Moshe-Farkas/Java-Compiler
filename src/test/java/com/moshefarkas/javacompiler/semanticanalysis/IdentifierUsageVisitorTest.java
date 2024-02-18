@@ -5,8 +5,8 @@ import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
-import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis.ErrorType;
+import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
 

@@ -17,10 +17,10 @@ import org.objectweb.asm.Opcodes;
 
 import com.moshefarkas.generated.Java8Lexer;
 import com.moshefarkas.generated.Java8Parser;
-import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.astgen.ClassVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis;
+import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class BaseCodeGenTest {
 

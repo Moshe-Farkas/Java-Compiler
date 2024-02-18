@@ -1,9 +1,10 @@
 package com.moshefarkas.javacompiler.semanticanalysis;
 
 import com.moshefarkas.javacompiler.MethodInfo;
-import com.moshefarkas.javacompiler.SymbolTable;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class SymbolTableGenVisitor extends SemanticAnalysis {
 
@@ -28,5 +29,12 @@ public class SymbolTableGenVisitor extends SemanticAnalysis {
             methodInfo.returnType = node.returnType;
             SymbolTable.getInstance().addMethod(node.methodName, methodInfo);
         }
+    }
+
+    @Override
+    public void visitBlockStmtNode(BlockStmtNode node) {
+        SymbolTable.getInstance().createNewScope();
+        super.visitBlockStmtNode(node);
+        SymbolTable.getInstance().exitScope();
     }
 }

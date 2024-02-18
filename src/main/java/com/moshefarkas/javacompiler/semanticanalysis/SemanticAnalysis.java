@@ -5,6 +5,7 @@ import org.objectweb.asm.Type;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
+import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class SemanticAnalysis extends BaseAstVisitor {
 
@@ -14,13 +15,17 @@ public class SemanticAnalysis extends BaseAstVisitor {
         hadErr = false;
         SymbolTableGenVisitor sv = new SymbolTableGenVisitor();
         sv.visitClassNode(ast);
+        SymbolTable.getInstance().resetScopes();
         if (hadErr) return;
         IdentifierUsageVisitor iuv = new IdentifierUsageVisitor();
+        SymbolTable.getInstance().resetScopes();
         iuv.visitClassNode(ast);
         if (hadErr) return;
         TypeCheckVisitor s = new TypeCheckVisitor();
+        SymbolTable.getInstance().resetScopes();
         s.visit(ast);
         if (hadErr) return;
+        SymbolTable.getInstance().resetScopes();
     }
 
     protected enum ErrorType {
