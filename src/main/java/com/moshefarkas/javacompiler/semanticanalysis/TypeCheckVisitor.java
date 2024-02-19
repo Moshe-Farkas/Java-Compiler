@@ -159,6 +159,10 @@ public class TypeCheckVisitor extends SemanticAnalysis {
             } 
             return false;
         }
+        
+        if (!wideningRules.containsKey(assignType) || !wideningRules.containsKey(varType)) {
+            return false;
+        }
 
         if (wideningRules.get(varType) >= wideningRules.get(assignType)) {
             return true;

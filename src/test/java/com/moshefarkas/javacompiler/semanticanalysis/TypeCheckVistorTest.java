@@ -128,6 +128,13 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
         method.append("{ if (met()) {} }");
         compileMethod(method.toString());
         assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+
+        method = new StringBuilder();
+        method.append("public void met(){}");
+        method.append("public int methooo()");
+        method.append("{ int a = met(); }");
+        compileMethod(method.toString());
+        assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
     }
 
     @Test 
