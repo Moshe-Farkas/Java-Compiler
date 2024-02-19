@@ -13,6 +13,7 @@ import com.moshefarkas.generated.Java8Parser.IfThenStatementContext;
 import com.moshefarkas.generated.Java8Parser.IntegralTypeContext;
 import com.moshefarkas.generated.Java8Parser.LocalVariableDeclarationContext;
 import com.moshefarkas.generated.Java8Parser.MethodBodyContext;
+import com.moshefarkas.generated.Java8Parser.ReturnStatementContext;
 import com.moshefarkas.generated.Java8Parser.StatementExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnannArrayTypeContext;
 import com.moshefarkas.generated.Java8Parser.UnannPrimitiveTypeContext;
@@ -26,6 +27,7 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ExprStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.StatementNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 
@@ -283,6 +285,21 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
             dims += "[";
         }
         currLocalVarDecl.type = Type.getType(dims + currLocalVarDecl.type.getDescriptor());
+        return null;
+    }
+
+    @Override
+    public Void visitReturnStatement(ReturnStatementContext ctx) {
+        // returnStatement
+        //     : 'return' expression? ';'
+        //     ;
+        ReturnStmt returnStmt = new ReturnStmt();
+        if (ctx.expression() != null) {
+            visit(ctx.expression());
+            returnStmt.setExpression(expressionStack.pop());
+        }
+        returnStmt.lineNum = ctx.getStart().getLine();
+        statementStack.push(returnStmt);
         return null;
     }
 }

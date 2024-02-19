@@ -34,6 +34,7 @@ public class SemanticAnalysis extends BaseAstVisitor {
         UNINITIALIZED_VAR,
         INVALID_CAST,
         INVALID_ARRAY_INIT,
+        MISSING_RET_STMT,
     } 
 
     protected ErrorType test_error;

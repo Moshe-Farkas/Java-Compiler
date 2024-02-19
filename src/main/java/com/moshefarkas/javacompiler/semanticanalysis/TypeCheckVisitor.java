@@ -18,6 +18,7 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 import com.moshefarkas.javacompiler.symboltable.Method;
 import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
@@ -334,5 +335,25 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         currMethod = node.methodName;
         MethodManager.getInstance().getSymbolTable(currMethod).resetScopes();
         super.visitMethodNode(node);
+    }
+
+    @Override
+    public void visitReturnStmt(ReturnStmt node) {
+        // need to check if incorrect type
+        if (node.expression == null) 
+            return;
+        visit(node.expression);
+        Type exprType = typeStack.pop();
+        Type currMethodRetType = MethodManager.getInstance().getReturnType(currMethod);
+        if (!validAssignment(currMethodRetType, exprType)) {
+            error(
+                ErrorType.MISMATCHED_TYPE, 
+                node.lineNum, 
+                errorString(
+                    "Can't return epxression of type `%s`. Expected type `%s`.", 
+                    exprType, currMethodRetType
+                )
+            );
+        }
     }
 }

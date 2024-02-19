@@ -35,7 +35,6 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
         sv.visitClassNode(ast);
         IdentifierUsageVisitor idv = new IdentifierUsageVisitor();
         idv.visitClassNode(ast);
-        if (idv.hadErr) System.out.println("here : :;; : : : ");
         visitor.visitClassNode(ast);
     }
 
@@ -207,5 +206,20 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
 
         compile("if (true == 5) {}");
         assertEquals(ErrorType.INVALID_OPERATOR_TYPES, visitor.test_error);
+    }
+
+    @Test 
+    public void testRetType() {
+        compileMethod("public static int mmmm() {return 3;}");
+        assertEquals(null, visitor.test_error);
+
+        compileMethod("public static int mmmm() {return 3f;}");
+        assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+
+        compileMethod("public static int mmmm() {return (int)3f;}");
+        assertEquals(null, visitor.test_error);
+
+        compileMethod("public static float mmmm() {return 3;}");
+        assertEquals(null, visitor.test_error);
     }
 }

@@ -16,7 +16,6 @@ import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.codegen.ClassGenVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis;
 import com.moshefarkas.javacompiler.symboltable.MethodManager;
-import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class App {
     public static void main( String[] args ) throws Exception {

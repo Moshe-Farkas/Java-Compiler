@@ -17,6 +17,7 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ExprStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.StatementNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 
@@ -58,6 +59,9 @@ public class BaseAstVisitor implements AstVisitor {
 
     @Override
     public void visitWhileStmtNode(WhileStmtNode node) { node.visitChildren(this); }
+
+    @Override
+    public void visitReturnStmt(ReturnStmt node) { node.visitChildren(this); }
 
     @Override
     public void visitClassNode(ClassNode node) { node.visitChildren(this); }

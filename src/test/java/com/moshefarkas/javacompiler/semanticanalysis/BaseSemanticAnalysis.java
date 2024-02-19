@@ -44,7 +44,7 @@ public class BaseSemanticAnalysis {
     }
 
     protected void compileMethodModifiers(String modifers) {
-        String source = startSourceMethods + modifers + " int meth(){}" + "}";
+        String source = startSourceMethods + modifers + " void meth(){}" + "}";
         CharStream input = CharStreams.fromString(source);
         Java8Lexer lexer = new Java8Lexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);

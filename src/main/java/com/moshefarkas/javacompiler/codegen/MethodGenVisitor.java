@@ -22,6 +22,7 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
@@ -348,6 +349,17 @@ public class MethodGenVisitor extends BaseAstVisitor {
         methodVisitor.visitJumpInsn(Opcodes.GOTO, jumpBack);
 
         methodVisitor.visitLabel(toEnd);
+    }
+
+    @Override
+    public void visitReturnStmt(ReturnStmt node) {
+        if (node.expression != null) { 
+            visit(node.expression);
+            Type currMethodRetType = MethodManager.getInstance().getReturnType(currMethod);
+            methodVisitor.visitInsn(currMethodRetType.getOpcode(Opcodes.IRETURN));
+        } else {
+            methodVisitor.visitInsn(Opcodes.RETURN);
+        }
     }
 
     @Override

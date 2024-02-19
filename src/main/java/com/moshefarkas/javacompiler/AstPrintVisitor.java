@@ -2,12 +2,19 @@ package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 
 public class AstPrintVisitor extends BaseAstVisitor {
 
     @Override
     public String toString() {
         return "AstPrintVisitor []";
+    }
+
+    @Override
+    public void visitReturnStmt(ReturnStmt node) {
+        System.out.println("line: " + node.lineNum);
+        System.out.println(node);
     }
 
     // @Override
@@ -54,14 +61,16 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     System.out.println("\t" + node.right);
     // }
 
-    @Override
-    public void visitIfStmtNode(IfStmtNode node) {
-        System.out.println("line: " + node.lineNum);
-        System.out.println("if: ");
-        System.out.println("condition: " + node.condition);
-        System.out.println("if statement: " + node.ifStatement);
-        System.out.println("else statement: " + node.elseStatement);
-    }
+    // @Override
+    // public void visitIfStmtNode(IfStmtNode node) {
+    //     System.out.println("line: " + node.lineNum);
+    //     System.out.println("if: ");
+    //     System.out.println("condition: " + node.condition);
+    //     System.out.println("if statement: " + node.ifStatement);
+    //     System.out.println("else statement: " + node.elseStatement);
+    // }
+
+    
 
     // @Override
     // public void visitWhileStmtNode(WhileStmtNode node) {

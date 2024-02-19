@@ -31,6 +31,16 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
         visitor.visitClassNode(ast);
     }
 
+    @Override 
+    protected void compileMethod(String method) {
+        MethodManager.getInstance().test_reset();
+        visitor = new IdentifierUsageVisitor();
+        super.compileMethod(method);
+        SymbolTableGenVisitor v = new SymbolTableGenVisitor();
+        v.visitClassNode(ast);
+        visitor.visitClassNode(ast);
+    }
+
     @Test
     public void testUndefinedVar() {
         compileNewSource("int a = b;");
@@ -91,5 +101,14 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
     public void testUndefinedMethod() {
         compileNewSource("k();");
         assertEquals(ErrorType.UNDEFINED_IDENTIFIER, visitor.test_error);
+    }
+
+    @Test
+    public void testMissingRetStmt() {
+        compileMethod("public static int tm(){}");
+        assertEquals(ErrorType.MISSING_RET_STMT, visitor.test_error);
+
+        compileMethod("public static int tm(){return 3;}");
+        assertEquals(null, visitor.test_error);
     }
 }

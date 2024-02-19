@@ -5,18 +5,21 @@ import java.util.Collections;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import com.moshefarkas.javacompiler.ast.nodes.AstNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class IdentifierUsageVisitor extends SemanticAnalysis {
-
     // responsible for checking if var is defined, and initialized.
+
+    // need to check if a non void method contains a return statement
+
     private String currMethod;
+    private boolean seenReturnStmt;
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
@@ -51,8 +54,25 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
     public void visitMethodNode(MethodNode node) {
         currMethod = node.methodName;
         MethodManager.getInstance().getSymbolTable(currMethod).resetScopes();
-        boolean seenAccessMod = false;
+        validateMethodModifiers(node);
 
+        seenReturnStmt = false;
+        super.visitMethodNode(node);
+        Type currMethodRetType = MethodManager.getInstance().getReturnType(currMethod);
+        if (currMethodRetType != Type.VOID_TYPE && !seenReturnStmt) {
+            error(
+                ErrorType.MISSING_RET_STMT, 
+                node.lineNum, 
+                errorString(
+                    "method `%s` needs a return statement of type `%s`.", 
+                    currMethod, currMethodRetType
+                )
+            );
+        }
+    }
+
+    private void validateMethodModifiers(MethodNode node) {
+        boolean seenAccessMod = false;
         for (int i = 0; i < node.methodModifiers.size(); i++) {
             int modifer = node.methodModifiers.get(i);
             if (Collections.frequency(node.methodModifiers, modifer) > 1) {
@@ -90,7 +110,6 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
                     break;
             }
         }
-        super.visitMethodNode(node);
     }
 
     @Override
@@ -99,5 +118,11 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
         methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
         methodSymbolTable.exitScope();
+    }
+
+    @Override
+    public void visitReturnStmt(ReturnStmt node) {
+        seenReturnStmt = true;
+        super.visitReturnStmt(node);
     }
 }
