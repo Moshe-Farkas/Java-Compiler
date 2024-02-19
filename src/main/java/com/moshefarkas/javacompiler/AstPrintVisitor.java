@@ -1,7 +1,7 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
-import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 
 public class AstPrintVisitor extends BaseAstVisitor {
 
@@ -54,13 +54,14 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     System.out.println("\t" + node.right);
     // }
 
-    // @Override
-    // public void visitIfStmtNode(IfStmtNode node) {
-    //     System.out.println("line: " + node.lineNum);
-    //     System.out.println("if: ");
-    //     System.out.println("\t condition: " + node.condition);
-    //     System.out.println("\tstatement: " + node.statement);
-    // }
+    @Override
+    public void visitIfStmtNode(IfStmtNode node) {
+        System.out.println("line: " + node.lineNum);
+        System.out.println("if: ");
+        System.out.println("condition: " + node.condition);
+        System.out.println("if statement: " + node.ifStatement);
+        System.out.println("else statement: " + node.elseStatement);
+    }
 
     // @Override
     // public void visitWhileStmtNode(WhileStmtNode node) {

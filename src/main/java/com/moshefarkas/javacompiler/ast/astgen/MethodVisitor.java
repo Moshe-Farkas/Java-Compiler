@@ -8,6 +8,7 @@ import com.moshefarkas.generated.Java8Parser.BlockContext;
 import com.moshefarkas.generated.Java8Parser.BlockStatementContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionContext;
 import com.moshefarkas.generated.Java8Parser.FloatingPointTypeContext;
+import com.moshefarkas.generated.Java8Parser.IfThenElseStatementContext;
 import com.moshefarkas.generated.Java8Parser.IfThenStatementContext;
 import com.moshefarkas.generated.Java8Parser.IntegralTypeContext;
 import com.moshefarkas.generated.Java8Parser.LocalVariableDeclarationContext;
@@ -103,7 +104,28 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
 
         IfStmtNode ifStmtNode = new IfStmtNode();
         ifStmtNode.setCondition(condition);
-        ifStmtNode.setStatement(statement);
+        ifStmtNode.setIfStatement(statement);
+
+        ifStmtNode.lineNum = ctx.getStart().getLine();
+        statementStack.push(ifStmtNode);
+        return null;
+    }
+
+    @Override
+    public Void visitIfThenElseStatement(IfThenElseStatementContext ctx) {
+        // ifThenElseStatement
+        //     : 'if' '(' expression ')' statementNoShortIf 'else' statement
+        //     ;
+        visit(ctx.expression());
+        ExpressionNode condition = expressionStack.pop();
+        visit(ctx.statementNoShortIf());
+        StatementNode ifStatement = statementStack.pop();
+        visit(ctx.statement());
+        StatementNode elseStatement = statementStack.pop();
+        IfStmtNode ifStmtNode = new IfStmtNode();
+        ifStmtNode.setCondition(condition);
+        ifStmtNode.setIfStatement(ifStatement);
+        ifStmtNode.setElseStatement(elseStatement);
 
         ifStmtNode.lineNum = ctx.getStart().getLine();
         statementStack.push(ifStmtNode);

@@ -318,7 +318,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
             }
         } catch (SemanticError e) { typeStack.clear(); }
         
-        visit(node.statement);
+        visit(node.ifStatement);
     }
 
     @Override

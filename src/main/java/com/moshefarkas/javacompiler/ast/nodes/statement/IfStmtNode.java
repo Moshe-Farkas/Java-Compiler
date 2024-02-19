@@ -5,15 +5,22 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 
 public class IfStmtNode extends StatementNode {
     public ExpressionNode condition;
-    public StatementNode statement;
+    public StatementNode ifStatement;
+
+    public StatementNode elseStatement;
 
     public void setCondition(ExpressionNode condition) {
         this.condition = condition;
         addChild(condition); 
     }
 
-    public void setStatement(StatementNode statement) {
-        this.statement = statement;
+    public void setIfStatement(StatementNode statement) {
+        this.ifStatement = statement;
+        addChild(statement);
+    }
+
+    public void setElseStatement(StatementNode statement) {
+        this.elseStatement = statement;
         addChild(statement);
     }
 

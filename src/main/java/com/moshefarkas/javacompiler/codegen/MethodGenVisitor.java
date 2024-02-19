@@ -1,18 +1,11 @@
 package com.moshefarkas.javacompiler.codegen;
 
-import java.nio.channels.AcceptPendingException;
 import java.util.Stack;
 
-import org.antlr.v4.parse.ANTLRParser.id_return;
-import org.antlr.v4.parse.ANTLRParser.modeSpec_return;
-import org.antlr.v4.parse.ANTLRParser.optionsSpec_return;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.stringtemplate.v4.compiler.STParser.memberExpr_return;
-
-import com.ibm.icu.impl.coll.BOCSU;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
@@ -36,7 +29,6 @@ import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 public class MethodGenVisitor extends BaseAstVisitor {
 
     private MethodVisitor methodVisitor;
-    private Stack<Label> labelStack = new Stack<>();
     private String currMethod;
 
     public MethodGenVisitor(MethodVisitor methodVisitor, String currMethod) {
@@ -307,21 +299,46 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitIfStmtNode(IfStmtNode node) {
-        Label label = new Label();
-        labelStack.push(label);
+        if (node.elseStatement == null) {
+            ifThen(node);
+        } else {
+            ifThenElse(node);
+        }
+    }
+
+    private void ifThen(IfStmtNode node) {
+        Label ifFalseJump = new Label();
         visit(node.condition);
         methodVisitor.visitJumpInsn(
             Opcodes.IFEQ,
-            labelStack.pop()
+            ifFalseJump
         );
-        visit(node.statement);
-        methodVisitor.visitLabel(label);
+        visit(node.ifStatement);
+        methodVisitor.visitLabel(ifFalseJump);
+    }
+
+    private void ifThenElse(IfStmtNode node) {
+        Label ifThenFalseJump = new Label();
+        visit(node.condition);
+        methodVisitor.visitJumpInsn(
+            Opcodes.IFEQ,
+            ifThenFalseJump
+        );
+        visit(node.ifStatement);
+        Label gotoLabel = new Label();
+        methodVisitor.visitJumpInsn(
+            Opcodes.GOTO,
+            gotoLabel
+        );
+    
+        methodVisitor.visitLabel(ifThenFalseJump); // visit right before visiting elseStatement
+        visit((node.elseStatement));
+        methodVisitor.visitLabel(gotoLabel);
     }
 
     @Override
     public void visitWhileStmtNode(WhileStmtNode node) {
         Label toEnd = new Label();
-        labelStack.push(toEnd);
 
         Label jumpBack = new Label();
         methodVisitor.visitLabel(jumpBack);

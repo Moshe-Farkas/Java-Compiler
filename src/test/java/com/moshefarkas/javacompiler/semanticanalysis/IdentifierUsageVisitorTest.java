@@ -41,6 +41,17 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
 
         compileNewSource("t = 90;");
         assertEquals(ErrorType.UNDEFINED_IDENTIFIER, visitor.test_error);
+
+        StringBuilder method = new StringBuilder();
+        method.append("if (true) {int g = 4;} else {g = 0;}");
+        compileNewSource(method.toString());
+        assertEquals(ErrorType.UNDEFINED_IDENTIFIER, visitor.test_error);
+
+        compileNewSource("int a = 0; if (true) {int b = a;} else {a = 4;}");
+        assertEquals(null, visitor.test_error);
+
+        compileNewSource("if (true) {int b = 8;} else if (b == 9) { }");
+        assertEquals(ErrorType.UNDEFINED_IDENTIFIER, visitor.test_error);
     }
 
     @Test
