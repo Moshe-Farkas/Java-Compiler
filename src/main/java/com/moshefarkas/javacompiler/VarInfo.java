@@ -7,17 +7,12 @@ public class VarInfo {
     public String name;
     public boolean initialized = false;
     public int localIndex = -1;
-    // array info
-    public boolean isArray = false;
-    public int dims;
 
     @Override
     public String toString() {
         return "Name: "          + name +
                ", Type: "        + type +
                ", Initialized: " + initialized + 
-               ", Index: "       + localIndex + 
-               ", isArray: "     + isArray    +
-               ", dims: "        + dims;
+               ", Index: "       + localIndex;
     }
 }

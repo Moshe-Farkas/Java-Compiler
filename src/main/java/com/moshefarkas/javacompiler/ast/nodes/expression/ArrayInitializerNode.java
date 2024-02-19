@@ -28,10 +28,6 @@ public class ArrayInitializerNode extends ExpressionNode {
         throw new UnsupportedOperationException("inside array init class");
     }
 
-    public void setDims(int dims) {
-        this.dims = dims;
-    }
-
     public void setType(Type type) {
         this.type = type;
     }

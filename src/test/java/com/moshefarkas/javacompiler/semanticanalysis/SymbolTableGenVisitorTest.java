@@ -5,12 +5,12 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis.ErrorType;
-import com.moshefarkas.javacompiler.symboltable.SymbolTable;
+import com.moshefarkas.javacompiler.symboltable.MethodManager;
 
 public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
     private SymbolTableGenVisitor visitor;
     private void compileNewSource(String source) {
-        SymbolTable.getInstance().test_reset();
+        MethodManager.getInstance().test_reset();
         visitor = new SymbolTableGenVisitor();
         compile(source);
         visitor.visitClassNode(ast);
@@ -18,7 +18,7 @@ public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
 
     @Test 
     public void testDuplicateVar() {
-        // compileNewSource("int a; int a;");
-        // assertEquals(ErrorType.DUPLICATE_VAR, visitor.test_error);
+        compileNewSource("int a; int a;");
+        assertEquals(ErrorType.DUPLICATE_VAR, visitor.test_error);
     }
 }

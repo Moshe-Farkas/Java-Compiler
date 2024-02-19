@@ -14,13 +14,10 @@ public class SemanticAnalysis extends BaseAstVisitor {
         hadErr = false;
         SymbolTableGenVisitor sv = new SymbolTableGenVisitor();
         sv.visitClassNode(ast);
-        if (hadErr) return;
         IdentifierUsageVisitor iuv = new IdentifierUsageVisitor();
         iuv.visitClassNode(ast);
-        if (hadErr) return;
         TypeCheckVisitor s = new TypeCheckVisitor();
         s.visit(ast);
-        if (hadErr) return;
     }
 
     protected enum ErrorType {

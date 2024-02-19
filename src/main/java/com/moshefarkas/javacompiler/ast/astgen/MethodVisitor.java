@@ -254,11 +254,10 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         //     | unannClassOrInterfaceType dims
         //     | unannTypeVariable dims
         //     ;
-        currLocalVarDecl.isArray = true;
-        currLocalVarDecl.dims = ctx.dims().LBRACK().size();
+        int dimsCount = ctx.dims().LBRACK().size();
         visitUnannPrimitiveType(ctx.unannPrimitiveType());
         String dims = "";
-        for (int i = 0; i < currLocalVarDecl.dims; i++) {
+        for (int i = 0; i < dimsCount; i++) {
             dims += "[";
         }
         currLocalVarDecl.type = Type.getType(dims + currLocalVarDecl.type.getDescriptor());

@@ -469,13 +469,10 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
             dimsStr += "[";
         }
         arrayInitializer.setSetArraySizes(sizes);
-        int dims = sizes.size();
         if (ctx.dims() != null)
             for (int i = 0; i < ctx.dims().LBRACK().size(); i++) {
-                dims++;
                 dimsStr += "[";
             }
-        arrayInitializer.setDims(dims);
 
         Type arrayInitType = (Type)visitPrimitiveType(ctx.primitiveType());
         arrayInitializer.setType(Type.getType(dimsStr + arrayInitType.getDescriptor()));

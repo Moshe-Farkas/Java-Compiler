@@ -60,7 +60,6 @@ public class App {
         AstPrintVisitor printVisitor = new AstPrintVisitor();
         printVisitor.visitClassNode(ast);
         System.out.println("-------------------------------------------");
-        // SymbolTable.getInstance().debugPrintTable();
         MethodManager.getInstance().debug_print_methods();
         System.out.println("-------------------------------------------");
         // code gen

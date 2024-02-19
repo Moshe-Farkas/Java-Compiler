@@ -133,7 +133,6 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
-        // Type idenType = SymbolTable.getInstance().getVarType(node.varName);
         Type idenType = MethodManager.getInstance().getSymbolTable().getVarType(node.varName);
         
         typeStack.push(idenType);
@@ -189,8 +188,6 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitCallExprNode(CallExprNode node) {
-        // Type[] paramTypes = SymbolTable.getInstance().getParamTypes(node.methodName);
-        
         Type[] paramTypes = MethodManager.getInstance().getParamTypes(node.methodName);
 
         for (int i = 0; i < node.arguments.size(); i++) {
@@ -325,10 +322,6 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
         methodSymbolTable.exitScope();
-
-        // SymbolTable.getInstance().enterScope();
-        // super.visitBlockStmtNode(node);
-        // SymbolTable.getInstance().exitScope();
     }
 
     @Override
