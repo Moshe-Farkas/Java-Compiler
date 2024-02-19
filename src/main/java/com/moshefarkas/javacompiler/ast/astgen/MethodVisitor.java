@@ -34,7 +34,6 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
     private Stack<ExpressionNode> expressionStack = new Stack<>();
     private Stack<StatementNode> statementStack = new Stack<>();
 
-    private int localVarIndex = 0;
     private VarInfo currLocalVarDecl;
     // private Type currLocalVarDeclType;
     private ExpressionNode currVarInitializer = null;
@@ -48,6 +47,7 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         // this needs to set global block to statementStack.pop(); after visiting ctx.block
         // need to delete all local var stuff.
         visit(ctx.block());
+
         BlockStmtNode methodBlock = (BlockStmtNode)statementStack.pop();
         statements = methodBlock;
         return null;
@@ -122,7 +122,6 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         // need to reset fields
 
         currLocalVarDecl = new VarInfo();
-        currLocalVarDecl.localIndex = localVarIndex++;
         currVarInitializer = null;
 
         visit(ctx.unannType());

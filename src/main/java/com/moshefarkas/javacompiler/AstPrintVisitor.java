@@ -1,8 +1,8 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
-import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.symboltable.MethodManager;
 
 public class AstPrintVisitor extends BaseAstVisitor {
 
@@ -103,6 +103,4 @@ public class AstPrintVisitor extends BaseAstVisitor {
 //         System.out.println("unary: "); 
 //         System.out.println("\top: " + node.op + ", value: " + node.expr);
 //     }
-
-
 }

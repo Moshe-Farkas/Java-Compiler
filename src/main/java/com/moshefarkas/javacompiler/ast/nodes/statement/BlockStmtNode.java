@@ -13,6 +13,11 @@ public class BlockStmtNode extends StatementNode {
         addChild(statement);
     }
 
+    public void addParams(List<LocalVarDecStmtNode> params) {
+        statements.addAll(0, params);
+        this.children.addAll(0, params);
+    }
+
     @Override 
     public String toString() {
         String res = "\n{\n";

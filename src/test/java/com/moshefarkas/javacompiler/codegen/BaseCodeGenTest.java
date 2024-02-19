@@ -20,6 +20,7 @@ import com.moshefarkas.generated.Java8Parser;
 import com.moshefarkas.javacompiler.ast.astgen.ClassVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis;
+import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class BaseCodeGenTest {
@@ -32,7 +33,7 @@ public class BaseCodeGenTest {
     private List<Integer> byteCode;
         
     protected void compile(String source) {
-        SymbolTable.getInstance().test_reset();
+        MethodManager.getInstance().test_reset();
         byteCode = new ArrayList<>();
         source = startSource + source + endSource;
         CharStream input = CharStreams.fromString(source);

@@ -9,6 +9,7 @@ import com.moshefarkas.javacompiler.MethodInfo;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class ClassGenVisitor extends BaseAstVisitor {
@@ -37,11 +38,12 @@ public class ClassGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitMethodNode(MethodNode node) {
+        MethodManager.getInstance().enterMethod(node.methodName);
         int accessMod = 0;
         for (int modifer : node.methodModifiers) {
             accessMod += modifer;
         }
-        String descriptor = SymbolTable.getInstance().getMethodDescriptor(node.methodName);
+        String descriptor = MethodManager.getInstance().getMethodDescriptor();
 
         MethodVisitor method = classWriter.visitMethod(
             accessMod,

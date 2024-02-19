@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotEquals;
 import org.junit.Test;
 
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis.ErrorType;
+import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
@@ -13,7 +14,7 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
     private IdentifierUsageVisitor visitor;
 
     private void compileNewSource(String source) {
-        SymbolTable.getInstance().test_reset();
+        MethodManager.getInstance().test_reset();
         visitor = new IdentifierUsageVisitor();
         compile(source);
         SymbolTableGenVisitor v = new SymbolTableGenVisitor();
@@ -22,7 +23,7 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
     }
 
     private void compileNewMethodheader(String header) {
-        SymbolTable.getInstance().test_reset();
+        MethodManager.getInstance().test_reset();
         visitor = new IdentifierUsageVisitor();
         compileHeader(header);
         SymbolTableGenVisitor v = new SymbolTableGenVisitor();

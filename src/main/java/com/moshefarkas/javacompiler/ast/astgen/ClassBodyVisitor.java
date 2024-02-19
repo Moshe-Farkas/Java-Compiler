@@ -50,7 +50,6 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         methodNode.setMethodModifiers(methodAccessModifiers);
         methodNode.setParams(methodParams);
 
-
         MethodVisitor mv = new MethodVisitor();
         mv.visit(ctx.methodBody());
         methodNode.setStatements(mv.statements);
@@ -195,13 +194,12 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         LocalVarDecStmtNode varNode = new LocalVarDecStmtNode();
         VarInfo var = new VarInfo();
         Type type = (Type)visit(ctx.unannType());
-        if (type.getDimensions() > 0) {
+        if (type.getSort() == Type.ARRAY) {
             var.isArray = true;
             var.dims = type.getDimensions();
         }
         String paramName = ctx.variableDeclaratorId().Identifier().getText();
         var.initialized = false;
-        var.localIndex = 0;
         var.type = type;
         var.name = paramName;
 

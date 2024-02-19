@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis.ErrorType;
+import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class TypeCheckVistorTest extends BaseSemanticAnalysis {
@@ -12,7 +13,7 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
     private TypeCheckVisitor visitor;
     private void compileSource(String source) {
         SemanticAnalysis.hadErr = false;
-        SymbolTable.getInstance().test_reset();
+        MethodManager.getInstance().test_reset();
         visitor = new TypeCheckVisitor();
         compile(source);
         SymbolTableGenVisitor sv = new SymbolTableGenVisitor();

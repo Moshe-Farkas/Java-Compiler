@@ -28,7 +28,12 @@ public class SymbolTable {
     }
 
     public void createNewScope() {
-        Scope newScope = new Scope(currScope.getNextLocalIndex(), currScope);
+        Scope newScope;
+        if (currScope == null) {
+            newScope = new Scope(0, null);
+        } else {
+            newScope = new Scope(currScope.getNextLocalIndex(), currScope);
+        }
         currScope = newScope;
         scopes.put(currScopeLevel++, newScope);
     }
@@ -54,13 +59,13 @@ public class SymbolTable {
         currScope = scopes.get(currScopeLevel++);
     }
 
-    private SymbolTable () {
+    public SymbolTable () {
         scopes = new HashMap<>();
         currScopeLevel = 0;
         // push a global scoop
-        Scope globalScope = new Scope(0, null);
-        scopes.put(currScopeLevel++, globalScope);
-        currScope = globalScope;
+        // Scope globalScope = new Scope(0, null);
+        // scopes.put(currScopeLevel++, globalScope);
+        // currScope = globalScope;
     }
 
     public VarInfo NewgetVarInfo(String name) {
@@ -71,16 +76,26 @@ public class SymbolTable {
         return currScope.getVarType(name);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder res = new StringBuilder();
+        for (Map.Entry<Integer, Scope> scope : scopes.entrySet()) {
+            res.append("\nscope id: " + scope.getKey());
+            res.append("\n " + scope.getValue());
+        }
+        return res.toString();
+    }
+
 // --------------------------------------------------------------------------------------------------------------------------------
     // singleton of symbol table
     // private SymbolTable() {}
-    private static SymbolTable instance;
+    // private static SymbolTable instance;
 
-    public static SymbolTable getInstance() {
-        if (instance == null)
-            instance = new SymbolTable();
-        return instance;
-    }
+    // public static SymbolTable getInstance() {
+    //     if (instance == null)
+    //         instance = new SymbolTable();
+    //     return instance;
+    // }
 
     public void debugPrintTable() {
         printSymTable();
@@ -97,9 +112,9 @@ public class SymbolTable {
         // }
     }
 
-    public void test_reset() {
-        instance = new SymbolTable();
-    }
+    // public void test_reset() {
+    //     instance = new SymbolTable();
+    // }
 
     private final Map<String, VarInfo> vars = new HashMap<>();
     private final Map<String, MethodInfo> methods = new HashMap<>();
@@ -141,18 +156,18 @@ public class SymbolTable {
         return methods.get(methodName);
     }
 
-    public String getMethodDescriptor(String methodName) {
-        return Type.getMethodDescriptor(
-            getReturnType(methodName), 
-            getParamTypes(methodName)
-        );
-    }
+    // public String getMethodDescriptor(String methodName) {
+    //     return Type.getMethodDescriptor(
+    //         getReturnType(methodName), 
+    //         getParamTypes(methodName)
+    //     );
+    // }
 
-    public Type[] getParamTypes(String methodName) {
-        Type[] types = new Type[methods.get(methodName).parameters.size()];
-        for (int i = 0; i < types.length; i++) {
-            types[i] = methods.get(methodName).parameters.get(i).var.type;
-        }
-        return types;
-    }
+    // public Type[] getParamTypes(String methodName) {
+    //     Type[] types = new Type[methods.get(methodName).parameters.size()];
+    //     for (int i = 0; i < types.length; i++) {
+    //         types[i] = methods.get(methodName).parameters.get(i).var.type;
+    //     }
+    //     return types;
+    // }
 }

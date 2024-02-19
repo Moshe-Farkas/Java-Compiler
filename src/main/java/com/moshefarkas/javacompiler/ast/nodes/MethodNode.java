@@ -7,10 +7,11 @@ import org.objectweb.asm.Type;
 import com.moshefarkas.javacompiler.ast.AstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.StatementNode;
 
 public class MethodNode extends AstNode {
     public Type returnType;
-    public List<LocalVarDecStmtNode> params;
+    public List<LocalVarDecStmtNode> params; 
     public List<Integer> methodModifiers;  // uses OpCode.ACC_XXX for modifers
 
     public BlockStmtNode statements;
@@ -30,6 +31,10 @@ public class MethodNode extends AstNode {
     }
 
     public void setStatements(BlockStmtNode statements) {
+        // dumb hack
+        statements.statements.addAll(0, params);
+        statements.children.addAll(0, params);
+
         this.statements = statements;
         addChild(statements);
     }

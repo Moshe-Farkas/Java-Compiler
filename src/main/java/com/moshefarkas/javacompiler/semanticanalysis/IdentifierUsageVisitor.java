@@ -5,10 +5,12 @@ import java.util.Collections;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import com.moshefarkas.javacompiler.ast.nodes.AstNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
+import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class IdentifierUsageVisitor extends SemanticAnalysis {
@@ -18,16 +20,18 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
         String varName = node.varName;
-        if (!SymbolTable.getInstance().hasVar(varName)) {
+        SymbolTable methodSymbolTable  = MethodManager.getInstance().getSymbolTable();
+        if (!methodSymbolTable.hasVar(varName)) {
             error(ErrorType.UNDEFINED_VAR, node.lineNum, varName);
-        } else if (SymbolTable.getInstance().getVarInfo(varName).initialized == false) {
+        } else if (methodSymbolTable.getVarInfo(varName).initialized == false) {
             error(ErrorType.UNINITIALIZED_VAR, node.lineNum, varName);
         } 
     }
 
     @Override
     public void visitCallExprNode(CallExprNode node) {
-        Type[] methodParamsTypes = SymbolTable.getInstance().getParamTypes(node.methodName);
+        Type[] methodParamsTypes = MethodManager.getInstance().getParamTypes(node.methodName);
+        // Type[] methodParamsTypes = SymbolTable.getInstance().getParamTypes(node.methodName);
         if (methodParamsTypes.length != node.arguments.size()) {
             String reason = String.format("Expected `%d` args but got `%d`.", methodParamsTypes.length, node.arguments.size());
             error(ErrorType.MISMATCHED_ARGUMENTS, node.lineNum, reason);
@@ -37,7 +41,8 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     @Override
     public void visitMethodNode(MethodNode node) {
-        // HashSet<String> seenModifers = new HashSet<>();
+        MethodManager.getInstance().enterMethod(node.methodName);
+
         boolean seenAccessMod = false;
 
         for (int i = 0; i < node.methodModifiers.size(); i++) {
@@ -76,15 +81,27 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
                     }
                     break;
             }
-            super.visitMethodNode(node);
         }
+        super.visitMethodNode(node);
     }
 
     @Override
     public void visitBlockStmtNode(BlockStmtNode node) {
-        SymbolTable.getInstance().enterScope();
+        SymbolTable methodSymbolTable = MethodManager.getInstance().getSymbolTable();
+
+        // System.out.println();
+        // System.out.println("++++++++++++++++++");
+        // methodSymbolTable.printScope();
+        // System.out.println("++++++++++++++++++");
+        // System.out.println();
+
+        methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
-        SymbolTable.getInstance().exitScope();
+        methodSymbolTable.exitScope();
+
+        // SymbolTable.getInstance().enterScope();
+        // super.visitBlockStmtNode(node);
+        // SymbolTable.getInstance().exitScope();
     }
 }
 

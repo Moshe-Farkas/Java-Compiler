@@ -2,8 +2,10 @@ package com.moshefarkas.javacompiler.semanticanalysis;
 
 import java.util.HashMap;
 import java.util.Stack;
+
 import org.objectweb.asm.Type;
 
+import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
@@ -16,6 +18,8 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.symboltable.Method;
+import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class TypeCheckVisitor extends SemanticAnalysis {
@@ -129,7 +133,9 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
-        Type idenType = SymbolTable.getInstance().getVarType(node.varName);
+        // Type idenType = SymbolTable.getInstance().getVarType(node.varName);
+        Type idenType = MethodManager.getInstance().getSymbolTable().getVarType(node.varName);
+        
         typeStack.push(idenType);
         node.setExprType(idenType);
     }
@@ -183,7 +189,10 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitCallExprNode(CallExprNode node) {
-        Type[] paramTypes = SymbolTable.getInstance().getParamTypes(node.methodName);
+        // Type[] paramTypes = SymbolTable.getInstance().getParamTypes(node.methodName);
+        
+        Type[] paramTypes = MethodManager.getInstance().getParamTypes(node.methodName);
+
         for (int i = 0; i < node.arguments.size(); i++) {
             try {
                 visit(node.arguments.get(i));
@@ -201,7 +210,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
                 }
             } catch (SemanticError e) {typeStack.clear();}
         }
-        node.setExprType(SymbolTable.getInstance().getReturnType(node.methodName));
+        node.setExprType(MethodManager.getInstance().getReturnType());
     }
 
     @Override
@@ -212,7 +221,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         try {
             visit(node.initializer);
             Type initializerType = typeStack.pop();
-            Type varType = SymbolTable.getInstance().getVarType(node.var.name);
+            Type varType = MethodManager.getInstance().getSymbolTable().getVarType(node.var.name);
 
             if (!validAssignment(varType, initializerType)) {
                 error(
@@ -312,8 +321,19 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitBlockStmtNode(BlockStmtNode node) {
-        SymbolTable.getInstance().enterScope();
+        SymbolTable methodSymbolTable = MethodManager.getInstance().getSymbolTable();
+        methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
-        SymbolTable.getInstance().exitScope();
+        methodSymbolTable.exitScope();
+
+        // SymbolTable.getInstance().enterScope();
+        // super.visitBlockStmtNode(node);
+        // SymbolTable.getInstance().exitScope();
+    }
+
+    @Override
+    public void visitMethodNode(MethodNode node) {
+        MethodManager.getInstance().enterMethod(node.methodName);
+        super.visitMethodNode(node);
     }
 }

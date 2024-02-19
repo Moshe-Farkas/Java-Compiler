@@ -6,7 +6,7 @@ public class VarInfo {
     public Type type;
     public String name;
     public boolean initialized = false;
-    public int localIndex;
+    public int localIndex = -1;
     // array info
     public boolean isArray = false;
     public int dims;

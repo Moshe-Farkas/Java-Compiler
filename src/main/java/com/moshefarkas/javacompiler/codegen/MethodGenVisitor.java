@@ -30,6 +30,7 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
+import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class MethodGenVisitor extends BaseAstVisitor {
@@ -54,9 +55,16 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitBlockStmtNode(BlockStmtNode node) {
-        SymbolTable.getInstance().enterScope();
+        SymbolTable methodSymbolTable = MethodManager.getInstance().getSymbolTable();
+        methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
-        SymbolTable.getInstance().exitScope();
+        methodSymbolTable.exitScope();
+
+
+
+        // SymbolTable.getInstance().enterScope();
+        // super.visitBlockStmtNode(node);
+        // SymbolTable.getInstance().exitScope();
     }
 
     @Override
@@ -90,7 +98,8 @@ public class MethodGenVisitor extends BaseAstVisitor {
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
         if (node.var.initialized) {
             visit(node.initializer);
-            VarInfo var = SymbolTable.getInstance().getVarInfo(node.var.name);
+            // VarInfo var = SymbolTable.getInstance().getVarInfo(node.var.name);
+            VarInfo var = MethodManager.getInstance().getVarInfo(node.var.name);
             emitTypeCast(var.type, node.initializer.exprType);
             methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
         }
@@ -102,14 +111,16 @@ public class MethodGenVisitor extends BaseAstVisitor {
             genArrAccStore((ArrAccessExprNode)node.identifier, node.assignmentValue);
         } else {
             visit(node.assignmentValue);
-            VarInfo var = SymbolTable.getInstance().getVarInfo(node.identifier.varName);
+            // VarInfo var = SymbolTable.getInstance().getVarInfo(node.identifier.varName);
+            VarInfo var = MethodManager.getInstance().getVarInfo(node.identifier.varName);
             emitTypeCast(var.type, node.assignmentValue.exprType);
             methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
         }
     }
 
     private void genArrAccStore(ArrAccessExprNode node, ExpressionNode assignmentValue) {
-        VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
+        // VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
+        VarInfo var = MethodManager.getInstance().getVarInfo(node.varName);
         methodVisitor.visitVarInsn(Opcodes.ALOAD, var.localIndex);
         visit(node.index);
         if (node.identifer instanceof ArrAccessExprNode) {
@@ -136,7 +147,8 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitCallExprNode(CallExprNode node) {
-        Type[] paramTypes = SymbolTable.getInstance().getParamTypes(node.methodName);
+        // Type[] paramTypes = SymbolTable.getInstance().getParamTypes(node.methodName);
+        Type[] paramTypes = MethodManager.getInstance().getParamTypes(node.methodName);
         for (int i = 0; i < node.arguments.size(); i++) {
             visit(node.arguments.get(i));
             Type argType = node.arguments.get(i).exprType;
@@ -144,7 +156,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
             emitTypeCast(paramType, argType);
         }
 
-        String descriptor = SymbolTable.getInstance().getMethodDescriptor(node.methodName);
+        String descriptor = MethodManager.getInstance().getMethodDescriptor();
 
         methodVisitor.visitMethodInsn(
             Opcodes.INVOKESTATIC, 
@@ -296,7 +308,8 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
-        VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
+        // VarInfo var = SymbolTable.getInstance().getVarInfo(node.varName);
+        VarInfo var = MethodManager.getInstance().getVarInfo(node.varName);
         int op = var.type.getOpcode(Opcodes.ILOAD);
         methodVisitor.visitVarInsn(op, var.localIndex);
     }
@@ -350,7 +363,6 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     private void multiDimArrayInitializer(ArrayInitializerNode node) {
         if (node.arraySizes.size() > 1) {
-            System.out.println(node);
             methodVisitor.visitMultiANewArrayInsn(node.exprType.toString(), node.arraySizes.size());
         } else {
             methodVisitor.visitTypeInsn(Opcodes.ANEWARRAY, "[" + node.exprType.getElementType());
