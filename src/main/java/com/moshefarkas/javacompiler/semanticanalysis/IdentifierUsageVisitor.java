@@ -16,11 +16,12 @@ import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     // responsible for checking if var is defined, and initialized.
+    private String currMethod;
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
         String varName = node.varName;
-        SymbolTable methodSymbolTable  = MethodManager.getInstance().getSymbolTable();
+        SymbolTable methodSymbolTable  = MethodManager.getInstance().getSymbolTable(currMethod);
         if (!methodSymbolTable.hasVar(varName)) {
             error(ErrorType.UNDEFINED_VAR, node.lineNum, varName);
         } else if (methodSymbolTable.getVarInfo(varName).initialized == false) {
@@ -40,8 +41,8 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     @Override
     public void visitMethodNode(MethodNode node) {
-        MethodManager.getInstance().enterMethod(node.methodName);
-
+        currMethod = node.methodName;
+        MethodManager.getInstance().getSymbolTable(currMethod).resetScopes();
         boolean seenAccessMod = false;
 
         for (int i = 0; i < node.methodModifiers.size(); i++) {
@@ -86,10 +87,9 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     @Override
     public void visitBlockStmtNode(BlockStmtNode node) {
-        SymbolTable methodSymbolTable = MethodManager.getInstance().getSymbolTable();
+        SymbolTable methodSymbolTable = MethodManager.getInstance().getSymbolTable(currMethod);
         methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
         methodSymbolTable.exitScope();
     }
 }
-

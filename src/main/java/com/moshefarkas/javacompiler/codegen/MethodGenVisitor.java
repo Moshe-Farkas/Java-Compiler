@@ -37,9 +37,11 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     private MethodVisitor methodVisitor;
     private Stack<Label> labelStack = new Stack<>();
+    private String currMethod;
 
-    public MethodGenVisitor(MethodVisitor methodVisitor) {
+    public MethodGenVisitor(MethodVisitor methodVisitor, String currMethod) {
         this.methodVisitor = methodVisitor;
+        this.currMethod = currMethod;
     }
 
     private void emitTypeCast(Type targetType, Type toCastType) {
@@ -55,7 +57,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitBlockStmtNode(BlockStmtNode node) {
-        SymbolTable methodSymbolTable = MethodManager.getInstance().getSymbolTable();
+        SymbolTable methodSymbolTable = MethodManager.getInstance().getSymbolTable(currMethod);
         methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
         methodSymbolTable.exitScope();
@@ -92,7 +94,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
         if (node.var.initialized) {
             visit(node.initializer);
-            VarInfo var = MethodManager.getInstance().getVarInfo(node.var.name);
+            VarInfo var = MethodManager.getInstance().getSymbolTable(currMethod).getVarInfo(node.var.name);
             emitTypeCast(var.type, node.initializer.exprType);
             methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
         }
@@ -104,14 +106,14 @@ public class MethodGenVisitor extends BaseAstVisitor {
             genArrAccStore((ArrAccessExprNode)node.identifier, node.assignmentValue);
         } else {
             visit(node.assignmentValue);
-            VarInfo var = MethodManager.getInstance().getVarInfo(node.identifier.varName);
+            VarInfo var = MethodManager.getInstance().getSymbolTable(currMethod).getVarInfo(node.identifier.varName);
             emitTypeCast(var.type, node.assignmentValue.exprType);
             methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
         }
     }
 
     private void genArrAccStore(ArrAccessExprNode node, ExpressionNode assignmentValue) {
-        VarInfo var = MethodManager.getInstance().getVarInfo(node.varName);
+        VarInfo var = MethodManager.getInstance().getSymbolTable(currMethod).getVarInfo(node.varName);
         methodVisitor.visitVarInsn(Opcodes.ALOAD, var.localIndex);
         visit(node.index);
         if (node.identifer instanceof ArrAccessExprNode) {
@@ -146,7 +148,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
             emitTypeCast(paramType, argType);
         }
 
-        String descriptor = MethodManager.getInstance().getMethodDescriptor();
+        String descriptor = MethodManager.getInstance().getMethodDescriptor(currMethod);
 
         methodVisitor.visitMethodInsn(
             Opcodes.INVOKESTATIC, 
@@ -298,7 +300,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
-        VarInfo var = MethodManager.getInstance().getVarInfo(node.varName);
+        VarInfo var = MethodManager.getInstance().getSymbolTable(currMethod).getVarInfo(node.varName);
         int op = var.type.getOpcode(Opcodes.ILOAD);
         methodVisitor.visitVarInsn(op, var.localIndex);
     }

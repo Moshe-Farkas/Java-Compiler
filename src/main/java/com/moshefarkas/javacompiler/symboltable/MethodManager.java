@@ -31,10 +31,14 @@ public class MethodManager {
         System.out.println("/////////////////////////////////////////");
     }
 
-    public void debug_print_method() {
+    public void debug_print_method(String methodName) {
         System.out.println("++++++++++++++++++");
-        System.out.println(currMethod);
+        System.out.println(getMethod(methodName));
         System.out.println("++++++++++++++++++");
+    }
+
+    public Method getMethod(String methodName) {
+        return methods.get(methodName);
     }
 
     public void test_reset() {
@@ -42,27 +46,17 @@ public class MethodManager {
     }
 
     private Map<String, Method> methods;
-    private Method currMethod;
-    
-    public void enterMethod(String methodName) {
-        currMethod = methods.get(methodName);
-        currMethod.symbolTable.resetScopes();
-    }
-
+   
     public void createNewMethod(String methodName, MethodInfo methodInfo) {
         methods.put(methodName, new Method(methodInfo));
     }
 
-    public SymbolTable getSymbolTable() {
-        return currMethod.symbolTable;
+    public SymbolTable getSymbolTable(String methodName) {
+        return methods.get(methodName).symbolTable;
     }
 
-    public Type getReturnType() {
-        return currMethod.methodInfo.returnType;
-    }
-
-    public String methodName() {
-        return currMethod.methodInfo.methodName;
+    public Type getReturnType(String methodName) {
+        return methods.get(methodName).methodInfo.returnType;
     }
 
     public boolean hasMethod(String methodName) {
@@ -78,14 +72,10 @@ public class MethodManager {
         return types;
     }
 
-    public String getMethodDescriptor() {
+    public String getMethodDescriptor(String methodName) {
         return Type.getMethodDescriptor(
-            getReturnType(), 
-            getParamTypes(currMethod.methodInfo.methodName)
+            getReturnType(methodName), 
+            getParamTypes(methodName)
         );
-    }
-
-    public VarInfo getVarInfo(String varName) {
-        return currMethod.symbolTable.getVarInfo(varName);
     }
 }

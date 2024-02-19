@@ -16,6 +16,8 @@ public class ClassGenVisitor extends BaseAstVisitor {
     
     public ClassWriter classWriter;
 
+    private String currMethod;
+
     @Override
     public void visitClassNode(ClassNode node) {
         classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
@@ -38,12 +40,13 @@ public class ClassGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitMethodNode(MethodNode node) {
-        MethodManager.getInstance().enterMethod(node.methodName);
+        currMethod = node.methodName;
+        MethodManager.getInstance().getSymbolTable(currMethod).resetScopes();
         int accessMod = 0;
         for (int modifer : node.methodModifiers) {
             accessMod += modifer;
         }
-        String descriptor = MethodManager.getInstance().getMethodDescriptor();
+        String descriptor = MethodManager.getInstance().getMethodDescriptor(currMethod);
 
         MethodVisitor method = classWriter.visitMethod(
             accessMod,
@@ -52,7 +55,7 @@ public class ClassGenVisitor extends BaseAstVisitor {
             descriptor, 
             null
         );
-        new MethodGenVisitor(method).visitMethodNode(node);
+        new MethodGenVisitor(method, currMethod).visitMethodNode(node);
     }
 
     private void emitMain() {

@@ -24,11 +24,10 @@ import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class TypeCheckVisitor extends SemanticAnalysis {
 
-    // todo synchronize for assignments stmt
-
     private class SemanticError extends RuntimeException {}
 
     private Stack<Type> typeStack = new Stack<>();
+    private String currMethod;
 
     private Type lookupType(Type a, Type b) {
         //            int    float bool   char  byte
@@ -133,7 +132,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
-        Type idenType = MethodManager.getInstance().getSymbolTable().getVarType(node.varName);
+        Type idenType = MethodManager.getInstance().getSymbolTable(currMethod).getVarType(node.varName);
         
         typeStack.push(idenType);
         node.setExprType(idenType);
@@ -207,7 +206,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
                 }
             } catch (SemanticError e) {typeStack.clear();}
         }
-        node.setExprType(MethodManager.getInstance().getReturnType());
+        node.setExprType(MethodManager.getInstance().getReturnType(node.methodName));
     }
 
     @Override
@@ -218,7 +217,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         try {
             visit(node.initializer);
             Type initializerType = typeStack.pop();
-            Type varType = MethodManager.getInstance().getSymbolTable().getVarType(node.var.name);
+            Type varType = MethodManager.getInstance().getSymbolTable(currMethod).getVarType(node.var.name);
 
             if (!validAssignment(varType, initializerType)) {
                 error(
@@ -318,7 +317,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitBlockStmtNode(BlockStmtNode node) {
-        SymbolTable methodSymbolTable = MethodManager.getInstance().getSymbolTable();
+        SymbolTable methodSymbolTable = MethodManager.getInstance().getSymbolTable(currMethod);
         methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
         methodSymbolTable.exitScope();
@@ -326,7 +325,8 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitMethodNode(MethodNode node) {
-        MethodManager.getInstance().enterMethod(node.methodName);
+        currMethod = node.methodName;
+        MethodManager.getInstance().getSymbolTable(currMethod).resetScopes();
         super.visitMethodNode(node);
     }
 }

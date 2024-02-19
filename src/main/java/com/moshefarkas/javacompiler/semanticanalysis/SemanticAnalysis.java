@@ -5,6 +5,7 @@ import org.objectweb.asm.Type;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
+import com.moshefarkas.javacompiler.symboltable.MethodManager;
 
 public class SemanticAnalysis extends BaseAstVisitor {
 
