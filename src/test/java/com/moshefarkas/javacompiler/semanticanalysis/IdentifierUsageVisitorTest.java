@@ -34,13 +34,13 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
     @Test
     public void testUndefinedVar() {
         compileNewSource("int a = b;");
-        assertEquals(ErrorType.UNDEFINED_VAR, visitor.test_error);
+        assertEquals(ErrorType.UNDEFINED_IDENTIFIER, visitor.test_error);
 
         // compileNewSource("int a = a;");
         //sertEquals(ErrorType.UNDEFINED_VAR, visitor.test_error);
 
         compileNewSource("t = 90;");
-        assertEquals(ErrorType.UNDEFINED_VAR, visitor.test_error);
+        assertEquals(ErrorType.UNDEFINED_IDENTIFIER, visitor.test_error);
     }
 
     @Test
@@ -74,5 +74,11 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
 
         compileNewMethodheader("public static abstract");
         assertEquals(ErrorType.INVALID_METHOD_HEADER, visitor.test_error);
+    }
+
+    @Test 
+    public void testUndefinedMethod() {
+        compileNewSource("k();");
+        assertEquals(ErrorType.UNDEFINED_IDENTIFIER, visitor.test_error);
     }
 }

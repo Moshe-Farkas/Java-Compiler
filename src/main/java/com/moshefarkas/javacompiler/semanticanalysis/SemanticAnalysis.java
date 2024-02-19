@@ -5,7 +5,6 @@ import org.objectweb.asm.Type;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
-import com.moshefarkas.javacompiler.symboltable.MethodManager;
 
 public class SemanticAnalysis extends BaseAstVisitor {
 
@@ -15,8 +14,10 @@ public class SemanticAnalysis extends BaseAstVisitor {
         hadErr = false;
         SymbolTableGenVisitor sv = new SymbolTableGenVisitor();
         sv.visitClassNode(ast);
+        if (hadErr) return;
         IdentifierUsageVisitor iuv = new IdentifierUsageVisitor();
         iuv.visitClassNode(ast);
+        if (hadErr) return;
         TypeCheckVisitor s = new TypeCheckVisitor();
         s.visit(ast);
     }
@@ -27,7 +28,7 @@ public class SemanticAnalysis extends BaseAstVisitor {
         MISMATCHED_ARGUMENTS,
         MISMATCHED_TYPE,
         MISMATCHED_ASSIGNMENT_TYPE,
-        UNDEFINED_VAR,
+        UNDEFINED_IDENTIFIER,
         DUPLICATE_VAR,
         DUPLICATE_METHOD,
         UNINITIALIZED_VAR,

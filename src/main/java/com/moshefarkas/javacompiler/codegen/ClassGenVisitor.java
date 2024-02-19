@@ -68,5 +68,6 @@ public class ClassGenVisitor extends BaseAstVisitor {
         );
         main.visitCode();
         main.visitInsn(Opcodes.RETURN);
+        main.visitEnd();
     }
 }

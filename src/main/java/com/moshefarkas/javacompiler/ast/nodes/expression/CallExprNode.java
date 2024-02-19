@@ -27,4 +27,9 @@ public class CallExprNode extends ExpressionNode {
     public void accept(AstVisitor v) {
         v.visitCallExprNode(this);
     }
+
+    @Override 
+    public String toString() { 
+        return "calle: " + methodName + ", args: " + arguments;
+    }
 }

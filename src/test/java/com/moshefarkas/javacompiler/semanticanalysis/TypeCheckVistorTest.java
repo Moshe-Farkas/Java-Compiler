@@ -11,151 +11,194 @@ import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 public class TypeCheckVistorTest extends BaseSemanticAnalysis {
 
     private TypeCheckVisitor visitor;
-    private void compileSource(String source) {
+
+    @Override
+    protected void compile(String source) {
         SemanticAnalysis.hadErr = false;
         MethodManager.getInstance().test_reset();
         visitor = new TypeCheckVisitor();
-        compile(source);
+        super.compile(source);
         SymbolTableGenVisitor sv = new SymbolTableGenVisitor();
         sv.visitClassNode(ast);
         IdentifierUsageVisitor idv = new IdentifierUsageVisitor();
         idv.visitClassNode(ast);
-        // if (idv.test_error != null || sv.test_error != null) {
-        //     System.out.println(idv.test_error + "  --  - - - - ");
-        //     System.exit(1);
-        // }
+        visitor.visitClassNode(ast);
+    }
+
+    @Override 
+    protected void compileMethod(String method) {
+        SemanticAnalysis.hadErr = false;
+        MethodManager.getInstance().test_reset();
+        visitor = new TypeCheckVisitor();
+        super.compileMethod(method);
+        SymbolTableGenVisitor sv = new SymbolTableGenVisitor();
+        sv.visitClassNode(ast);
+        IdentifierUsageVisitor idv = new IdentifierUsageVisitor();
+        idv.visitClassNode(ast);
+        if (idv.hadErr) System.out.println("here : :;; : : : ");
         visitor.visitClassNode(ast);
     }
 
     @Test
     public void testMismatchedTypes() {
-        compileSource("int b = 5f - 6;");
+        compile("int b = 5f - 6;");
         assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
         
-        compileSource("float b = 5f - 6;");
+        compile("float b = 5f - 6;");
         assertEquals(null, visitor.test_error);
 
-        compileSource("int c = '4' + 0;");
+        compile("int c = '4' + 0;");
         assertEquals(null, visitor.test_error);
     }
 
     @Test 
     public void testAssignment() {
-        compileSource("int a = 4; a = 6;");
+        compile("int a = 4; a = 6;");
         assertEquals(null, visitor.test_error);
 
-        compileSource("int a; a = 9;");
+        compile("int a; a = 9;");
         assertEquals(null, visitor.test_error);
 
-        compileSource("int a = 0; int b; b = 9 + a * a;");
+        compile("int a = 0; int b; b = 9 + a * a;");
         assertEquals(null, visitor.test_error);
 
-        compileSource("int a; a = (float)90;");
+        compile("int a; a = (float)90;");
         assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
 
-        compileSource("float a; a = (int)5f;");
+        compile("float a; a = (int)5f;");
         assertEquals(null, visitor.test_error);
     }
 
     @Test
     public void testCallExpr() {
-        compileSource("emptyMeth();");
+        compile("emptyMeth();");
         assertEquals(null, visitor.test_error);
 
-        compileSource("intMeth(8f);");
+        compile("intMeth(8f);");
         assertEquals(ErrorType.MISMATCHED_ARGUMENTS, visitor.test_error);
 
-        compileSource("floatMeth(8);");
+        compile("floatMeth(8);");
         assertEquals(null, visitor.test_error);
 
-        compileSource("charMeth(8);");
+        compile("charMeth(8);");
         assertEquals(ErrorType.MISMATCHED_ARGUMENTS, visitor.test_error);
 
-        compileSource("intArr1Dim(new int[4]);");
+        compile("intArr1Dim(new int[4]);");
         assertEquals(null, visitor.test_error);
 
-        compileSource("intArr1Dim(new int[4][]);");
+        compile("intArr1Dim(new int[4][]);");
         assertEquals(ErrorType.MISMATCHED_ARGUMENTS, visitor.test_error);
 
-        compileSource("intArr2Dim(new int[4][]);");
+        compile("intArr2Dim(new int[4][]);");
         assertEquals(null, visitor.test_error);
 
-        compileSource("intArr2Dim(new float[4][]);");
+        compile("intArr2Dim(new float[4][]);");
         assertEquals(ErrorType.MISMATCHED_ARGUMENTS, visitor.test_error);
 
-        compileSource("int[] a = new int[4]; intArr1Dim(a);");
+        compile("int[] a = new int[4]; intArr1Dim(a);");
         assertEquals(null, visitor.test_error);
     }
 
     @Test 
+    public void testCallExprAsExpression() {
+        StringBuilder method = new StringBuilder();
+        method.append("public int met(){}");
+        method.append("public int methooo()");
+        method.append("{int a = met();}");
+        compileMethod(method.toString());
+        assertEquals(null, visitor.test_error);
+
+        method = new StringBuilder();
+        method.append("public float met(){}");
+        method.append("public int methooo()");
+        method.append("{int a = met();}");
+        compileMethod(method.toString());
+        assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
+
+        method = new StringBuilder();
+        method.append("public float met(){}");
+        method.append("public int methooo()");
+        method.append("{int a = (int)met();}");
+        compileMethod(method.toString());
+        assertEquals(null, visitor.test_error);
+
+        method = new StringBuilder();
+        method.append("public float met(){}");
+        method.append("public int methooo()");
+        method.append("{ if (met()) {} }");
+        compileMethod(method.toString());
+        assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+    }
+
+    @Test 
     public void testArrayDeclarations() {
-        compileSource("int[] a = new int[4]; int b = a[0];");
+        compile("int[] a = new int[4]; int b = a[0];");
         assertEquals(null, visitor.test_error);
 
-        compileSource("float a[] = new int[3];");
+        compile("float a[] = new int[3];");
         assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
 
-        compileSource("int[][] a = new int[3][1];");
+        compile("int[][] a = new int[3][1];");
         assertEquals(null, visitor.test_error);
 
-        compileSource("int[][] a = new int[3][];");
+        compile("int[][] a = new int[3][];");
         assertEquals(null, visitor.test_error);
 
-        compileSource("int[][][] a = new int[3][][];");
+        compile("int[][][] a = new int[3][][];");
         assertEquals(null, visitor.test_error);
 
-        compileSource("int[] a; a = new int[5];");
+        compile("int[] a; a = new int[5];");
         assertEquals(null, visitor.test_error);
 
-        compileSource("int[] a; a = new int[4][5];");
+        compile("int[] a; a = new int[4][5];");
         assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
 
-        compileSource("int[][] a; a = new int[4];");
+        compile("int[][] a; a = new int[4];");
         assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
 
-        compileSource("int[][] a; a = new int[4][9];");
+        compile("int[][] a; a = new int[4][9];");
         assertEquals(null, visitor.test_error);
 
-        compileSource("int[][] a; a = new int[4][];");
+        compile("int[][] a; a = new int[4][];");
         assertEquals(null, visitor.test_error);
 
-        compileSource("int[][][] a = new int[4][][]; int[][] b = a[0];");
+        compile("int[][][] a = new int[4][][]; int[][] b = a[0];");
         assertEquals(null, visitor.test_error);
 
-        compileSource("int[][][] a = new int[4][][]; int[][] b = a;");
+        compile("int[][][] a = new int[4][][]; int[][] b = a;");
         assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
 
         // compileSource("int[][][] a = new int[4][][]; int[][] b = a[0][0];");
         // assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
 
-        compileSource("int[] a = new int['l'];");
+        compile("int[] a = new int['l'];");
         assertEquals(ErrorType.INVALID_ARRAY_INIT, visitor.test_error);
 
-        compileSource("int[][] a = new int['p'][5f];");
+        compile("int[][] a = new int['p'][5f];");
         assertEquals(ErrorType.INVALID_ARRAY_INIT, visitor.test_error);
 
-        compileSource("int[][] a = new int[(int)5f][5];");
+        compile("int[][] a = new int[(int)5f][5];");
         assertEquals(null, visitor.test_error);
     }
 
     @Test 
     public void testBinaryBoolExpr() {
-        compileSource("if (true == false) {}");
+        compile("if (true == false) {}");
         assertEquals(null, visitor.test_error);
 
-        compileSource("if (5 == false) {}");
+        compile("if (5 == false) {}");
         assertEquals(ErrorType.INVALID_OPERATOR_TYPES, visitor.test_error);
 
-        compileSource("if (true >= false) {}");
+        compile("if (true >= false) {}");
         assertEquals(ErrorType.INVALID_OPERATOR_TYPES, visitor.test_error);
 
-        compileSource("if (true + false == false) {}");
+        compile("if (true + false == false) {}");
         assertEquals(ErrorType.INVALID_OPERATOR_TYPES, visitor.test_error);
 
-        compileSource("if (true == false == false) {}");
+        compile("if (true == false == false) {}");
         assertEquals(null, visitor.test_error);
 
-        compileSource("if (true == 5) {}");
+        compile("if (true == 5) {}");
         assertEquals(ErrorType.INVALID_OPERATOR_TYPES, visitor.test_error);
     }
 }

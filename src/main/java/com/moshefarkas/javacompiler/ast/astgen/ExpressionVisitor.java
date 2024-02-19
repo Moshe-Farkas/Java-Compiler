@@ -20,6 +20,7 @@ import com.moshefarkas.generated.Java8Parser.FloatingPointTypeContext;
 import com.moshefarkas.generated.Java8Parser.IntegralTypeContext;
 import com.moshefarkas.generated.Java8Parser.LiteralContext;
 import com.moshefarkas.generated.Java8Parser.MethodInvocationContext;
+import com.moshefarkas.generated.Java8Parser.MethodInvocation_lfno_primaryContext;
 import com.moshefarkas.generated.Java8Parser.MultiplicativeExpressionContext;
 import com.moshefarkas.generated.Java8Parser.PrimaryNoNewArray_lfno_primaryContext;
 import com.moshefarkas.generated.Java8Parser.PrimitiveTypeContext;
@@ -500,5 +501,27 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
             return visit(ctx.expression());
         }
         return super.visitPrimaryNoNewArray_lfno_primary(ctx);
+    }
+
+    @Override
+    public CallExprNode visitMethodInvocation_lfno_primary(MethodInvocation_lfno_primaryContext ctx) {
+        // methodInvocation_lfno_primary
+        //     : methodName '(' argumentList? ')'
+        //     | typeName '.' typeArguments? Identifier '(' argumentList? ')'
+        //     | expressionName '.' typeArguments? Identifier '(' argumentList? ')'
+        //     | 'super' '.' typeArguments? Identifier '(' argumentList? ')'
+        //     | typeName '.' 'super' '.' typeArguments? Identifier '(' argumentList? ')'
+        //     ;
+        if (ctx.methodName() == null) {
+            throw new UnsupportedOperationException("in visitMethodInvocation_lfno_primary in expr visitor");
+        }
+        String methodName = ctx.methodName().Identifier().getText();
+        CallExprNode callExpr = new CallExprNode();
+        callExpr.setMethodName(methodName);
+        if (ctx.argumentList() != null) {
+            callExpr.setArguments(visitArgumentList(ctx.argumentList()));
+        }
+        callExpr.lineNum = ctx.getStart().getLine();
+        return callExpr;
     }
 }

@@ -206,7 +206,9 @@ public class TypeCheckVisitor extends SemanticAnalysis {
                 }
             } catch (SemanticError e) {typeStack.clear();}
         }
-        node.setExprType(MethodManager.getInstance().getReturnType(node.methodName));
+        Type calleReturnType = MethodManager.getInstance().getReturnType(node.methodName);
+        node.setExprType(calleReturnType);
+        typeStack.push(calleReturnType);
     }
 
     @Override

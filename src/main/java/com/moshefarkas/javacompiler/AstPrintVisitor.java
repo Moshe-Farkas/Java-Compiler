@@ -1,8 +1,7 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
-import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
-import com.moshefarkas.javacompiler.symboltable.MethodManager;
+import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class AstPrintVisitor extends BaseAstVisitor {
 

@@ -23,7 +23,7 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
         String varName = node.varName;
         SymbolTable methodSymbolTable  = MethodManager.getInstance().getSymbolTable(currMethod);
         if (!methodSymbolTable.hasVar(varName)) {
-            error(ErrorType.UNDEFINED_VAR, node.lineNum, varName);
+            error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, varName);
         } else if (methodSymbolTable.getVarInfo(varName).initialized == false) {
             error(ErrorType.UNINITIALIZED_VAR, node.lineNum, varName);
         } 
@@ -31,6 +31,14 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     @Override
     public void visitCallExprNode(CallExprNode node) {
+        if (!MethodManager.getInstance().hasMethod(node.methodName)) {
+            error(
+                ErrorType.UNDEFINED_IDENTIFIER, 
+                node.lineNum, 
+                errorString("Undefined method `%s`.", node.methodName)
+            );
+            return;
+        }
         Type[] methodParamsTypes = MethodManager.getInstance().getParamTypes(node.methodName);
         if (methodParamsTypes.length != node.arguments.size()) {
             String reason = String.format("Expected `%d` args but got `%d`.", methodParamsTypes.length, node.arguments.size());

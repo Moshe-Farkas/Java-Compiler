@@ -148,7 +148,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
             emitTypeCast(paramType, argType);
         }
 
-        String descriptor = MethodManager.getInstance().getMethodDescriptor(currMethod);
+        String descriptor = MethodManager.getInstance().getMethodDescriptor(node.methodName);
 
         methodVisitor.visitMethodInsn(
             Opcodes.INVOKESTATIC, 
