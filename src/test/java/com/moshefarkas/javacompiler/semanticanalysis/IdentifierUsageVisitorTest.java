@@ -25,7 +25,7 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
     private void compileNewMethodheader(String header) {
         MethodManager.getInstance().test_reset();
         visitor = new IdentifierUsageVisitor();
-        compileHeader(header);
+        compileMethodModifiers(header);
         SymbolTableGenVisitor v = new SymbolTableGenVisitor();
         v.visitClassNode(ast);
         visitor.visitClassNode(ast);

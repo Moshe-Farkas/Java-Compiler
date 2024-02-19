@@ -28,7 +28,7 @@ public class BaseSemanticAnalysis {
     
     private String startSourceMethods = "public class Test {";
         
-    public void compile(String source) {
+    protected void compile(String source) {
         source = startSource + source + endSource;
         CharStream input = CharStreams.fromString(source);
         Java8Lexer lexer = new Java8Lexer(input);
@@ -43,9 +43,38 @@ public class BaseSemanticAnalysis {
         ast = astGen.currentClass;
     }
 
-    protected void compileHeader(String header) {
-        String source = startSourceMethods + header + " int meth(){}" + "}";
-        System.out.println(source);
+    protected void compileMethodModifiers(String modifers) {
+        String source = startSourceMethods + modifers + " int meth(){}" + "}";
+        CharStream input = CharStreams.fromString(source);
+        Java8Lexer lexer = new Java8Lexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        Java8Parser parser = new Java8Parser(tokens);
+        ParseTree tree = parser.compilationUnit(); 
+        if (parser.getNumberOfSyntaxErrors() > 0) {
+            System.exit(1);
+        }
+        ClassVisitor astGen = new ClassVisitor();
+        astGen.visit(tree);
+        ast = astGen.currentClass;
+    }
+
+    protected void compileMethodDecl(String methodDecl) {
+        String source = startSourceMethods + methodDecl + " {}" + "}";
+        CharStream input = CharStreams.fromString(source);
+        Java8Lexer lexer = new Java8Lexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        Java8Parser parser = new Java8Parser(tokens);
+        ParseTree tree = parser.compilationUnit(); 
+        if (parser.getNumberOfSyntaxErrors() > 0) {
+            System.exit(1);
+        }
+        ClassVisitor astGen = new ClassVisitor();
+        astGen.visit(tree);
+        ast = astGen.currentClass;
+    }
+
+    protected void compileMethod(String method) {
+        String source = "public class test {" + method + "}";
         CharStream input = CharStreams.fromString(source);
         Java8Lexer lexer = new Java8Lexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
