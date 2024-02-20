@@ -199,7 +199,6 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         //     var.dims = type.getDimensions();
         // }
         String paramName = ctx.variableDeclaratorId().Identifier().getText();
-        var.initialized = false;
         var.type = type;
         var.name = paramName;
 

@@ -5,14 +5,14 @@ import org.objectweb.asm.Type;
 public class VarInfo {
     public Type type;
     public String name;
-    public boolean initialized = false;
     public int localIndex = -1;
+    public boolean hasValue = false;
 
     @Override
     public String toString() {
         return "Name: "          + name +
                ", Type: "        + type +
-               ", Initialized: " + initialized + 
+               ", HasValue: "    + hasValue + 
                ", Index: "       + localIndex;
     }
 }

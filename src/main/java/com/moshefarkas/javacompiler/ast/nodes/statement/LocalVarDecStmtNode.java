@@ -9,6 +9,10 @@ public class LocalVarDecStmtNode extends StatementNode {
     public ExpressionNode initializer; 
     public VarInfo var;
 
+    public boolean hasInitializer() {
+        return initializer != null;
+    }
+
     public void setInitializer(ExpressionNode initializer) {
         this.initializer = initializer;
         addChild(initializer);

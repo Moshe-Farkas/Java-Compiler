@@ -218,7 +218,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
-        if (!node.var.initialized) {
+        if (!node.hasInitializer()) {
             return;
         }
         try {

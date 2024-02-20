@@ -6,10 +6,12 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ControlFlowStmt;
+import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 import com.moshefarkas.javacompiler.symboltable.MethodManager;
@@ -32,9 +34,37 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
         SymbolTable methodSymbolTable  = MethodManager.getInstance().getSymbolTable(currMethod);
         if (!methodSymbolTable.hasVar(varName)) {
             error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, varName);
-        } else if (methodSymbolTable.getVarInfo(varName).initialized == false) {
-            error(ErrorType.UNINITIALIZED_VAR, node.lineNum, varName);
-        } 
+        } else if (methodSymbolTable.getVarInfo(varName).hasValue == false) {
+            error(
+                ErrorType.UNINITIALIZED_VAR, 
+                node.lineNum, 
+                errorString("Can't use var `%s` as it's not initialized.", varName)
+            );
+        }
+    }
+
+    @Override
+    public void visitAssignExprNode(AssignExprNode node) {
+        // visit(node.identifier);
+        SymbolTable methodSymbolTable  = MethodManager.getInstance().getSymbolTable(currMethod);
+        if (!methodSymbolTable.hasVar(node.identifier.varName)) {
+            error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, node.identifier.varName);
+        } else {
+            MethodManager.getInstance()
+                .getSymbolTable(currMethod)
+                .getVarInfo(node.identifier.varName).hasValue = true;
+            visit(node.assignmentValue);
+        }
+    }
+
+    @Override
+    public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
+        if (node.hasInitializer()) {
+            MethodManager.getInstance()
+                .getSymbolTable(currMethod)
+                .getVarInfo(node.var.name).hasValue = true;
+        }
+        super.visitLocalVarDecStmtNode(node);
     }
 
     @Override

@@ -92,7 +92,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
-        if (node.var.initialized) {
+        if (node.hasInitializer()) {
             visit(node.initializer);
             VarInfo var = MethodManager.getInstance().getSymbolTable(currMethod).getVarInfo(node.var.name);
             emitTypeCast(var.type, node.initializer.exprType);

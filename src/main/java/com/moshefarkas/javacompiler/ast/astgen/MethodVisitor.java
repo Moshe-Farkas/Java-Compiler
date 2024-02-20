@@ -256,7 +256,6 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         //     ;
         
         if (ctx.variableInitializer() != null) {
-            currLocalVarDecl.initialized = true;
             visit(ctx.variableInitializer());
             currVarInitializer = expressionStack.pop();            
         }
