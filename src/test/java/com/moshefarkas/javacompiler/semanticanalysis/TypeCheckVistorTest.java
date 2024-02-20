@@ -68,6 +68,27 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
         assertEquals(null, visitor.test_error);
     }
 
+    @Test 
+    public void testArrayAssignment() {
+        compile("int[] a; a = new int[9];");
+        assertEquals(null, visitor.test_error);
+
+        compile("int[] a; a = 9;");
+        assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
+
+        compile("int[] a; a = null;");
+        assertEquals(null, visitor.test_error);
+
+        compile("int[] a = null;");
+        assertEquals(null, visitor.test_error);
+
+        compile("int[][] a = new int[0][]; a[0] = null;");
+        assertEquals(null, visitor.test_error);
+
+        compile("int[][] a = new int[0][]; a = null;");
+        assertEquals(null, visitor.test_error);
+    }
+
     @Test
     public void testCallExpr() {
         compile("emptyMeth();");

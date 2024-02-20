@@ -150,16 +150,18 @@ public class TypeCheckVisitor extends SemanticAnalysis {
     }
 
     private boolean validAssignment(Type varType, Type assignType) {
+        // add object checking too
+
+        if (varType.getSort() == Type.ARRAY) {
+            return validArrayAssignment(varType, assignType);
+        }
+
+
+        // need to seperate checking from primitive types and object types
         if (varType == Type.BOOLEAN_TYPE && assignType == Type.BOOLEAN_TYPE)
             return true;
         if (varType == Type.BOOLEAN_TYPE || assignType == Type.BOOLEAN_TYPE)
             return false;
-        if (varType.getSort() == Type.ARRAY || assignType.getSort() == Type.ARRAY) {
-            if (varType.equals(assignType)) {
-                return true;
-            } 
-            return false;
-        }
         
         if (!wideningRules.containsKey(assignType) || !wideningRules.containsKey(varType)) {
             return false;
@@ -171,6 +173,12 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         // i into type b is allowed
         if (varType == Type.BYTE_TYPE && assignType == Type.INT_TYPE) { return true; }
         return false;
+    }
+
+    private boolean validArrayAssignment(Type varType, Type assignType) {
+        if (assignType == null)
+            return true; // array are objects
+        return varType.equals(assignType);
     }
 
     @Override

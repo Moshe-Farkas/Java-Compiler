@@ -286,6 +286,9 @@ public class MethodGenVisitor extends BaseAstVisitor {
     public void visitLiteralExprNode(LiteralExprNode node) {
         if (node.exprType == Type.BOOLEAN_TYPE) {
             emitBoolConst((boolean)node.value);
+        }  else if (node.value == null) {
+            // null literal
+            methodVisitor.visitInsn(Opcodes.ACONST_NULL);
         } else {
             methodVisitor.visitLdcInsn(node.value);
         }

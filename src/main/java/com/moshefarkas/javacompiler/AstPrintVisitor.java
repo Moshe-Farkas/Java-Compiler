@@ -1,7 +1,7 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
-import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ControlFlowStmt;
 
 public class AstPrintVisitor extends BaseAstVisitor {
@@ -22,13 +22,11 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     System.out.println(node);
     // }
 
-
-
     // @Override
     // public void visitLiteralExprNode(LiteralExprNode node) {
     //     System.out.println("line: " + node.lineNum);
     //     System.out.println(node.exprType);
-    //     super.visitLiteralExprNode(node);
+    //     System.out.println("value: " + node.value);
     // }
 
     // @Override

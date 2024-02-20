@@ -252,6 +252,9 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         } else if (ctx.CharacterLiteral() != null) {
             type = Type.CHAR_TYPE;
             lit.value = ctx.getText().charAt(1);
+        } else if (ctx.NullLiteral() != null) {
+            type = null;      // idk
+            lit.value = null; // scary
         } else {
             throw new UnsupportedOperationException("inside visitLiteral in expr visitor");
         }
