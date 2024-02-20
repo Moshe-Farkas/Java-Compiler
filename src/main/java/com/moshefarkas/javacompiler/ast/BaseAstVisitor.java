@@ -14,6 +14,7 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.ControlFlowStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ExprStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
@@ -62,6 +63,9 @@ public class BaseAstVisitor implements AstVisitor {
 
     @Override
     public void visitReturnStmt(ReturnStmt node) { node.visitChildren(this); }
+
+    @Override
+    public void visitControlFlowStmt(ControlFlowStmt node) { node.visitChildren(this); }
 
     @Override
     public void visitClassNode(ClassNode node) { node.visitChildren(this); }

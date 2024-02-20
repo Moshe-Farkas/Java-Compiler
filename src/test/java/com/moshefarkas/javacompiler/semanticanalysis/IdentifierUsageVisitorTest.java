@@ -111,4 +111,25 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
         compileMethod("public static int tm(){return 3;}");
         assertEquals(null, visitor.test_error);
     }
+
+    @Test 
+    public void testBreakAndContinue() {
+        compileNewSource("while (true) {break;}");
+        assertEquals(null, visitor.test_error);
+
+        compileNewSource("while (true) {continue;} ");
+        assertEquals(null, visitor.test_error);
+
+        compileNewSource("while (true) {continue;} continue;");
+        assertEquals(ErrorType.INVALID_KEYWORD_USAGE, visitor.test_error);
+
+        compileNewSource("while (true) {continue;} break;");
+        assertEquals(ErrorType.INVALID_KEYWORD_USAGE, visitor.test_error);
+
+        compileNewSource("while (true) { while (false) {} continue;}");
+        assertEquals(null, visitor.test_error);
+
+        compileNewSource("while (true) { while (false) {} } break;");
+        assertEquals(ErrorType.INVALID_KEYWORD_USAGE, visitor.test_error);
+    }
 }

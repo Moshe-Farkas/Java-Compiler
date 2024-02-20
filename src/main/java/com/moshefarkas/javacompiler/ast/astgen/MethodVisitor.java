@@ -6,6 +6,8 @@ import org.objectweb.asm.Type;
 
 import com.moshefarkas.generated.Java8Parser.BlockContext;
 import com.moshefarkas.generated.Java8Parser.BlockStatementContext;
+import com.moshefarkas.generated.Java8Parser.BreakStatementContext;
+import com.moshefarkas.generated.Java8Parser.ContinueStatementContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionContext;
 import com.moshefarkas.generated.Java8Parser.FloatingPointTypeContext;
 import com.moshefarkas.generated.Java8Parser.IfThenElseStatementContext;
@@ -24,6 +26,7 @@ import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.ControlFlowStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ExprStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
@@ -302,4 +305,33 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         statementStack.push(returnStmt);
         return null;
     }
+
+    @Override
+    public Void visitBreakStatement(BreakStatementContext ctx) {
+        // breakStatement
+        //     : 'break' Identifier? ';'
+        //     ;
+        if (ctx.Identifier() != null) 
+            throw new UnsupportedOperationException("inaide visit break stmt in method visitor");
+        ControlFlowStmt breakStmt = new ControlFlowStmt();
+        breakStmt.setBreak(true);
+        breakStmt.lineNum = ctx.getStart().getLine();
+        statementStack.push(breakStmt);
+        return null;
+    }
+
+    @Override
+    public Void visitContinueStatement(ContinueStatementContext ctx) {
+        // continueStatement
+        //     : 'continue' Identifier? ';'
+        //     ;
+        if (ctx.Identifier() != null) 
+            throw new UnsupportedOperationException("inaide visit break stmt in method visitor");
+        ControlFlowStmt continueStmt = new ControlFlowStmt();
+        continueStmt.setContinue(true);
+        continueStmt.lineNum = ctx.getStart().getLine();
+        statementStack.push(continueStmt);
+        return null;
+    }
+
 }

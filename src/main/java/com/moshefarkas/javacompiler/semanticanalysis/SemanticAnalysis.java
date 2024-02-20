@@ -35,6 +35,7 @@ public class SemanticAnalysis extends BaseAstVisitor {
         INVALID_CAST,
         INVALID_ARRAY_INIT,
         MISSING_RET_STMT,
+        INVALID_KEYWORD_USAGE,
     } 
 
     protected ErrorType test_error;

@@ -9,17 +9,22 @@ import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.ControlFlowStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
+import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class IdentifierUsageVisitor extends SemanticAnalysis {
     // responsible for checking if var is defined, and initialized.
 
-    // need to check if a non void method contains a return statement
-
     private String currMethod;
     private boolean seenReturnStmt;
+    private int insideLoopCount = 0;
+
+    private boolean insideLoop() {
+        return insideLoopCount > 0;
+    }
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
@@ -124,5 +129,26 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
     public void visitReturnStmt(ReturnStmt node) {
         seenReturnStmt = true;
         super.visitReturnStmt(node);
+    }
+
+    @Override
+    public void visitWhileStmtNode(WhileStmtNode node) {
+        insideLoopCount++;
+        super.visitWhileStmtNode(node);
+        insideLoopCount--;
+    }
+    
+    @Override
+    public void visitControlFlowStmt(ControlFlowStmt node) {
+        if (!insideLoop()) {
+            error(
+                ErrorType.INVALID_KEYWORD_USAGE, 
+                node.lineNum, 
+                errorString(
+                    "Can't use `%s` statement outside of loop.", 
+                    node.isBreak ? "break" : "continue"
+                )
+            );
+        }
     }
 }

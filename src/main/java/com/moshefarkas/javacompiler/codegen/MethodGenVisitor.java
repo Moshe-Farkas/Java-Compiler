@@ -6,6 +6,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
 import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
@@ -20,6 +21,7 @@ import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.UnaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.ControlFlowStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
@@ -31,6 +33,11 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     private MethodVisitor methodVisitor;
     private String currMethod;
+
+    // private Label continueLabel;
+    // private Label breakLabel;
+    private Stack<Label> continueLabelStack = new Stack<Label>();
+    private Stack<Label> breakLabelStack = new Stack<Label>();
 
     public MethodGenVisitor(MethodVisitor methodVisitor, String currMethod) {
         this.methodVisitor = methodVisitor;
@@ -339,16 +346,45 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitWhileStmtNode(WhileStmtNode node) {
-        Label toEnd = new Label();
+        Label breakLabel = new Label();
+        Label continueLabel = new Label();
+        breakLabelStack.push(breakLabel);
+        continueLabelStack.push(continueLabel);
 
-        Label jumpBack = new Label();
-        methodVisitor.visitLabel(jumpBack);
+        Label gotoLoopEnd = new Label();
+
+        Label gotoLoopStart = new Label();
+        methodVisitor.visitLabel(gotoLoopStart);
+        methodVisitor.visitLabel(continueLabel); // continue will need to jump back to begining of loop
         
         visit(node.condition);
-        visit(node.statement);
-        methodVisitor.visitJumpInsn(Opcodes.GOTO, jumpBack);
+        methodVisitor.visitJumpInsn(
+            Opcodes.IFEQ,
+            gotoLoopEnd
+        );
 
-        methodVisitor.visitLabel(toEnd);
+        visit(node.statement);
+        methodVisitor.visitJumpInsn(Opcodes.GOTO, gotoLoopStart);
+
+        methodVisitor.visitLabel(gotoLoopEnd);
+        methodVisitor.visitLabel(breakLabel);
+    }
+
+    @Override
+    public void visitControlFlowStmt(ControlFlowStmt node) {
+        if (node.isContinue) {
+            continueStatment();
+        } else {
+            breakStatment();
+        }
+    }
+
+    private void continueStatment() {
+        methodVisitor.visitJumpInsn(Opcodes.GOTO, continueLabelStack.pop());
+    }
+
+    private void breakStatment() {
+        methodVisitor.visitJumpInsn(Opcodes.GOTO, breakLabelStack.pop());
     }
 
     @Override

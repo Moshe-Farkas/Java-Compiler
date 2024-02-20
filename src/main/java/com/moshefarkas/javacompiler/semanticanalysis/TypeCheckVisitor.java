@@ -19,7 +19,7 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
-import com.moshefarkas.javacompiler.symboltable.Method;
+import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
@@ -355,5 +355,22 @@ public class TypeCheckVisitor extends SemanticAnalysis {
                 )
             );
         }
+    }
+
+    @Override
+    public void visitWhileStmtNode(WhileStmtNode node) {
+        visit(node.condition);
+        Type conditionType = typeStack.pop();
+        if (conditionType != Type.BOOLEAN_TYPE) {
+            error(
+                ErrorType.MISMATCHED_TYPE, 
+                node.lineNum, 
+                errorString(
+                    "Can't use epxression of type `%s`. Condition need to be bool.", 
+                    conditionType
+                )
+            );
+        }
+        visit(node.statement);
     }
 }

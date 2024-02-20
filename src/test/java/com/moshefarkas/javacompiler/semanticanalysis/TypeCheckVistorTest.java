@@ -222,4 +222,16 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
         compileMethod("public static float mmmm() {return 3;}");
         assertEquals(null, visitor.test_error);
     }
+
+    @Test 
+    public void testWhileCondition() { 
+        compile("while (true) {}");
+        assertEquals(null, visitor.test_error);
+
+        compile("while (8) {}");
+        assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+
+        compile("while (8 == 9) {}");
+        assertEquals(null, visitor.test_error);
+    }
 }
