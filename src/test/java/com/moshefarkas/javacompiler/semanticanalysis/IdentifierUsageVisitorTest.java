@@ -83,6 +83,12 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
         
         compileNewSource("int a; a = 4; int b = a;");
         assertEquals(null, visitor.test_error);
+
+        compileMethod("public static void mmm(int a) {int b = a;}");
+        assertEquals(null, visitor.test_error);
+
+        compileMethod("public static void mmm(int a, int b) {a = b;}");
+        assertEquals(null, visitor.test_error);
     }
 
     @Test
