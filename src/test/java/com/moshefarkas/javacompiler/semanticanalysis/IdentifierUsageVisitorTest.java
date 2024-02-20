@@ -144,4 +144,9 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
         compileNewSource("while (true) { while (false) {} } break;");
         assertEquals(ErrorType.INVALID_KEYWORD_USAGE, visitor.test_error);
     }
+
+    @Test 
+    public void testArrayAccess() {
+
+    }
 }

@@ -300,6 +300,19 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         }
         node.setExprType(innerIdenType);
         typeStack.push(innerIdenType);
+        validateArrayAccessIndex(node);
+    }
+
+    private void validateArrayAccessIndex(ArrAccessExprNode node) {
+        visit(node.index);
+        Type indexExprType = typeStack.pop();
+        if (indexExprType != Type.INT_TYPE) {
+            error(
+                ErrorType.MISMATCHED_TYPE,
+                node.lineNum,
+                errorString("Can't subscript an array with type `%s`.", indexExprType)
+            );
+        }
     }
 
     @Override

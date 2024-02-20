@@ -234,4 +234,28 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
         compile("while (8 == 9) {}");
         assertEquals(null, visitor.test_error);
     }
+
+    @Test 
+    public void testArrayAccess() {
+        compile("int[] a = new int[9]; a[true] = 45;");
+        assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+
+        compile("int[][] a = new int[9][9]; a[true][false] = 45;");
+        assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+
+        compile("int[][] a = new int[9][9]; a[8][false] = 45;");
+        assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+
+        compile("int[][] a = new int[9][9]; a[false][9] = 45;");
+        assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+
+        compile("int[][] a = new int[9][9]; a[9][9] = 45;");
+        assertEquals(null, visitor.test_error);
+
+        compile("int[][] a = new int[9][9]; int b = 0; a[9][b] = 45;");
+        assertEquals(null, visitor.test_error);
+
+        compile("int[][] a = new int[9][9]; boolean b = false; a[9][b] = 45;");
+        assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+    }
 }
