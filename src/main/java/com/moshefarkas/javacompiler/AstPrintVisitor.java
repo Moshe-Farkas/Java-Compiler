@@ -1,9 +1,8 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ControlFlowStmt;
-import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
-import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 
 public class AstPrintVisitor extends BaseAstVisitor {
 

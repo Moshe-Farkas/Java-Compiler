@@ -75,10 +75,7 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
         compileNewSource("int b; int a; a = a + b;");
         assertEquals(ErrorType.UNINITIALIZED_VAR, visitor.test_error);
 
-        compileNewSource("int a[]; int b = a[0];");
-        assertEquals(ErrorType.UNINITIALIZED_VAR, visitor.test_error);
-
-        compileNewSource("int a[]; int[] b = a;");
+        compileNewSource("int[] a; int[] b = a;");
         assertEquals(ErrorType.UNINITIALIZED_VAR, visitor.test_error);
         
         compileNewSource("int a; a = 4; int b = a;");
@@ -147,6 +144,25 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
 
     @Test 
     public void testArrayAccess() {
+        compileNewSource("int a = 0; a[9] = 0;");
+        assertEquals(ErrorType.INVALID_ARRAY_ACCESS, visitor.test_error);
+        
+        compileNewSource("int[] a = new int[9]; a[9][9] = 0;");
+        assertEquals(ErrorType.INVALID_ARRAY_ACCESS, visitor.test_error);
 
+        compileNewSource("int[] a = new int[9]; a[9][9][9] = 0;");
+        assertEquals(ErrorType.INVALID_ARRAY_ACCESS, visitor.test_error);
+
+        compileNewSource("int[] a = new int[9]; a[9] = 0;");
+        assertEquals(null, visitor.test_error);
+
+        compileNewSource("int a = 9; int[] b = a[0];");
+        assertEquals(ErrorType.INVALID_ARRAY_ACCESS, visitor.test_error);
+
+        compileNewSource("int[] a = new int[8]; int[] b = a[89][9];");
+        assertEquals(ErrorType.INVALID_ARRAY_ACCESS, visitor.test_error);
+
+        compileNewSource("int[] a = new int[8]; int[] b = a[89];");
+        assertEquals(null, visitor.test_error);
     }
 }

@@ -44,8 +44,8 @@ public class App {
         System.out.println("-------------------------------------------");
 
 
-        // AstPrintVisitor oktemp = new AstPrintVisitor();
-        // oktemp.visitClassNode(ast);
+        AstPrintVisitor oktemp = new AstPrintVisitor();
+        oktemp.visitClassNode(ast);
 
 
         // semantic analysis

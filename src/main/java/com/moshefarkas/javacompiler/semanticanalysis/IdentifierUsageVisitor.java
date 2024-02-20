@@ -5,7 +5,9 @@ import java.util.Collections;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.IdentifierExprNode;
@@ -43,9 +45,49 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
         }
     }
 
+    @Override 
+    public void visitArrAccessExprNode(ArrAccessExprNode node) {
+        VarInfo varInfo = MethodManager.getInstance()
+            .getSymbolTable(currMethod)
+            .getVarInfo(node.varName);
+
+        if (varInfo.type.getSort() != Type.ARRAY) {
+            error(
+                ErrorType.INVALID_ARRAY_ACCESS, 
+                node.lineNum, 
+                errorString("Can't subscript non array var `%s`.", varInfo.name)
+            );
+        } else {
+            validateArrayAccessLevels(node, varInfo);
+        }
+    }
+
+    private void validateArrayAccessLevels(ArrAccessExprNode node, VarInfo varAccessInfo) {
+        // checks that array access did not try to access a dimension 
+        // that does not exist
+        int maxDims = varAccessInfo.type.getDimensions();
+        int accessLevels = 1;
+        ArrAccessExprNode iterator = node;
+        while (iterator.identifer instanceof ArrAccessExprNode) {
+            iterator = (ArrAccessExprNode)iterator.identifer;
+            accessLevels++;
+        }
+        if (accessLevels > maxDims) {
+            error(
+                ErrorType.INVALID_ARRAY_ACCESS, 
+                node.lineNum, 
+                errorString(
+                    "Max array access level for var `%s` is `%s` but got `%s`.", 
+                    varAccessInfo.name,
+                    maxDims, 
+                    accessLevels
+                )
+            );
+        }
+    }
+
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
-        // visit(node.identifier);
         SymbolTable methodSymbolTable  = MethodManager.getInstance().getSymbolTable(currMethod);
         if (!methodSymbolTable.hasVar(node.identifier.varName)) {
             error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, node.identifier.varName);
@@ -53,6 +95,7 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
             MethodManager.getInstance()
                 .getSymbolTable(currMethod)
                 .getVarInfo(node.identifier.varName).hasValue = true;
+            visit(node.identifier);
             visit(node.assignmentValue);
         }
     }
