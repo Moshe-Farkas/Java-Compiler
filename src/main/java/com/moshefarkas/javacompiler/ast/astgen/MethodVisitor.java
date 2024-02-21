@@ -21,6 +21,7 @@ import com.moshefarkas.generated.Java8Parser.UnannArrayTypeContext;
 import com.moshefarkas.generated.Java8Parser.UnannPrimitiveTypeContext;
 import com.moshefarkas.generated.Java8Parser.VariableDeclaratorContext;
 import com.moshefarkas.generated.Java8Parser.VariableDeclaratorIdContext;
+import com.moshefarkas.generated.Java8Parser.VariableInitializerContext;
 import com.moshefarkas.generated.Java8Parser.WhileStatementContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.VarInfo;
@@ -152,7 +153,6 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         currVarInitializer = null;
 
         visit(ctx.unannType());
-        // currLocalVarDecl.type = currLocalVarDeclType;
         visit(ctx.variableDeclaratorList());
         
         LocalVarDecStmtNode lclVarNode = new LocalVarDecStmtNode();
@@ -261,6 +261,20 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         }
         visit(ctx.variableDeclaratorId());
 
+        return null;
+    }
+
+    @Override
+    public Void visitVariableInitializer(VariableInitializerContext ctx) {
+        // variableInitializer
+        //     : expression
+        //     | arrayInitializer
+        //     ;
+        if (ctx.arrayInitializer() != null) {
+            expressionStack.push((ExpressionNode)(new ExpressionVisitor().visit(ctx.arrayInitializer())));
+        } else {
+            expressionStack.push((ExpressionNode)(new ExpressionVisitor().visit(ctx.expression())));
+        }
         return null;
     }
 

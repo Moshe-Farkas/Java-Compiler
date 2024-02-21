@@ -409,7 +409,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
     }
 
     @Override
-    public void visitArrayInitializer(ArrayInitializerNode node) {
+    public void visitArrayInitializerNode(ArrayInitializerNode node) {
         for (ExpressionNode size : node.arraySizes) {
             visit(size);
         }

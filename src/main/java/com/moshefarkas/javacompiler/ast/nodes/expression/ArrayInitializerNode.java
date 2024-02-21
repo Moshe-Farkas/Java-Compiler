@@ -8,24 +8,14 @@ import com.moshefarkas.javacompiler.ast.AstVisitor;
 
 public class ArrayInitializerNode extends ExpressionNode {
 
-    public List<ArrayLiteralElement> vars;
+    public ArrayLiteralNode arrayLiteral;
     public List<ExpressionNode> arraySizes;
     public int dims;
     public Type type;
 
-    public static class ArrayLiteralElement { }
-
-    public static class ArrExprLitNode extends ArrayLiteralElement {
-        public ExpressionNode expr;
-    }
-
-    public static class NestedArrNode extends ArrayLiteralElement {
-        public ArrayLiteralElement nestedNode;
-    }
-
-    public void setVars(List<ArrayLiteralElement> vars) {
-        this.vars = vars;
-        throw new UnsupportedOperationException("inside array init class");
+    public void setArrayLiteral(ArrayLiteralNode arrayLiteral) {
+        this.arrayLiteral = arrayLiteral;
+        addChild(arrayLiteral);
     }
 
     public void setType(Type type) {
@@ -40,11 +30,15 @@ public class ArrayInitializerNode extends ExpressionNode {
 
     @Override
     public void accept(AstVisitor v) {
-        v.visitArrayInitializer(this);
+        v.visitArrayInitializerNode(this);
     }
 
     @Override
     public String toString() { 
-        return "array init. dims: " + dims + " static sizes: " + arraySizes + ", type: " + exprType;
+        return "array init. "                      + 
+                    "dims: " + dims                + 
+                    " static sizes: " + arraySizes + 
+                    ", type: " + exprType          + 
+                    ", literal: " + arrayLiteral;
     }
 }

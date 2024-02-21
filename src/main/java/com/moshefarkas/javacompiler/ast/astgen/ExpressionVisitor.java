@@ -10,6 +10,7 @@ import com.moshefarkas.generated.Java8Parser.ArgumentListContext;
 import com.moshefarkas.generated.Java8Parser.ArrayAccessContext;
 import com.moshefarkas.generated.Java8Parser.ArrayAccess_lfno_primaryContext;
 import com.moshefarkas.generated.Java8Parser.ArrayCreationExpressionContext;
+import com.moshefarkas.generated.Java8Parser.ArrayInitializerContext;
 import com.moshefarkas.generated.Java8Parser.AssignmentContext;
 import com.moshefarkas.generated.Java8Parser.CastExpressionContext;
 import com.moshefarkas.generated.Java8Parser.DimExprContext;
@@ -27,9 +28,12 @@ import com.moshefarkas.generated.Java8Parser.PrimitiveTypeContext;
 import com.moshefarkas.generated.Java8Parser.RelationalExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnaryExpressionContext;
 import com.moshefarkas.generated.Java8Parser.UnaryExpressionNotPlusMinusContext;
+import com.moshefarkas.generated.Java8Parser.VariableInitializerContext;
+import com.moshefarkas.generated.Java8Parser.VariableInitializerListContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayLiteralNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
@@ -464,6 +468,10 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         //     ;
         // array initilizer: list of varDecls.
         // for empty array creation this list will be empty.
+        if (ctx.classOrInterfaceType() != null ||
+            ctx.arrayInitializer() != null) {
+                throw new UnsupportedOperationException("inside visir arr creation in method visitor");
+            }
         
         ArrayInitializerNode arrayInitializer = new ArrayInitializerNode();
         List<ExpressionNode> sizes = new ArrayList<>();
@@ -526,5 +534,33 @@ public class ExpressionVisitor extends Java8ParserBaseVisitor<Object> {
         }
         callExpr.lineNum = ctx.getStart().getLine();
         return callExpr;
+    }
+
+    @Override
+    public ArrayLiteralNode visitVariableInitializerList(VariableInitializerListContext ctx) {
+        // variableInitializerList
+        //     : variableInitializer (',' variableInitializer)*
+        //     ;
+        List<ExpressionNode> arrayLiteralElements = new ArrayList<>();
+        for (VariableInitializerContext vic : ctx.variableInitializer()) {
+            arrayLiteralElements.add((ExpressionNode)visit(vic));
+        }
+        ArrayLiteralNode arrayLiteralNode = new ArrayLiteralNode();
+        arrayLiteralNode.setElements(arrayLiteralElements);
+        arrayLiteralNode.lineNum = ctx.getStart().getLine();
+        return arrayLiteralNode;
+    }
+
+    @Override
+    public ArrayLiteralNode visitArrayInitializer(ArrayInitializerContext ctx) {
+        // arrayInitializer
+        //     : '{' variableInitializerList? ','? '}'
+        //     ;
+        if (ctx.variableInitializerList() != null) {
+            return visitVariableInitializerList(ctx.variableInitializerList());
+        }
+        ArrayLiteralNode emptyArrLiteral = new ArrayLiteralNode();
+        emptyArrLiteral.lineNum = ctx.getStart().getLine();
+        return emptyArrLiteral;
     }
 }

@@ -1,6 +1,8 @@
 package com.moshefarkas.javacompiler.semanticanalysis;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Stack;
 
 import org.objectweb.asm.Type;
@@ -8,6 +10,7 @@ import org.objectweb.asm.Type;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayLiteralNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
@@ -26,6 +29,7 @@ import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 public class TypeCheckVisitor extends SemanticAnalysis {
 
     private class SemanticError extends RuntimeException {}
+    private final Type emptyArrayType = Type.getType("[L;");
 
     private Stack<Type> typeStack = new Stack<>();
     private String currMethod;
@@ -178,6 +182,9 @@ public class TypeCheckVisitor extends SemanticAnalysis {
     private boolean validArrayAssignment(Type varType, Type assignType) {
         if (assignType == null)
             return true; // array are objects
+        if (assignType.getElementType().equals(emptyArrayType.getElementType()))
+            return true;
+
         return varType.equals(assignType);
     }
 
@@ -276,7 +283,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
     }
 
     @Override
-    public void visitArrayInitializer(ArrayInitializerNode node) {
+    public void visitArrayInitializerNode(ArrayInitializerNode node) {
         for (ExpressionNode size : node.arraySizes) {
             visit(size);
             Type indexType = typeStack.pop();
@@ -291,9 +298,32 @@ public class TypeCheckVisitor extends SemanticAnalysis {
                 );
             }
         }
-
         typeStack.push(node.type);
         node.setExprType(node.type);
+    }
+
+    @Override
+    public void visitArrayLiteralNode(ArrayLiteralNode node) {
+        // itrerate over list, eval element type and add it to elements list
+        List<Type> elementTypes = new ArrayList<>();
+        for (ExpressionNode element : node.elements) {
+            visit(element);
+            elementTypes.add(typeStack.pop());
+        }
+
+        Type comparator = elementTypes.get(0);
+        for (Type elemType : elementTypes) {
+            if (!elemType.equals(comparator)) {
+                error(
+                    ErrorType.MISMATCHED_TYPE, 
+                    node.lineNum, 
+                    "Can't have different types in array literal."
+                );
+                throw new SemanticError();
+            }
+        }
+
+        typeStack.push(Type.getType("[" + comparator.toString()));
     }
 
     @Override

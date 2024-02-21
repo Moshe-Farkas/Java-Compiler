@@ -87,6 +87,9 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
 
         compile("int[][] a = new int[0][]; a = null;");
         assertEquals(null, visitor.test_error);
+
+        compile("int[][] a = {9, 9, 8};");
+        assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
     }
 
     @Test
@@ -278,5 +281,41 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
 
         compile("int[][] a = new int[9][9]; boolean b = false; a[9][b] = 45;");
         assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+    }
+
+    @Test 
+    public void testArrayLiteral() { 
+        // compile("int[][] a = {{}};");
+        // assertEquals(null, visitor.test_error);
+
+        // compile("int[][] a = {{9, 9}, { }};");
+        // assertEquals(null, visitor.test_error);
+
+        // compile("int[][][] a = { {{}}, {{}}, };");
+        // assertEquals(null, visitor.test_error);
+
+        // compile("int[][][] a = { {{}}, {{}}, {}};");
+        // assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+
+        // compile("int[][][] a = { {{}}, {{9, 9}, {9, 8}} };");
+        // assertEquals(null, visitor.test_error);
+
+        // compile("float[] a = {9f, 3f, 4f};");
+        // assertEquals(null, visitor.test_error);
+
+        // compile("float[][] a = {{4f, 4f}, {4f, 4f}};");
+        // assertEquals(null, visitor.test_error);
+
+        // compile("float[][] a = {{{9f}}, {4f, 4f}};");
+        // assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+
+        // compile("int[][] a = {{{9f}}, {{9f}}};");
+        // assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
+
+        // compile("int[] a = {{}, {}};");
+        // assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+
+        // compile("int[][] a = {{}, {}, {true}};");
+        // assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
     }
 }

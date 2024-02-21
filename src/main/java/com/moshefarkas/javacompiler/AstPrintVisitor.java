@@ -1,20 +1,26 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
-import com.moshefarkas.javacompiler.ast.nodes.expression.LiteralExprNode;
-import com.moshefarkas.javacompiler.ast.nodes.statement.ControlFlowStmt;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayLiteralNode;
 
 public class AstPrintVisitor extends BaseAstVisitor {
 
     @Override
-    public void visitControlFlowStmt(ControlFlowStmt node) {
+    public void visitArrayLiteralNode(ArrayLiteralNode node) {
         System.out.println("line: " + node.lineNum);
-        if (node.isBreak) {
-            System.out.println("break stmt.");
-        } else {
-            System.out.println("continue stmt.");
-        }
+        System.out.println(node);    
     }
+
+
+    // @Override
+    // public void visitControlFlowStmt(ControlFlowStmt node) {
+    //     System.out.println("line: " + node.lineNum);
+    //     if (node.isBreak) {
+    //         System.out.println("break stmt.");
+    //     } else {
+    //         System.out.println("continue stmt.");
+    //     }
+    // }
 
     // @Override
     // public void visitReturnStmt(ReturnStmt node) {

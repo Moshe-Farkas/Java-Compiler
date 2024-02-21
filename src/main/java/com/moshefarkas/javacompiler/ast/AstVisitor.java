@@ -4,6 +4,7 @@ import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
+import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayLiteralNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.CallExprNode;
@@ -41,5 +42,6 @@ public interface AstVisitor {
     public void visitCastExprNode(CastExprNode node);
     public void visitIdentifierExprNode(IdentifierExprNode node);
     public void visitArrAccessExprNode(ArrAccessExprNode node);
-    public void visitArrayInitializer(ArrayInitializerNode node);
+    public void visitArrayInitializerNode(ArrayInitializerNode node);
+    public void visitArrayLiteralNode(ArrayLiteralNode node);
 }
