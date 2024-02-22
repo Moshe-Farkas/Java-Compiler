@@ -20,9 +20,13 @@ import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class IdentifierUsageVisitor extends SemanticAnalysis {
-    // responsible for checking if var is defined, and initialized.
+    // responsible for checking if var is defined, and initialized,
+    // checking if a var is subscriptable, missing return statement,
+    // calling undefined method, calling method with wrong num of args,
+    // invalid method header, and using break/continue outside a loop
 
     private String currMethod;
+
     private boolean seenReturnStmt;
     private int insideLoopCount = 0;
 

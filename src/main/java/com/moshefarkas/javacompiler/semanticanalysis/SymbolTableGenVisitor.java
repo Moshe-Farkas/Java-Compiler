@@ -7,6 +7,9 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.symboltable.MethodManager;
 
 public class SymbolTableGenVisitor extends SemanticAnalysis {
+    // responsible for adding local vars to symbol table, 
+    // checking if local var alreay exists, duplicate method check,
+    // and creating scopes
 
     private String currMethod;
 

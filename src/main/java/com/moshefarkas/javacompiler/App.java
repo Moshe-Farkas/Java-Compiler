@@ -3,6 +3,7 @@ package com.moshefarkas.javacompiler;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -21,11 +22,11 @@ public class App {
 
     public static void main( String[] args ) throws Exception {
         
+        // for (String arg : args) {
+        //     System.out.println(arg);
+        // }
 
-        // int[] a = {{}, {}, {}};
-        // System.out.println(a);
-        A f = new A();
-        System.exit(0);
+        // System.exit(0);
 
 
         String inputFile = null;
