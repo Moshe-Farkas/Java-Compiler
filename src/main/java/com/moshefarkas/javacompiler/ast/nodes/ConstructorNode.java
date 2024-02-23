@@ -8,4 +8,9 @@ public class ConstructorNode extends MethodNode {
     public void accept(AstVisitor v) {
         v.visitConstructorNode(this);
     }
+
+    @Override 
+    public String toString() {
+        return "(constructor) " + super.toString();
+    }
 }

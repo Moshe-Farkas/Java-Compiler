@@ -7,6 +7,9 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.generated.Java8Parser.ClassMemberDeclarationContext;
+import com.moshefarkas.generated.Java8Parser.ConstructorDeclarationContext;
+import com.moshefarkas.generated.Java8Parser.ConstructorDeclaratorContext;
+import com.moshefarkas.generated.Java8Parser.ConstructorModifierContext;
 import com.moshefarkas.generated.Java8Parser.FieldDeclarationContext;
 import com.moshefarkas.generated.Java8Parser.FloatingPointTypeContext;
 import com.moshefarkas.generated.Java8Parser.FormalParameterContext;
@@ -25,6 +28,7 @@ import com.moshefarkas.javacompiler.ast.nodes.ConstructorNode;
 import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.statement.StatementNode;
 
 public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
 
@@ -69,13 +73,67 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         methodNode.setParams(methodParams);
 
         MethodVisitor mv = new MethodVisitor();
-        mv.visit(ctx.methodBody());
+        mv.visitMethodBody(ctx.methodBody());
         methodNode.setStatements(mv.statements);
-        
         
         methodNode.lineNum = ctx.getStart().getLine();
         methods.add(methodNode);
         return null;
+    }
+
+    @Override
+    public ConstructorNode visitConstructorDeclaration(ConstructorDeclarationContext ctx) {
+        // constructorDeclaration
+        //     : constructorModifier* constructorDeclarator throws_? constructorBody
+        //     ;
+        List<Integer> methodAccessModifiers = new ArrayList<>();
+        for (ConstructorModifierContext cmc : ctx.constructorModifier()) {
+            methodAccessModifiers.add(visitConstructorModifier(cmc));
+        }
+
+        String constructorName = ctx.constructorDeclarator().simpleTypeName().getText();
+        List<LocalVarDecStmtNode> params = new ArrayList<>();
+        if (ctx.constructorDeclarator().formalParameterList() != null) {
+            params = (List<LocalVarDecStmtNode>)visit(ctx.constructorDeclarator().formalParameterList());
+        }
+        ConstructorNode constructorNode = new ConstructorNode();
+
+        MethodVisitor mVisitor = new MethodVisitor();
+        mVisitor.visitConstructorBody(ctx.constructorBody());
+
+        constructorNode.setParams(params);
+        constructorNode.setStatements(mVisitor.statements);
+        constructorNode.setMethodModifiers(methodAccessModifiers);
+        constructorNode.setMethodName(constructorName);
+        constructorNode.lineNum = ctx.getStart().getLine();
+        constructors.add(constructorNode);
+        return null;
+    }
+
+    @Override
+    public Integer visitConstructorModifier(ConstructorModifierContext ctx) {
+        // constructorModifier
+        //     : annotation
+        //     | 'public'
+        //     | 'protected'
+        //     | 'private'
+        //     ;
+        if (ctx.annotation() != null) {
+            throw new UnsupportedOperationException("inside constructor modifer in class bod visitor");
+        }
+        int mod = -1;
+        switch (ctx.getText()) {
+            case "public":
+                mod = Opcodes.ACC_PUBLIC;
+                break;
+            case "private":
+                mod = Opcodes.ACC_PRIVATE;
+                break;
+            case "protected":
+                mod = Opcodes.ACC_PROTECTED;
+                break;
+        }
+        return mod;
     }
 
     @Override

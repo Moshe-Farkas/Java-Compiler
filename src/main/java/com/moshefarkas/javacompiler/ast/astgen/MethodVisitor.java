@@ -5,6 +5,7 @@ import java.util.Stack;
 import com.moshefarkas.generated.Java8Parser.BlockContext;
 import com.moshefarkas.generated.Java8Parser.BlockStatementContext;
 import com.moshefarkas.generated.Java8Parser.BreakStatementContext;
+import com.moshefarkas.generated.Java8Parser.ConstructorBodyContext;
 import com.moshefarkas.generated.Java8Parser.ContinueStatementContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionContext;
 import com.moshefarkas.generated.Java8Parser.IfThenElseStatementContext;
@@ -31,7 +32,24 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
     public BlockStmtNode statements = new BlockStmtNode();
     private Stack<ExpressionNode> expressionStack = new Stack<>();
     private Stack<StatementNode> statementStack = new Stack<>();
-        
+
+    @Override
+    public Void visitConstructorBody(ConstructorBodyContext ctx) {
+        // constructorBody
+        //     : '{' explicitConstructorInvocation? blockStatements? '}'
+        //     ;
+        BlockStmtNode block = new BlockStmtNode();
+        if (ctx.blockStatements() != null) {
+            for (BlockStatementContext bsc : ctx.blockStatements().blockStatement()) {
+                visit(bsc);
+                StatementNode statement = statementStack.pop();
+                block.addStatement(statement);
+            }
+        }
+        statements = block;
+        return null;
+    }
+
     @Override
     public Void visitMethodBody(MethodBodyContext ctx) {
         // methodBody

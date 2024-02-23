@@ -1,6 +1,7 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
+import com.moshefarkas.javacompiler.ast.nodes.ConstructorNode;
 import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
@@ -21,7 +22,11 @@ public class AstPrintVisitor extends BaseAstVisitor {
         System.out.println("\t" + node.initializer);
     }
 
-
+    @Override
+    public void visitConstructorNode(ConstructorNode node) {
+        System.out.println("line: " + node.lineNum);
+        System.out.println(node);
+    }
 
     // @Override
     // public void visitArrayLiteralNode(ArrayLiteralNode node) {
@@ -125,14 +130,14 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     super.visitMethodNode(node);
     // }
 
-    @Override
-    public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
-        System.out.println("line: " + node.lineNum);
-        System.out.println(node);
-        // System.out.println("local var decl: ");
-        // System.out.println(node.var);
-        // System.out.println(" " + node.var.name + ", init: " + node.initializer);
-    }
+    // @Override
+    // public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
+    //     System.out.println("line: " + node.lineNum);
+    //     System.out.println(node);
+    //     // System.out.println("local var decl: ");
+    //     // System.out.println(node.var);
+    //     // System.out.println(" " + node.var.name + ", init: " + node.initializer);
+    // }
 
 //     @Override
 //     public void visitUnaryExprNode(UnaryExprNode node) {
