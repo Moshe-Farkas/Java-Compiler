@@ -1,6 +1,8 @@
 package com.moshefarkas.javacompiler.ast;
 
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
+import com.moshefarkas.javacompiler.ast.nodes.ConstructorNode;
+import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
@@ -24,7 +26,9 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 
 public interface AstVisitor {
     public void visitClassNode(ClassNode node);
+    public void visitFieldNode(FieldNode node);
     public void visitMethodNode(MethodNode node);
+    public void visitConstructorNode(ConstructorNode node);
     public void visitStatementNode(StatementNode node);
     public void visitExprStmtNode(ExprStmtNode node);
     public void visitWhileStmtNode(WhileStmtNode node);

@@ -7,7 +7,6 @@ import org.objectweb.asm.Type;
 import com.moshefarkas.javacompiler.ast.AstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
-import com.moshefarkas.javacompiler.ast.nodes.statement.StatementNode;
 
 public class MethodNode extends AstNode {
     public Type returnType;

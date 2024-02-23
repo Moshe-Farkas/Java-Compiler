@@ -17,7 +17,7 @@ public interface Java8ParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLiteral(Java8Parser.LiteralContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link Java8Parser#primitiveType}.
+	 * Visit a parse tree produced by {@link Java8Parser#type}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */

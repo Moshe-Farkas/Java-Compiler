@@ -2,26 +2,17 @@ package com.moshefarkas.javacompiler.ast.astgen;
 
 import java.util.Stack;
 
-import org.objectweb.asm.Type;
-
 import com.moshefarkas.generated.Java8Parser.BlockContext;
 import com.moshefarkas.generated.Java8Parser.BlockStatementContext;
 import com.moshefarkas.generated.Java8Parser.BreakStatementContext;
 import com.moshefarkas.generated.Java8Parser.ContinueStatementContext;
 import com.moshefarkas.generated.Java8Parser.ExpressionContext;
-import com.moshefarkas.generated.Java8Parser.FloatingPointTypeContext;
 import com.moshefarkas.generated.Java8Parser.IfThenElseStatementContext;
 import com.moshefarkas.generated.Java8Parser.IfThenStatementContext;
-import com.moshefarkas.generated.Java8Parser.IntegralTypeContext;
 import com.moshefarkas.generated.Java8Parser.LocalVariableDeclarationContext;
 import com.moshefarkas.generated.Java8Parser.MethodBodyContext;
 import com.moshefarkas.generated.Java8Parser.ReturnStatementContext;
 import com.moshefarkas.generated.Java8Parser.StatementExpressionContext;
-import com.moshefarkas.generated.Java8Parser.UnannArrayTypeContext;
-import com.moshefarkas.generated.Java8Parser.UnannPrimitiveTypeContext;
-import com.moshefarkas.generated.Java8Parser.VariableDeclaratorContext;
-import com.moshefarkas.generated.Java8Parser.VariableDeclaratorIdContext;
-import com.moshefarkas.generated.Java8Parser.VariableInitializerContext;
 import com.moshefarkas.generated.Java8Parser.WhileStatementContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.VarInfo;
@@ -40,10 +31,6 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
     public BlockStmtNode statements = new BlockStmtNode();
     private Stack<ExpressionNode> expressionStack = new Stack<>();
     private Stack<StatementNode> statementStack = new Stack<>();
-
-    private VarInfo currLocalVarDecl;
-    // private Type currLocalVarDeclType;
-    private ExpressionNode currVarInitializer = null;
         
     @Override
     public Void visitMethodBody(MethodBodyContext ctx) {
@@ -143,25 +130,16 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         // localVariableDeclaration
         //     : variableModifier* unannType variableDeclaratorList
         //     ;
-
-        // local var node needs exprNode as initializer and varInfo for vafinfo.
-        // unannType can be a primitive type or an array/rerference type
-        
-        // need to reset fields
-
-        currLocalVarDecl = new VarInfo();
-        currVarInitializer = null;
-
-        visit(ctx.unannType());
-        visit(ctx.variableDeclaratorList());
-        
-        LocalVarDecStmtNode lclVarNode = new LocalVarDecStmtNode();
-        lclVarNode.setVar(currLocalVarDecl);
-        lclVarNode.setInitializer(currVarInitializer);
-        
-        lclVarNode.lineNum = ctx.getStart().getLine();
-
-        statementStack.push(lclVarNode);
+        VarVisitor varVisitor = new VarVisitor();
+        varVisitor.visitLocalVariableDeclaration(ctx);
+        LocalVarDecStmtNode localVarDeclNode = new LocalVarDecStmtNode();
+        VarInfo varInfo = new VarInfo();
+        varInfo.name = varVisitor.varName;
+        varInfo.type = varVisitor.varType;
+        localVarDeclNode.setVar(varInfo);
+        localVarDeclNode.setInitializer(varVisitor.initializer);
+        localVarDeclNode.lineNum = ctx.getStart().getLine();
+        statementStack.push(localVarDeclNode);
         return null;
     }
 
@@ -192,115 +170,6 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         ExpressionVisitor expressionVisitor = new ExpressionVisitor();
         ExpressionNode exprNode = (ExpressionNode)expressionVisitor.visit(ctx);
         expressionStack.push(exprNode);
-        return null;
-    }
-
-    @Override
-    public Void visitUnannPrimitiveType(UnannPrimitiveTypeContext ctx) {
-        // unannPrimitiveType
-        //     : numericType
-        //     | 'boolean'
-        //     ;
-        if (ctx.BOOLEAN() != null) {
-            currLocalVarDecl.type = Type.BOOLEAN_TYPE;
-        } else {
-            visit(ctx.numericType());
-        }
-        return null;
-    }
-
-    @Override
-    public Void visitFloatingPointType(FloatingPointTypeContext ctx) {
-        // floatingPointType
-        //     : 'float'
-        //     | 'double'
-        //     ;
-        if (ctx.FLOAT() != null) {
-            currLocalVarDecl.type = Type.FLOAT_TYPE;
-        } 
-        return null;
-    }
-
-    @Override
-    public Void visitIntegralType(IntegralTypeContext ctx) {
-        // integralType
-        //     : 'byte'
-        //     | 'short'
-        //     | 'int'
-        //     | 'long'
-        //     | 'char'
-        //     ;
-        Type declType = null;
-      switch (ctx.getText()) {
-            case "int":
-                declType = Type.INT_TYPE;
-                break;
-            case "char":
-                declType = Type.CHAR_TYPE;
-                break;
-            case "byte":
-                declType = Type.BYTE_TYPE;
-                break;
-            case "short":
-                declType = Type.SHORT_TYPE;
-                break;
-        } 
-        currLocalVarDecl.type = declType;
-        return null;
-    }
-
-    @Override
-    public Void visitVariableDeclarator(VariableDeclaratorContext ctx) {
-        // variableDeclarator
-        //     : variableDeclaratorId ('=' variableInitializer)?
-        //     ;
-        
-        if (ctx.variableInitializer() != null) {
-            visit(ctx.variableInitializer());
-            currVarInitializer = expressionStack.pop();            
-        }
-        visit(ctx.variableDeclaratorId());
-
-        return null;
-    }
-
-    @Override
-    public Void visitVariableInitializer(VariableInitializerContext ctx) {
-        // variableInitializer
-        //     : expression
-        //     | arrayInitializer
-        //     ;
-        if (ctx.arrayInitializer() != null) {
-            expressionStack.push((ExpressionNode)(new ExpressionVisitor().visit(ctx.arrayInitializer())));
-        } else {
-            expressionStack.push((ExpressionNode)(new ExpressionVisitor().visit(ctx.expression())));
-        }
-        return null;
-    }
-
-    @Override
-    public Void visitVariableDeclaratorId(VariableDeclaratorIdContext ctx) {
-        // variableDeclaratorId
-        //     : Identifier dims?
-        //     ;
-        currLocalVarDecl.name = ctx.Identifier().getText();
-        return null;
-    }
-
-    @Override
-    public Void visitUnannArrayType(UnannArrayTypeContext ctx) {
-        // unannArrayType
-        //     : unannPrimitiveType dims
-        //     | unannClassOrInterfaceType dims
-        //     | unannTypeVariable dims
-        //     ;
-        int dimsCount = ctx.dims().LBRACK().size();
-        visitUnannPrimitiveType(ctx.unannPrimitiveType());
-        String dims = "";
-        for (int i = 0; i < dimsCount; i++) {
-            dims += "[";
-        }
-        currLocalVarDecl.type = Type.getType(dims + currLocalVarDecl.type.getDescriptor());
         return null;
     }
 

@@ -6,17 +6,35 @@ import com.moshefarkas.javacompiler.ast.AstVisitor;
 
 public class ClassNode extends AstNode {
     public String className;
-    public int accessModifier;
+    public List<Integer> accessModifiers;
     public List<MethodNode> methods;
+    public List<FieldNode> fields;
+    public List<ConstructorNode> constuctors;
 
-    public ClassNode(String className, int accessModifier, List<MethodNode> methods) {
+    public void setClassName(String className) {
         this.className = className;
-        this.accessModifier = accessModifier;
-        this.methods = methods;
+    }
 
-        for (AstNode child : methods) {
+    public void setAccessModifiers(List<Integer> accessModifiers) {
+        this.accessModifiers = accessModifiers;
+    }
+
+    public void setMethods(List<MethodNode> methods) {
+        this.methods = methods;
+        for (AstNode child : methods)
             addChild(child);
-        }
+    }
+
+    public void setFields(List<FieldNode> fields) {
+        this.fields = fields;
+        for (AstNode child : fields)
+            addChild(child);
+    }
+
+    public void setConstrcutors(List<ConstructorNode> constructors) {
+        this.constuctors = constructors;
+        for (AstNode child : constructors)
+            addChild(child);
     }
 
     @Override 

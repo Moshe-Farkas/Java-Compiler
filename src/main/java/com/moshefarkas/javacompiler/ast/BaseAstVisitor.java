@@ -2,6 +2,8 @@ package com.moshefarkas.javacompiler.ast;
 
 import com.moshefarkas.javacompiler.ast.nodes.AstNode;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
+import com.moshefarkas.javacompiler.ast.nodes.ConstructorNode;
+import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
@@ -91,6 +93,12 @@ public class BaseAstVisitor implements AstVisitor {
 
     @Override
     public void visitArrayLiteralNode(ArrayLiteralNode node) { node.visitChildren(this); }
+
+    @Override
+    public void visitFieldNode(FieldNode node) { node.visitChildren(this); }
+
+    @Override
+    public void visitConstructorNode(ConstructorNode node) { node.visitChildren(this); }
 
     public void visit(AstNode node) { node.accept(this); }
 }

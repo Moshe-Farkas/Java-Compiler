@@ -6,6 +6,8 @@ import java.util.List;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import com.moshefarkas.generated.Java8Parser.ClassMemberDeclarationContext;
+import com.moshefarkas.generated.Java8Parser.FieldDeclarationContext;
 import com.moshefarkas.generated.Java8Parser.FloatingPointTypeContext;
 import com.moshefarkas.generated.Java8Parser.FormalParameterContext;
 import com.moshefarkas.generated.Java8Parser.FormalParameterListContext;
@@ -19,13 +21,29 @@ import com.moshefarkas.generated.Java8Parser.UnannArrayTypeContext;
 import com.moshefarkas.generated.Java8Parser.UnannPrimitiveTypeContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
 import com.moshefarkas.javacompiler.VarInfo;
+import com.moshefarkas.javacompiler.ast.nodes.ConstructorNode;
+import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
 
     public List<MethodNode> methods = new ArrayList<>();
-    public List<MethodNode> fields = new ArrayList<>();
+    public List<FieldNode> fields = new ArrayList<>();
+    public List<ConstructorNode> constructors = new ArrayList<>();
+
+    @Override
+    public Object visitFieldDeclaration(FieldDeclarationContext ctx) {
+        // fieldDeclaration
+        //     : fieldModifier* unannType variableDeclaratorList ';'
+        //     ;
+        FieldVisitor fieldVisitor = new FieldVisitor();
+        fieldVisitor.visitFieldDeclaration(ctx);
+
+        fieldVisitor.fieldNode.lineNum = ctx.getStart().getLine();
+        fields.add(fieldVisitor.fieldNode);
+        return null;
+    }
 
     @Override
     public Void visitMethodDeclaration(MethodDeclarationContext ctx) {
