@@ -6,33 +6,33 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis.ErrorType;
+import com.moshefarkas.javacompiler.symboltable.ClassManager;
 import com.moshefarkas.javacompiler.symboltable.Method;
-import com.moshefarkas.javacompiler.symboltable.MethodManager;
 
 public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
     private SymbolTableGenVisitor visitor;
     @Override
     protected void compile(String source) {
-        MethodManager.getInstance().test_reset();
-        visitor = new SymbolTableGenVisitor();
+        ClassManager.getIntsance().test_reset();
         super.compile(source);
-        visitor.visitClassNode(ast);
+        visitor = new SymbolTableGenVisitor("Demo");
+        visitor.visit(ast);
     }
 
     @Override
     protected void compileMethodDecl(String header)  {
-        MethodManager.getInstance().test_reset();
-        visitor = new SymbolTableGenVisitor();
+        ClassManager.getIntsance().test_reset();
         super.compileMethodDecl(header);
-        visitor.visitClassNode(ast);
+        visitor = new SymbolTableGenVisitor("Demo");
+        visitor.visit(ast);
     }
 
     @Override
     protected void compileMethod(String method)  {
-        MethodManager.getInstance().test_reset();
-        visitor = new SymbolTableGenVisitor();
+        ClassManager.getIntsance().test_reset();
         super.compileMethod(method);
-        visitor.visitClassNode(ast);
+        visitor = new SymbolTableGenVisitor("Demo");
+        visitor.visit(ast);
     }
 
     @Test 
@@ -60,7 +60,7 @@ public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
         method.append("public static void mm(int a)");
         method.append("{int b; int c;}");
         compileMethod(method.toString());
-        Method m = MethodManager.getInstance().getMethod("mm");
+        Method m = ClassManager.getIntsance().getClass("Demo").methodManager.getMethod("mm");
         m.symbolTable.resetScopes();
         m.symbolTable.enterScope();
 
@@ -73,7 +73,7 @@ public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
         method.append("public static void mm(int a)");
         method.append("{int b; if (true){int m;} int p;}");
         compileMethod(method.toString());
-        m = MethodManager.getInstance().getMethod("mm");
+        m = ClassManager.getIntsance().getClass("Demo").methodManager.getMethod("mm");
         m.symbolTable.resetScopes();
         m.symbolTable.enterScope();
 

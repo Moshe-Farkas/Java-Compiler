@@ -2,6 +2,8 @@ package com.moshefarkas.javacompiler.ast.astgen;
 
 import java.util.Stack;
 
+import org.objectweb.asm.Type;
+
 import com.moshefarkas.generated.Java8Parser.BlockContext;
 import com.moshefarkas.generated.Java8Parser.BlockStatementContext;
 import com.moshefarkas.generated.Java8Parser.BreakStatementContext;

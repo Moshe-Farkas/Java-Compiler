@@ -9,8 +9,8 @@ import com.moshefarkas.javacompiler.VarInfo;
 
 public class SymbolTable {
     
-    private Scope currScope;
-    private Map<Integer, Scope> scopes;
+    private LocalVarScope currScope;
+    private Map<Integer, LocalVarScope> scopes;
     private int currScopeLevel;
 
     public void printScope() {
@@ -18,11 +18,11 @@ public class SymbolTable {
     }
 
     public void createNewScope() {
-        Scope newScope;
+        LocalVarScope newScope;
         if (currScope == null) {
-            newScope = new Scope(0, null);
+            newScope = new LocalVarScope(0, null);
         } else {
-            newScope = new Scope(currScope.getNextLocalIndex(), currScope);
+            newScope = new LocalVarScope(currScope.getNextLocalIndex(), currScope);
         }
         currScope = newScope;
         scopes.put(currScopeLevel++, newScope);
@@ -64,7 +64,7 @@ public class SymbolTable {
     @Override
     public String toString() {
         StringBuilder res = new StringBuilder();
-        for (Map.Entry<Integer, Scope> scope : scopes.entrySet()) {
+        for (Map.Entry<Integer, LocalVarScope> scope : scopes.entrySet()) {
             res.append("\nscope id: " + scope.getKey());
             res.append("\n " + scope.getValue());
         }
@@ -73,7 +73,7 @@ public class SymbolTable {
 
     public void debugPrintTable() {
         System.out.println("-----------------");
-        for (Map.Entry<Integer, Scope> scope : scopes.entrySet()) {
+        for (Map.Entry<Integer, LocalVarScope> scope : scopes.entrySet()) {
             System.out.println("scope id: " + scope.getKey());
             System.out.println("  " + scope.getValue());
         }

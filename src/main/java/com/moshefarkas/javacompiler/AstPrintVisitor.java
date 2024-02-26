@@ -1,31 +1,55 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
+import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.ConstructorNode;
 import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
-import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
+import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 
 public class AstPrintVisitor extends BaseAstVisitor {
 
-    // @Override
-    // public void visitClassNode(ClassNode node) {
-    //     System.out.println("line: " + node.lineNum);
-    //     super.visitClassNode(node);
-    // }
+    @Override
+    public void visitClassNode(ClassNode node) {
+        System.out.println("line: " + node.lineNum);
+        System.out.println("fields:");
+        for (FieldNode f : node.fields) {
+            visit(f);
+        }
+        System.out.println();
+        System.out.println("constructors:");
+        for (ConstructorNode c : node.constuctors) {
+            visit(c);
+        }
+        System.out.println("methods:");
+        for (MethodNode m : node.methods) {
+            visit(m);
+        }
+
+    }
 
     @Override
     public void visitFieldNode(FieldNode node) {
         System.out.println("line: " + node.lineNum);
-        System.out.println("field: ");
         System.out.println("\t" + node.fieldInfo);
         System.out.println("\t" + node.fieldModifiers);
         System.out.println("\t" + node.initializer);
     }
 
     @Override
+    public void visitMethodNode(MethodNode node) {
+        System.out.println("line: " + node.lineNum);
+        System.out.println("\tmethod modifiers: " + node.methodModifiers);
+        System.out.println("\tmethod: " + node.methodName);
+        System.out.println("\tparams: " + node.params);
+        super.visitMethodNode(node);
+    }
+
+    @Override
     public void visitConstructorNode(ConstructorNode node) {
         System.out.println("line: " + node.lineNum);
-        System.out.println(node);
+        System.out.println("\tconstructor modifiers: " + node.methodModifiers);
+        System.out.println("\tconstructor: " + node.methodName);
+        System.out.println("\tparams: " + node.params);
     }
 
     // @Override
@@ -103,8 +127,6 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     System.out.println("else statement: " + node.elseStatement);
     // }
 
-    
-
     // @Override
     // public void visitWhileStmtNode(WhileStmtNode node) {
     //     System.out.println("line: " + node.lineNum);
@@ -119,15 +141,6 @@ public class AstPrintVisitor extends BaseAstVisitor {
     //     System.out.println("line: " + node.lineNum);
     //     System.out.println("\tassignment: " + node.assignmentValue);
     //     System.out.println("\tnode r-value: " + node.identifier);
-    // }
-
-    // @Override
-    // public void visitMethodNode(MethodNode node) {
-    //     System.out.println("line: " + node.lineNum);
-    //     System.out.println("\tmethod modifiers: " + node.methodModifiers);
-    //     System.out.println("\tmethod: " + node.methodName);
-    //     System.out.println("\tparams: " + node.params);
-    //     super.visitMethodNode(node);
     // }
 
     // @Override

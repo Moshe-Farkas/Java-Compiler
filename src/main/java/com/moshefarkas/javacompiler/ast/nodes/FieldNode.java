@@ -25,6 +25,10 @@ public class FieldNode extends AstNode {
         addChild(initializer);
     }
 
+    public boolean hasInitializer() {
+        return initializer != null;
+    }
+
     @Override
     public void accept(AstVisitor v) {
         v.visitFieldNode(this);

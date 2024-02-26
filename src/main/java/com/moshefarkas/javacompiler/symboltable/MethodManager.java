@@ -6,18 +6,25 @@ import java.util.Map;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.MethodInfo;
-import com.moshefarkas.javacompiler.VarInfo;
 
 public class MethodManager {
-    private static MethodManager instance;
-    private MethodManager() {
-        methods = new HashMap<>();
-    }
+    // private static MethodManager instance;
+    // private MethodManager() {
+    //     methods = new HashMap<>();
+    // }
 
-    public static MethodManager getInstance() {
-        if (instance == null)
-            instance = new MethodManager();
-        return instance;
+    // public static MethodManager getInstance() {
+    //     if (instance == null)
+    //         instance = new MethodManager();
+    //     return instance;
+    // }
+
+    // public void test_reset() {
+    //     instance = new MethodManager();
+    // }
+
+    public MethodManager() {
+        methods = new HashMap<>();
     }
 
     public void debug_print_methods() { 
@@ -38,11 +45,10 @@ public class MethodManager {
     }
 
     public Method getMethod(String methodName) {
+        if (!hasMethod(methodName)) {
+            return null;
+        }
         return methods.get(methodName);
-    }
-
-    public void test_reset() {
-        instance = new MethodManager();
     }
 
     private Map<String, Method> methods;

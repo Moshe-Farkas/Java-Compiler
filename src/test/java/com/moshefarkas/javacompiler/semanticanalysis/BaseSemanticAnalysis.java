@@ -9,11 +9,12 @@ import com.moshefarkas.generated.Java8Lexer;
 import com.moshefarkas.generated.Java8Parser;
 import com.moshefarkas.javacompiler.ast.astgen.ClassVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
+import com.moshefarkas.javacompiler.symboltable.ClassManager;
 
 public class BaseSemanticAnalysis {
 
     protected ClassNode ast;
-    private String startSource = "public class Test {\r\n" + //
+    private String startSource = "public class Demo {\r\n" + //
             "\tpublic void method1() {";
     private String endSource = "\t}\r\n" + 
                              "public void intMeth(int a2){}"          +
@@ -26,7 +27,7 @@ public class BaseSemanticAnalysis {
                              "public void floatArr1Dim(float[] e2){}" +
                              "}";
     
-    private String startSourceMethods = "public class Test {";
+    private String startSourceMethods = "public class Demo {";
         
     protected void compile(String source) {
         source = startSource + source + endSource;
@@ -41,6 +42,7 @@ public class BaseSemanticAnalysis {
         ClassVisitor astGen = new ClassVisitor();
         astGen.visit(tree);
         ast = astGen.currentClass;
+        ClassManager.getIntsance().createNewClass(ast);
     }
 
     protected void compileMethodModifiers(String modifers) {
@@ -56,6 +58,7 @@ public class BaseSemanticAnalysis {
         ClassVisitor astGen = new ClassVisitor();
         astGen.visit(tree);
         ast = astGen.currentClass;
+        ClassManager.getIntsance().createNewClass(ast);
     }
 
     protected void compileMethodDecl(String methodDecl) {
@@ -71,10 +74,11 @@ public class BaseSemanticAnalysis {
         ClassVisitor astGen = new ClassVisitor();
         astGen.visit(tree);
         ast = astGen.currentClass;
+        ClassManager.getIntsance().createNewClass(ast);
     }
 
     protected void compileMethod(String method) {
-        String source = "public class test {" + method + "}";
+        String source = "public class Demo {" + method + "}";
         CharStream input = CharStreams.fromString(source);
         Java8Lexer lexer = new Java8Lexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -86,5 +90,6 @@ public class BaseSemanticAnalysis {
         ClassVisitor astGen = new ClassVisitor();
         astGen.visit(tree);
         ast = astGen.currentClass;
+        ClassManager.getIntsance().createNewClass(ast);
     }
 }

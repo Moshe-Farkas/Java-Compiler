@@ -6,6 +6,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.VarInfo;
+import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
@@ -16,7 +17,6 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.ControlFlowStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
-import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class IdentifierUsageVisitor extends SemanticAnalysis {
@@ -24,7 +24,6 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
     // checking if a var is subscriptable, missing return statement,
     // calling undefined method, calling method with wrong num of args,
     // invalid method header, and using break/continue outside a loop
-
     private String currMethod;
 
     private boolean seenReturnStmt;
@@ -37,23 +36,25 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
         String varName = node.varName;
-        SymbolTable methodSymbolTable  = MethodManager.getInstance().getSymbolTable(currMethod);
-        if (!methodSymbolTable.hasVar(varName)) {
+        if (!hasLocalVar(varName) && !hasField(varName)) {
             error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, varName);
-        } else if (methodSymbolTable.getVarInfo(varName).hasValue == false) {
-            error(
-                ErrorType.UNINITIALIZED_VAR, 
-                node.lineNum, 
-                errorString("Can't use var `%s` as it's not initialized.", varName)
-            );
         }
+
+        // SymbolTable methodSymbolTable  = currentMethodSymbolTable(currMethod);
+        // if (!methodSymbolTable.hasVar(varName)) {
+        //     error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, varName);
+        // } else if (methodSymbolTable.getVarInfo(varName).hasValue == false) {
+        //     error(
+        //         ErrorType.UNINITIALIZED_VAR, 
+        //         node.lineNum, 
+        //         errorString("Can't use var `%s` as it's not initialized.", varName)
+        //     );
+        // }
     }
 
     @Override 
     public void visitArrAccessExprNode(ArrAccessExprNode node) {
-        VarInfo varInfo = MethodManager.getInstance()
-            .getSymbolTable(currMethod)
-            .getVarInfo(node.varName);
+        VarInfo varInfo = currentMethodSymbolTable(currMethod) .getVarInfo(node.varName);
 
         if (varInfo.type.getSort() != Type.ARRAY) {
             error(
@@ -92,31 +93,66 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
-        SymbolTable methodSymbolTable  = MethodManager.getInstance().getSymbolTable(currMethod);
-        if (!methodSymbolTable.hasVar(node.identifier.varName)) {
-            error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, node.identifier.varName);
-        } else {
-            MethodManager.getInstance()
-                .getSymbolTable(currMethod)
-                .getVarInfo(node.identifier.varName).hasValue = true;
-            visit(node.identifier);
-            visit(node.assignmentValue);
-        }
+        // first check local then fields.
+        visit(node.identifier);
+        visit(node.assignmentValue);
+
+
+        // if (hasLocalVar(node.identifier.varName)) {
+            
+        //     currentMethodSymbolTable(currMethod)
+        //         .getVarInfo(node.identifier.varName)
+        //         .hasValue = true;
+
+        //     visit(node.identifier);
+        //     visit(node.assignmentValue);
+        // } else if (hasField(node.identifier.varName)) {
+        //     currentClass.fields.getElement(node.identifier.varName)
+        //         .fieldInfo
+        //         .hasValue = true;
+
+        //     visit(node.identifier);
+        //     visit(node.assignmentValue);
+        // } else {
+        //     error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, node.identifier.varName);
+        // }
+
+        // SymbolTable methodSymbolTable  = currentMethodSymbolTable(currMethod);
+        // if (!methodSymbolTable.hasVar(node.identifier.varName)) {
+        //     error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, node.identifier.varName);
+        // } else {
+        //     currentMethodSymbolTable(currMethod)
+        //         .getVarInfo(node.identifier.varName)
+        //         .hasValue = true;
+
+        //     visit(node.identifier);
+        //     visit(node.assignmentValue);
+        // }
+    }
+
+    private boolean hasLocalVar(String varName) {
+        SymbolTable methodSymbolTable  = currentMethodSymbolTable(currMethod);
+        return methodSymbolTable.hasVar(varName);
+    }
+
+    private boolean hasField(String varName) {
+        return currentClass.fields.hasElement(varName);
     }
 
     @Override
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
         if (node.hasInitializer()) {
-            MethodManager.getInstance()
-                .getSymbolTable(currMethod)
-                .getVarInfo(node.var.name).hasValue = true;
+            
+            currentMethodSymbolTable(currMethod)
+                .getVarInfo(node.var.name)
+                .hasValue = true;
         }
         super.visitLocalVarDecStmtNode(node);
     }
 
     @Override
     public void visitCallExprNode(CallExprNode node) {
-        if (!MethodManager.getInstance().hasMethod(node.methodName)) {
+        if (!currentClass.methodManager.hasMethod(node.methodName)) {
             error(
                 ErrorType.UNDEFINED_IDENTIFIER, 
                 node.lineNum, 
@@ -124,7 +160,7 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
             );
             return;
         }
-        Type[] methodParamsTypes = MethodManager.getInstance().getParamTypes(node.methodName);
+        Type[] methodParamsTypes = currentClass.methodManager.getParamTypes(node.methodName);
         if (methodParamsTypes.length != node.arguments.size()) {
             String reason = String.format("Expected `%d` args but got `%d`.", methodParamsTypes.length, node.arguments.size());
             error(ErrorType.MISMATCHED_ARGUMENTS, node.lineNum, reason);
@@ -135,12 +171,12 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
     @Override
     public void visitMethodNode(MethodNode node) {
         currMethod = node.methodName;
-        MethodManager.getInstance().getSymbolTable(currMethod).resetScopes();
+        currentMethodSymbolTable(currMethod).resetScopes();
         validateMethodModifiers(node);
 
         seenReturnStmt = false;
         super.visitMethodNode(node);
-        Type currMethodRetType = MethodManager.getInstance().getReturnType(currMethod);
+        Type currMethodRetType = currentClass.methodManager.getReturnType(currMethod);
         if (currMethodRetType != Type.VOID_TYPE && !seenReturnStmt) {
             error(
                 ErrorType.MISSING_RET_STMT, 
@@ -196,7 +232,7 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     @Override
     public void visitBlockStmtNode(BlockStmtNode node) {
-        SymbolTable methodSymbolTable = MethodManager.getInstance().getSymbolTable(currMethod);
+        SymbolTable methodSymbolTable = currentMethodSymbolTable(currMethod);
         methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
         methodSymbolTable.exitScope();
@@ -228,4 +264,14 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
             );
         }
     }
+
+    @Override
+    public void visitFieldNode(FieldNode node) {
+        // validateFieldModifiers(node.fieldModifiers);
+        super.visitFieldNode(node);
+    }
+
+    // private void validateFieldModifiers(List<Integer> modifiers) {
+
+    // }
 }

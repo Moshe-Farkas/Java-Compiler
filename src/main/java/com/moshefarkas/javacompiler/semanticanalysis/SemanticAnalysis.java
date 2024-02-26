@@ -3,23 +3,27 @@ package com.moshefarkas.javacompiler.semanticanalysis;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
-import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
+import com.moshefarkas.javacompiler.symboltable.ClassManager;
+import com.moshefarkas.javacompiler.symboltable.Clazz;
+import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class SemanticAnalysis extends BaseAstVisitor {
 
+    public class SemanticError extends RuntimeException {}
+
     protected SemanticAnalysis() {}
-    public SemanticAnalysis(ClassNode ast) {
+    public SemanticAnalysis(String className) throws SemanticError {
         test_error = null;
         hadErr = false;
-        SymbolTableGenVisitor sv = new SymbolTableGenVisitor();
-        sv.visitClassNode(ast);
-        if (hadErr) return;
+        currentClass = ClassManager.getIntsance().getClass(className);
+        
         IdentifierUsageVisitor iuv = new IdentifierUsageVisitor();
-        iuv.visitClassNode(ast);
-        if (hadErr) return;
+        iuv.visitClassNode(currentClass.classNode);
+        if (hadErr) throw new SemanticError();
         TypeCheckVisitor s = new TypeCheckVisitor();
-        s.visit(ast);
+        s.visit(currentClass.classNode);
+        if (hadErr) throw new SemanticError();
     }
 
     protected enum ErrorType {
@@ -31,6 +35,7 @@ public class SemanticAnalysis extends BaseAstVisitor {
         UNDEFINED_IDENTIFIER,
         DUPLICATE_VAR,
         DUPLICATE_METHOD,
+        DUPLICATE_FIELD,
         UNINITIALIZED_VAR,
         INVALID_CAST,
         INVALID_ARRAY_INIT,
@@ -40,10 +45,17 @@ public class SemanticAnalysis extends BaseAstVisitor {
     } 
 
     protected ErrorType test_error;
+    protected static Clazz currentClass;
+
     public static boolean hadErr = false;
 
+    protected SymbolTable currentMethodSymbolTable(String currMethod) {
+        return currentClass.methodManager.getSymbolTable(currMethod);
+    }
+
     protected void error(ErrorType errType, int lineNum, String errMsg) {
-        System.err.println("\u001B[31m" + errType + " on line " + lineNum + ": " + errMsg + "\u001B[0m");
+        String className = currentClass.classNode.className;
+        System.err.println("\u001B[31m" + className + " - " + errType + " on line " + lineNum + ": " + errMsg + "\u001B[0m");
         test_error = errType;
         hadErr = true;
     }

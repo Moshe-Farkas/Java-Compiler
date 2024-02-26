@@ -11,6 +11,7 @@ public class MethodInfo {
     public Type returnType;
     public String methodName;
     public List<LocalVarDecStmtNode> parameters = new ArrayList<>();
+    public List<Integer> methodModifiers = new ArrayList<>();
 
     @Override
     public String toString() {

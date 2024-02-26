@@ -1,27 +1,24 @@
 package com.moshefarkas.javacompiler.codegen;
 
+import org.antlr.v4.parse.BlockSetTransformer.ebnfBlockSet_return;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
-import com.moshefarkas.javacompiler.MethodInfo;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
-import com.moshefarkas.javacompiler.symboltable.MethodManager;
+import com.moshefarkas.javacompiler.symboltable.ClassManager;
+import com.moshefarkas.javacompiler.symboltable.Clazz;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
-public class ClassGenVisitor extends BaseAstVisitor {
-    
-    public ClassWriter classWriter;
+public class ClassGenVisitor extends CodeGen {
 
     private String currMethod;
 
     @Override
     public void visitClassNode(ClassNode node) {
         classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-
         classWriter.visit(
             Opcodes.V1_8,   // class format version
             Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER,  
@@ -34,6 +31,7 @@ public class ClassGenVisitor extends BaseAstVisitor {
         super.visitClassNode(node);
 
         // temp remove 
+
         emitMain();
         classWriter.visitEnd();
     }
@@ -41,12 +39,12 @@ public class ClassGenVisitor extends BaseAstVisitor {
     @Override
     public void visitMethodNode(MethodNode node) {
         currMethod = node.methodName;
-        MethodManager.getInstance().getSymbolTable(currMethod).resetScopes();
+        currentClass.methodManager.getSymbolTable(currMethod).resetScopes();
         int accessMod = 0;
         for (int modifer : node.methodModifiers) {
             accessMod += modifer;
         }
-        String descriptor = MethodManager.getInstance().getMethodDescriptor(currMethod);
+        String descriptor = currentClass.methodManager.getMethodDescriptor(currMethod);
 
         MethodVisitor method = classWriter.visitMethod(
             accessMod,

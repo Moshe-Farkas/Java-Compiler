@@ -7,6 +7,7 @@ import java.util.Stack;
 
 import org.objectweb.asm.Type;
 
+import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
@@ -28,7 +29,6 @@ import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
 public class TypeCheckVisitor extends SemanticAnalysis {
 
-    private class SemanticError extends RuntimeException {}
     private final Type emptyArrayType = Type.getType("[L;");
 
     private Stack<Type> typeStack = new Stack<>();
@@ -137,10 +137,19 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
-        Type idenType = MethodManager.getInstance().getSymbolTable(currMethod).getVarType(node.varName);
+        // Type idenType = currentMethodSymbolTable(currMethod).getVarType(node.varName);
+        Type idenType = resolveType(node.varName);
         
         typeStack.push(idenType);
         node.setExprType(idenType);
+    }
+
+    private Type resolveType(String varName) {
+        if (currentMethodSymbolTable(currMethod).hasVar(varName)) {
+            return currentMethodSymbolTable(currMethod).getVarType(varName);
+        } else {
+            return currentClass.fields.getElement(varName).fieldInfo.type;
+        }
     }
 
     private static HashMap<Type, Integer> wideningRules = new HashMap<>();
@@ -207,7 +216,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitCallExprNode(CallExprNode node) {
-        Type[] paramTypes = MethodManager.getInstance().getParamTypes(node.methodName);
+        Type[] paramTypes = currentClass.methodManager.getParamTypes(node.methodName);
 
         for (int i = 0; i < node.arguments.size(); i++) {
             try {
@@ -226,7 +235,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
                 }
             } catch (SemanticError e) {typeStack.clear();}
         }
-        Type calleReturnType = MethodManager.getInstance().getReturnType(node.methodName);
+        Type calleReturnType = currentClass.methodManager.getReturnType(node.methodName);
         node.setExprType(calleReturnType);
         typeStack.push(calleReturnType);
     }
@@ -239,7 +248,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         try {
             visit(node.initializer);
             Type initializerType = typeStack.pop();
-            Type varType = MethodManager.getInstance().getSymbolTable(currMethod).getVarType(node.var.name);
+            Type varType = currentMethodSymbolTable(currMethod).getVarType(node.var.name);
 
             if (!validAssignment(varType, initializerType)) {
                 error(
@@ -375,7 +384,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitBlockStmtNode(BlockStmtNode node) {
-        SymbolTable methodSymbolTable = MethodManager.getInstance().getSymbolTable(currMethod);
+        SymbolTable methodSymbolTable = currentMethodSymbolTable(currMethod);
         methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
         methodSymbolTable.exitScope();
@@ -384,7 +393,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
     @Override
     public void visitMethodNode(MethodNode node) {
         currMethod = node.methodName;
-        MethodManager.getInstance().getSymbolTable(currMethod).resetScopes();
+        currentMethodSymbolTable(currMethod).resetScopes();
         super.visitMethodNode(node);
     }
 
@@ -395,7 +404,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
             return;
         visit(node.expression);
         Type exprType = typeStack.pop();
-        Type currMethodRetType = MethodManager.getInstance().getReturnType(currMethod);
+        Type currMethodRetType = currentClass.methodManager.getReturnType(currMethod);
         if (!validAssignment(currMethodRetType, exprType)) {
             error(
                 ErrorType.MISMATCHED_TYPE, 
@@ -423,5 +432,28 @@ public class TypeCheckVisitor extends SemanticAnalysis {
             );
         }
         visit(node.statement);
+    }
+
+    @Override
+    public void visitFieldNode(FieldNode node) {
+        // a node is like a local var statment
+        if (!node.hasInitializer()) {
+            return;
+        }
+        try {
+            visit(node.initializer);
+            Type initializerType = typeStack.pop();
+            Type fieldType = node.fieldInfo.type;
+            if (!validAssignment(fieldType, initializerType)) {
+                error(
+                    ErrorType.MISMATCHED_ASSIGNMENT_TYPE, 
+                    node.lineNum, 
+                    errorString(
+                        "cannot assign epxression of type `%s` to type `%s`.",
+                        initializerType, fieldType
+                    )
+                );
+            }
+        } catch (SemanticError e) {typeStack.clear();}
     }
 }

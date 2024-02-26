@@ -8,7 +8,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.VarInfo;
-import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
@@ -29,19 +28,21 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.SymbolTable;
 
-public class MethodGenVisitor extends BaseAstVisitor {
+public class MethodGenVisitor extends CodeGen {
 
     private MethodVisitor methodVisitor;
     private String currMethod;
 
-    // private Label continueLabel;
-    // private Label breakLabel;
     private Stack<Label> continueLabelStack = new Stack<Label>();
     private Stack<Label> breakLabelStack = new Stack<Label>();
 
     public MethodGenVisitor(MethodVisitor methodVisitor, String currMethod) {
         this.methodVisitor = methodVisitor;
         this.currMethod = currMethod;
+    }
+
+    private boolean isLocalVar(String varName) {
+        return currentMethodSymbolTable(currMethod).hasVar(varName);
     }
 
     private void emitTypeCast(Type targetType, Type toCastType) {
@@ -57,7 +58,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitBlockStmtNode(BlockStmtNode node) {
-        SymbolTable methodSymbolTable = MethodManager.getInstance().getSymbolTable(currMethod);
+        SymbolTable methodSymbolTable = currentMethodSymbolTable(currMethod);
         methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
         methodSymbolTable.exitScope();
@@ -94,7 +95,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
         if (node.hasInitializer()) {
             visit(node.initializer);
-            VarInfo var = MethodManager.getInstance().getSymbolTable(currMethod).getVarInfo(node.var.name);
+            VarInfo var = currentMethodSymbolTable(currMethod).getVarInfo(node.var.name);
             emitTypeCast(var.type, node.initializer.exprType);
             methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
         }
@@ -106,14 +107,14 @@ public class MethodGenVisitor extends BaseAstVisitor {
             genArrAccStore((ArrAccessExprNode)node.identifier, node.assignmentValue);
         } else {
             visit(node.assignmentValue);
-            VarInfo var = MethodManager.getInstance().getSymbolTable(currMethod).getVarInfo(node.identifier.varName);
+            VarInfo var = currentMethodSymbolTable(currMethod).getVarInfo(node.identifier.varName);
             emitTypeCast(var.type, node.assignmentValue.exprType);
             methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
         }
     }
 
     private void genArrAccStore(ArrAccessExprNode node, ExpressionNode assignmentValue) {
-        VarInfo var = MethodManager.getInstance().getSymbolTable(currMethod).getVarInfo(node.varName);
+        VarInfo var = currentMethodSymbolTable(currMethod).getVarInfo(node.varName);
         methodVisitor.visitVarInsn(Opcodes.ALOAD, var.localIndex);
         visit(node.index);
         if (node.identifer instanceof ArrAccessExprNode) {
@@ -140,7 +141,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitCallExprNode(CallExprNode node) {
-        Type[] paramTypes = MethodManager.getInstance().getParamTypes(node.methodName);
+        Type[] paramTypes = currentClass.methodManager.getParamTypes(node.methodName);
         for (int i = 0; i < node.arguments.size(); i++) {
             visit(node.arguments.get(i));
             Type argType = node.arguments.get(i).exprType;
@@ -148,7 +149,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
             emitTypeCast(paramType, argType);
         }
 
-        String descriptor = MethodManager.getInstance().getMethodDescriptor(node.methodName);
+        String descriptor = currentClass.methodManager.getMethodDescriptor(node.methodName);
 
         methodVisitor.visitMethodInsn(
             Opcodes.INVOKESTATIC, 
@@ -303,9 +304,27 @@ public class MethodGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
-        VarInfo var = MethodManager.getInstance().getSymbolTable(currMethod).getVarInfo(node.varName);
-        int op = var.type.getOpcode(Opcodes.ILOAD);
-        methodVisitor.visitVarInsn(op, var.localIndex);
+        if (isLocalVar(node.varName)) {
+            VarInfo var = currentMethodSymbolTable(currMethod).getVarInfo(node.varName);
+            int op = var.type.getOpcode(Opcodes.ILOAD);
+            methodVisitor.visitVarInsn(op, var.localIndex);
+        } else {
+            // need to get field
+            VarInfo field = currentClass.fields.getElement(node.varName).fieldInfo;
+            methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+            methodVisitor.visitFieldInsn(
+                Opcodes.GETFIELD,
+                currentClass.className, 
+                node.varName, 
+                field.type.toString() 
+            );
+
+            // visitFieldInsn
+            // public void visitFieldInsn(int opcode,
+            //  String owner,
+            //  String name,
+            //  String descriptor)
+        }
     }
 
     @Override
@@ -394,7 +413,7 @@ public class MethodGenVisitor extends BaseAstVisitor {
     public void visitReturnStmt(ReturnStmt node) {
         if (node.expression != null) { 
             visit(node.expression);
-            Type currMethodRetType = MethodManager.getInstance().getReturnType(currMethod);
+            Type currMethodRetType = currentClass.methodManager.getReturnType(currMethod);
             methodVisitor.visitInsn(currMethodRetType.getOpcode(Opcodes.IRETURN));
         } else {
             methodVisitor.visitInsn(Opcodes.RETURN);

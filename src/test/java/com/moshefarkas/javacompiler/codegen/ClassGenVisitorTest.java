@@ -1,4 +1,4 @@
-package com.moshefarkas.javacompiler.codegen;
+// package com.moshefarkas.javacompiler.codegen;
 
-public class ClassGenVisitorTest {
-}
+// public class ClassGenVisitorTest {
+// }
