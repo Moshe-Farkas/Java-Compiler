@@ -6,7 +6,7 @@ import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.expression.BinaryExprNode.BinOp;
 import com.moshefarkas.javacompiler.symboltable.ClassManager;
 import com.moshefarkas.javacompiler.symboltable.Clazz;
-import com.moshefarkas.javacompiler.symboltable.SymbolTable;
+import com.moshefarkas.javacompiler.symboltable.LocalVarSymbolTable;
 
 public class SemanticAnalysis extends BaseAstVisitor {
 
@@ -49,7 +49,7 @@ public class SemanticAnalysis extends BaseAstVisitor {
 
     public static boolean hadErr = false;
 
-    protected SymbolTable currentMethodSymbolTable(String currMethod) {
+    protected LocalVarSymbolTable currentMethodSymbolTable(String currMethod) {
         return currentClass.methodManager.getSymbolTable(currMethod);
     }
 

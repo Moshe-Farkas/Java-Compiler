@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 
 import com.moshefarkas.generated.Java8Parser.FieldDeclarationContext;
 import com.moshefarkas.generated.Java8Parser.FieldModifierContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
-import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
-import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 
 public class FieldVisitor extends Java8ParserBaseVisitor<Void> {
 
@@ -29,12 +26,9 @@ public class FieldVisitor extends Java8ParserBaseVisitor<Void> {
         VarVisitor varVisitor = new VarVisitor();
         varVisitor.visit(ctx);
 
-        VarInfo fieldInfo = new VarInfo();
-        fieldInfo.name = varVisitor.varName;
-        fieldInfo.type = varVisitor.varType;
-                
         fieldNode = new FieldNode();
-        fieldNode.setFieldInfo(fieldInfo);
+        fieldNode.setFieldName(varVisitor.varName);
+        fieldNode.setFieldType(varVisitor.varType);
         fieldNode.setFieldModifiers(fieldModifiers);
         fieldNode.setInitializer(varVisitor.initializer);
         return null;

@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.objectweb.asm.Type;
 
-import com.moshefarkas.javacompiler.VarInfo;
+import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
 public class LocalVarScope {
-    private Map<String, VarInfo> vars;
+    private Map<String, LocalVarDecStmtNode> vars;
     private LocalVarScope parent;
     private int nextLocalIndex;
     
@@ -19,12 +19,12 @@ public class LocalVarScope {
         vars = new HashMap<>();
     }
 
-    public void addVar(VarInfo var) {
-        var.localIndex = nextLocalIndex++;
-        vars.put(var.name, var);
+    public void addVar(LocalVarDecStmtNode node) {
+        node.localIndex = nextLocalIndex++;
+        vars.put(node.varName, node);
     }
 
-    public VarInfo getVarInfo(String varName) {
+    public LocalVarDecStmtNode getVarInfo(String varName) {
         if (vars.containsKey(varName)) {
             return vars.get(varName);
         }
@@ -39,8 +39,8 @@ public class LocalVarScope {
     }
 
     public Type getVarType(String varName) {
-        VarInfo v = getVarInfo(varName);
-        return v == null ? null : v.type;
+        LocalVarDecStmtNode v = getVarInfo(varName);
+        return v == null ? null : v.varType;
     }
 
     public int getNextLocalIndex() {

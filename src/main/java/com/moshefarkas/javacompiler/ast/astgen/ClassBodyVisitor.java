@@ -23,7 +23,6 @@ import com.moshefarkas.generated.Java8Parser.ResultContext;
 import com.moshefarkas.generated.Java8Parser.UnannArrayTypeContext;
 import com.moshefarkas.generated.Java8Parser.UnannPrimitiveTypeContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
-import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.ConstructorNode;
 import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
@@ -266,16 +265,13 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         // formalParameter
         //     : variableModifier* unannType variableDeclaratorId
         //     ;
-
         LocalVarDecStmtNode varNode = new LocalVarDecStmtNode();
-        VarInfo var = new VarInfo();
         Type type = (Type)visit(ctx.unannType());
         String paramName = ctx.variableDeclaratorId().Identifier().getText();
-        var.hasValue = true; 
-        var.type = type;
-        var.name = paramName;
 
-        varNode.setVar(var);
+        varNode.hasValue = true;
+        varNode.setVarName(paramName);
+        varNode.setType(type);
         varNode.lineNum = ctx.getStart().getLine();
         return varNode;
     }

@@ -57,7 +57,7 @@ public class MethodManager {
         methods.put(methodName, new Method(methodInfo));
     }
 
-    public SymbolTable getSymbolTable(String methodName) {
+    public LocalVarSymbolTable getSymbolTable(String methodName) {
         return methods.get(methodName).symbolTable;
     }
 
@@ -73,7 +73,7 @@ public class MethodManager {
         Method calle = methods.get(methodName);
         Type[] types = new Type[calle.methodInfo.parameters.size()];
         for (int i = 0; i < types.length; i++) {
-            types[i] = calle.methodInfo.parameters.get(i).var.type;
+            types[i] = calle.methodInfo.parameters.get(i).varType;
         }
         return types;
     }

@@ -18,7 +18,6 @@ import com.moshefarkas.generated.Java8Parser.ReturnStatementContext;
 import com.moshefarkas.generated.Java8Parser.StatementExpressionContext;
 import com.moshefarkas.generated.Java8Parser.WhileStatementContext;
 import com.moshefarkas.generated.Java8ParserBaseVisitor;
-import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ControlFlowStmt;
@@ -153,10 +152,9 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         VarVisitor varVisitor = new VarVisitor();
         varVisitor.visitLocalVariableDeclaration(ctx);
         LocalVarDecStmtNode localVarDeclNode = new LocalVarDecStmtNode();
-        VarInfo varInfo = new VarInfo();
-        varInfo.name = varVisitor.varName;
-        varInfo.type = varVisitor.varType;
-        localVarDeclNode.setVar(varInfo);
+
+        localVarDeclNode.setVarName(varVisitor.varName);
+        localVarDeclNode.setType(varVisitor.varType);
         localVarDeclNode.setInitializer(varVisitor.initializer);
         localVarDeclNode.lineNum = ctx.getStart().getLine();
         statementStack.push(localVarDeclNode);

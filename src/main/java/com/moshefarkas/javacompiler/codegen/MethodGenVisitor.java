@@ -7,7 +7,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import com.moshefarkas.javacompiler.VarInfo;
+import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;
@@ -26,7 +26,7 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 import com.moshefarkas.javacompiler.symboltable.MethodManager;
-import com.moshefarkas.javacompiler.symboltable.SymbolTable;
+import com.moshefarkas.javacompiler.symboltable.LocalVarSymbolTable;
 
 public class MethodGenVisitor extends CodeGen {
 
@@ -58,7 +58,7 @@ public class MethodGenVisitor extends CodeGen {
 
     @Override
     public void visitBlockStmtNode(BlockStmtNode node) {
-        SymbolTable methodSymbolTable = currentMethodSymbolTable(currMethod);
+        LocalVarSymbolTable methodSymbolTable = currentMethodSymbolTable(currMethod);
         methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
         methodSymbolTable.exitScope();
@@ -95,9 +95,8 @@ public class MethodGenVisitor extends CodeGen {
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
         if (node.hasInitializer()) {
             visit(node.initializer);
-            VarInfo var = currentMethodSymbolTable(currMethod).getVarInfo(node.var.name);
-            emitTypeCast(var.type, node.initializer.exprType);
-            methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
+            emitTypeCast(node.varType, node.initializer.exprType);
+            methodVisitor.visitVarInsn(node.varType.getOpcode(Opcodes.ISTORE), node.localIndex);
         }
     }
     
@@ -107,14 +106,16 @@ public class MethodGenVisitor extends CodeGen {
             genArrAccStore((ArrAccessExprNode)node.identifier, node.assignmentValue);
         } else {
             visit(node.assignmentValue);
-            VarInfo var = currentMethodSymbolTable(currMethod).getVarInfo(node.identifier.varName);
-            emitTypeCast(var.type, node.assignmentValue.exprType);
-            methodVisitor.visitVarInsn(var.type.getOpcode(Opcodes.ISTORE), var.localIndex);
+            LocalVarDecStmtNode var = currentMethodSymbolTable(currMethod)
+                .getVarDeclNode(node.identifier.varName);
+
+            emitTypeCast(var.varType, node.assignmentValue.exprType);
+            methodVisitor.visitVarInsn(var.varType.getOpcode(Opcodes.ISTORE), var.localIndex);
         }
     }
 
     private void genArrAccStore(ArrAccessExprNode node, ExpressionNode assignmentValue) {
-        VarInfo var = currentMethodSymbolTable(currMethod).getVarInfo(node.varName);
+        LocalVarDecStmtNode var = currentMethodSymbolTable(currMethod).getVarDeclNode(node.varName);
         methodVisitor.visitVarInsn(Opcodes.ALOAD, var.localIndex);
         visit(node.index);
         if (node.identifer instanceof ArrAccessExprNode) {
@@ -305,18 +306,18 @@ public class MethodGenVisitor extends CodeGen {
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
         if (isLocalVar(node.varName)) {
-            VarInfo var = currentMethodSymbolTable(currMethod).getVarInfo(node.varName);
-            int op = var.type.getOpcode(Opcodes.ILOAD);
+            LocalVarDecStmtNode var = currentMethodSymbolTable(currMethod).getVarDeclNode(node.varName);
+            int op = var.varType.getOpcode(Opcodes.ILOAD);
             methodVisitor.visitVarInsn(op, var.localIndex);
         } else {
             // need to get field
-            VarInfo field = currentClass.fields.getElement(node.varName).fieldInfo;
+            FieldNode field = currentClass.fields.getElement(node.varName);
             methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
             methodVisitor.visitFieldInsn(
                 Opcodes.GETFIELD,
                 currentClass.className, 
                 node.varName, 
-                field.type.toString() 
+                field.fieldType.toString() 
             );
 
             // visitFieldInsn

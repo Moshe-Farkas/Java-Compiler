@@ -5,7 +5,6 @@ import java.util.Collections;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import com.moshefarkas.javacompiler.VarInfo;
 import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
@@ -17,7 +16,7 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.ControlFlowStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
-import com.moshefarkas.javacompiler.symboltable.SymbolTable;
+import com.moshefarkas.javacompiler.symboltable.LocalVarSymbolTable;
 
 public class IdentifierUsageVisitor extends SemanticAnalysis {
     // responsible for checking if var is defined, and initialized,
@@ -36,41 +35,37 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
         String varName = node.varName;
-        if (!hasLocalVar(varName) && !hasField(varName)) {
+        LocalVarSymbolTable methodSymbolTable  = currentMethodSymbolTable(currMethod);
+        if (!methodSymbolTable.hasVar(varName)) {
             error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, varName);
+        } else if (methodSymbolTable.getVarDeclNode(varName).hasValue == false) {
+            error(
+                ErrorType.UNINITIALIZED_VAR, 
+                node.lineNum, 
+                errorString("Can't use var `%s` as it's not initialized.", varName)
+            );
         }
-
-        // SymbolTable methodSymbolTable  = currentMethodSymbolTable(currMethod);
-        // if (!methodSymbolTable.hasVar(varName)) {
-        //     error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, varName);
-        // } else if (methodSymbolTable.getVarInfo(varName).hasValue == false) {
-        //     error(
-        //         ErrorType.UNINITIALIZED_VAR, 
-        //         node.lineNum, 
-        //         errorString("Can't use var `%s` as it's not initialized.", varName)
-        //     );
-        // }
     }
 
     @Override 
     public void visitArrAccessExprNode(ArrAccessExprNode node) {
-        VarInfo varInfo = currentMethodSymbolTable(currMethod) .getVarInfo(node.varName);
+        LocalVarDecStmtNode varNode = currentMethodSymbolTable(currMethod).getVarDeclNode(node.varName);
 
-        if (varInfo.type.getSort() != Type.ARRAY) {
+        if (varNode.varType.getSort() != Type.ARRAY) {
             error(
                 ErrorType.INVALID_ARRAY_ACCESS, 
                 node.lineNum, 
-                errorString("Can't subscript non array var `%s`.", varInfo.name)
+                errorString("Can't subscript non array var `%s`.", varNode.varName)
             );
         } else {
-            validateArrayAccessLevels(node, varInfo);
+            validateArrayAccessLevels(node, varNode);
         }
     }
 
-    private void validateArrayAccessLevels(ArrAccessExprNode node, VarInfo varAccessInfo) {
+    private void validateArrayAccessLevels(ArrAccessExprNode node, LocalVarDecStmtNode varAccNode) {
         // checks that array access did not try to access a dimension 
         // that does not exist
-        int maxDims = varAccessInfo.type.getDimensions();
+        int maxDims = varAccNode.varType.getDimensions();
         int accessLevels = 1;
         ArrAccessExprNode iterator = node;
         while (iterator.identifer instanceof ArrAccessExprNode) {
@@ -83,7 +78,7 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
                 node.lineNum, 
                 errorString(
                     "Max array access level for var `%s` is `%s` but got `%s`.", 
-                    varAccessInfo.name,
+                    varAccNode.varName,
                     maxDims, 
                     accessLevels
                 )
@@ -130,21 +125,12 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
         // }
     }
 
-    private boolean hasLocalVar(String varName) {
-        SymbolTable methodSymbolTable  = currentMethodSymbolTable(currMethod);
-        return methodSymbolTable.hasVar(varName);
-    }
-
-    private boolean hasField(String varName) {
-        return currentClass.fields.hasElement(varName);
-    }
-
     @Override
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
         if (node.hasInitializer()) {
             
             currentMethodSymbolTable(currMethod)
-                .getVarInfo(node.var.name)
+                .getVarDeclNode(node.varName)
                 .hasValue = true;
         }
         super.visitLocalVarDecStmtNode(node);
@@ -232,7 +218,7 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     @Override
     public void visitBlockStmtNode(BlockStmtNode node) {
-        SymbolTable methodSymbolTable = currentMethodSymbolTable(currMethod);
+        LocalVarSymbolTable methodSymbolTable = currentMethodSymbolTable(currMethod);
         methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
         methodSymbolTable.exitScope();

@@ -25,7 +25,7 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
 import com.moshefarkas.javacompiler.symboltable.MethodManager;
-import com.moshefarkas.javacompiler.symboltable.SymbolTable;
+import com.moshefarkas.javacompiler.symboltable.LocalVarSymbolTable;
 
 public class TypeCheckVisitor extends SemanticAnalysis {
 
@@ -148,7 +148,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         if (currentMethodSymbolTable(currMethod).hasVar(varName)) {
             return currentMethodSymbolTable(currMethod).getVarType(varName);
         } else {
-            return currentClass.fields.getElement(varName).fieldInfo.type;
+            return currentClass.fields.getElement(varName).fieldType;
         }
     }
 
@@ -248,7 +248,9 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         try {
             visit(node.initializer);
             Type initializerType = typeStack.pop();
-            Type varType = currentMethodSymbolTable(currMethod).getVarType(node.var.name);
+            Type varType = currentMethodSymbolTable(currMethod)
+                .getVarDeclNode(node.varName)
+                .varType;
 
             if (!validAssignment(varType, initializerType)) {
                 error(
@@ -384,7 +386,7 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitBlockStmtNode(BlockStmtNode node) {
-        SymbolTable methodSymbolTable = currentMethodSymbolTable(currMethod);
+        LocalVarSymbolTable methodSymbolTable = currentMethodSymbolTable(currMethod);
         methodSymbolTable.enterScope();
         super.visitBlockStmtNode(node);
         methodSymbolTable.exitScope();
@@ -443,14 +445,13 @@ public class TypeCheckVisitor extends SemanticAnalysis {
         try {
             visit(node.initializer);
             Type initializerType = typeStack.pop();
-            Type fieldType = node.fieldInfo.type;
-            if (!validAssignment(fieldType, initializerType)) {
+            if (!validAssignment(node.fieldType, initializerType)) {
                 error(
                     ErrorType.MISMATCHED_ASSIGNMENT_TYPE, 
                     node.lineNum, 
                     errorString(
                         "cannot assign epxression of type `%s` to type `%s`.",
-                        initializerType, fieldType
+                        initializerType, node.fieldType
                     )
                 );
             }

@@ -10,7 +10,7 @@ import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.symboltable.ClassManager;
 import com.moshefarkas.javacompiler.symboltable.Clazz;
-import com.moshefarkas.javacompiler.symboltable.SymbolTable;
+import com.moshefarkas.javacompiler.symboltable.LocalVarSymbolTable;
 
 public class ClassGenVisitor extends CodeGen {
 

@@ -5,7 +5,7 @@ import org.objectweb.asm.ClassWriter;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.symboltable.ClassManager;
 import com.moshefarkas.javacompiler.symboltable.Clazz;
-import com.moshefarkas.javacompiler.symboltable.SymbolTable;
+import com.moshefarkas.javacompiler.symboltable.LocalVarSymbolTable;
 
 public class CodeGen extends BaseAstVisitor {
 
@@ -20,7 +20,7 @@ public class CodeGen extends BaseAstVisitor {
 
     protected CodeGen() {}
 
-    protected SymbolTable currentMethodSymbolTable(String currMethod) {
+    protected LocalVarSymbolTable currentMethodSymbolTable(String currMethod) {
         return currentClass.methodManager.getSymbolTable(currMethod);
     }
 

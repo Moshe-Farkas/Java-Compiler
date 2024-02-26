@@ -2,22 +2,29 @@ package com.moshefarkas.javacompiler.ast.nodes;
 
 import java.util.List;
 
-import com.moshefarkas.javacompiler.VarInfo;
+import org.objectweb.asm.Type;
+
 import com.moshefarkas.javacompiler.ast.AstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 
 public class FieldNode extends AstNode {
 
     public List<Integer> fieldModifiers;
-    public VarInfo fieldInfo;
+    public String fieldName;
+    public Type fieldType;
+    public boolean hasValue = false;
     public ExpressionNode initializer;
 
     public void setFieldModifiers(List<Integer> fieldModifiers) {
         this.fieldModifiers = fieldModifiers;
     }
 
-    public void setFieldInfo(VarInfo fieldInfo) {
-        this.fieldInfo = fieldInfo;
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+    }
+
+    public void setFieldType(Type fieldType) {
+        this.fieldType = fieldType;
     }
 
     public void setInitializer(ExpressionNode initializer) {

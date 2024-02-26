@@ -9,7 +9,7 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis.ErrorType;
 import com.moshefarkas.javacompiler.symboltable.ClassManager;
 import com.moshefarkas.javacompiler.symboltable.Clazz;
-import com.moshefarkas.javacompiler.symboltable.SymbolTable;
+import com.moshefarkas.javacompiler.symboltable.LocalVarSymbolTable;
 
 public class SymbolTableGenVisitor extends BaseAstVisitor {
     // responsible for adding local vars to symbol table, 
@@ -23,7 +23,7 @@ public class SymbolTableGenVisitor extends BaseAstVisitor {
     private Clazz currentClass;
     private String currMethod;
 
-    protected SymbolTable currentMethodSymbolTable(String currMethod) {
+    protected LocalVarSymbolTable currentMethodSymbolTable(String currMethod) {
         return currentClass.methodManager.getSymbolTable(currMethod);
     }
 
@@ -37,10 +37,10 @@ public class SymbolTableGenVisitor extends BaseAstVisitor {
 
     @Override
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
-        if (currentMethodSymbolTable(currMethod).hasVar(node.var.name)) {
-            error(ErrorType.DUPLICATE_VAR, node.lineNum, node.var.name);
+        if (currentMethodSymbolTable(currMethod).hasVar(node.varName)) {
+            error(ErrorType.DUPLICATE_VAR, node.lineNum, node.varName);
         } else {
-            currentMethodSymbolTable(currMethod).addLocal(node.var);
+            currentMethodSymbolTable(currMethod).addLocal(node);
         }
     }
 
@@ -76,10 +76,10 @@ public class SymbolTableGenVisitor extends BaseAstVisitor {
     @Override
     public void visitFieldNode(FieldNode node) {
         // need to valiadate field modifers
-        if (currentClass.fields.hasElement(node.fieldInfo.name)) {
-            error(ErrorType.DUPLICATE_FIELD, node.lineNum, node.fieldInfo.name);
+        if (currentClass.fields.hasElement(node.fieldName)) {
+            error(ErrorType.DUPLICATE_FIELD, node.lineNum, node.fieldName);
         } else {
-            currentClass.fields.addElement(node.fieldInfo.name, node);
+            currentClass.fields.addElement(node.fieldName, node);
         }
     }
 }

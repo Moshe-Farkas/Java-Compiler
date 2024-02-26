@@ -64,9 +64,9 @@ public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
         m.symbolTable.resetScopes();
         m.symbolTable.enterScope();
 
-        assertTrue(m.symbolTable.getVarInfo("a").localIndex == 0);
-        assertTrue(m.symbolTable.getVarInfo("b").localIndex == 1);
-        assertTrue(m.symbolTable.getVarInfo("c").localIndex == 2);
+        assertTrue(m.symbolTable.getVarDeclNode("a").localIndex == 0);
+        assertTrue(m.symbolTable.getVarDeclNode("b").localIndex == 1);
+        assertTrue(m.symbolTable.getVarDeclNode("c").localIndex == 2);
 
         // test with different scopes 
         method = new StringBuilder();
@@ -77,11 +77,11 @@ public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
         m.symbolTable.resetScopes();
         m.symbolTable.enterScope();
 
-        assertTrue(m.symbolTable.getVarInfo("a").localIndex == 0);
-        assertTrue(m.symbolTable.getVarInfo("b").localIndex == 1);
+        assertTrue(m.symbolTable.getVarDeclNode("a").localIndex == 0);
+        assertTrue(m.symbolTable.getVarDeclNode("b").localIndex == 1);
         m.symbolTable.enterScope();
-        assertTrue(m.symbolTable.getVarInfo("m").localIndex == 2);
+        assertTrue(m.symbolTable.getVarDeclNode("m").localIndex == 2);
         m.symbolTable.exitScope();
-        assertTrue(m.symbolTable.getVarInfo("p").localIndex == 2);
+        assertTrue(m.symbolTable.getVarDeclNode("p").localIndex == 2);
     }
 }

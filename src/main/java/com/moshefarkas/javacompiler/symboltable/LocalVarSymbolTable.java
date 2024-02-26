@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.objectweb.asm.Type;
 
-import com.moshefarkas.javacompiler.VarInfo;
+import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 
-public class SymbolTable {
+public class LocalVarSymbolTable {
     
     private LocalVarScope currScope;
     private Map<Integer, LocalVarScope> scopes;
@@ -32,7 +32,7 @@ public class SymbolTable {
         currScope = currScope.getParent();
     }
 
-    public void addLocal(VarInfo var) {
+    public void addLocal(LocalVarDecStmtNode var) {
         currScope.addVar(var);
     }
 
@@ -48,12 +48,12 @@ public class SymbolTable {
         currScope = scopes.get(currScopeLevel++);
     }
 
-    public SymbolTable () {
+    public LocalVarSymbolTable () {
         scopes = new HashMap<>();
         currScopeLevel = 0;
     }
 
-    public VarInfo getVarInfo(String name) {
+    public LocalVarDecStmtNode getVarDeclNode(String name) {
         return currScope.getVarInfo(name);
     }
 

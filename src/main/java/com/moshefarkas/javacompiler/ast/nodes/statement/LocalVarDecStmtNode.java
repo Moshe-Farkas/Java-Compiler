@@ -1,13 +1,17 @@
 package com.moshefarkas.javacompiler.ast.nodes.statement;
 
-import com.moshefarkas.javacompiler.VarInfo;
+import org.objectweb.asm.Type;
+
 import com.moshefarkas.javacompiler.ast.AstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 
 public class LocalVarDecStmtNode extends StatementNode {
     
     public ExpressionNode initializer; 
-    public VarInfo var;
+    public Type varType;
+    public String varName;
+    public boolean hasValue = false;
+    public int localIndex = -1;
 
     public boolean hasInitializer() {
         return initializer != null;
@@ -18,8 +22,12 @@ public class LocalVarDecStmtNode extends StatementNode {
         addChild(initializer);
     }
 
-    public void setVar(VarInfo var) {
-        this.var = var;
+    public void setVarName(String varName) {
+        this.varName = varName;
+    }
+
+    public void setType(Type type) {
+        this.varType = type;
     }
 
     @Override
@@ -29,6 +37,6 @@ public class LocalVarDecStmtNode extends StatementNode {
 
     @Override 
     public String toString() {
-        return "var: " + var + ", initializer: " + initializer;
+        return "var: " + varName + ", initializer: " + initializer;
     }
 }
