@@ -53,8 +53,8 @@ public class MethodManager {
 
     private Map<String, Method> methods;
    
-    public void createNewMethod(String methodName, MethodNode methodInfo) {
-        methods.put(methodName, new Method(methodInfo));
+    public void createNewMethod(String methodName, MethodNode methodNode, boolean isStaticMeth) { 
+        methods.put(methodName, new Method(methodNode, isStaticMeth));
     }
 
     public LocalVarSymbolTable getSymbolTable(String methodName) {

@@ -30,6 +30,7 @@ public class Compiler {
             classNames[i] = sourceFiles[i].replace(".java", "");
         }
         generateSymbolTables();
+        printClasses();
         // printClassSymbols();
         semanticanalysis();
 

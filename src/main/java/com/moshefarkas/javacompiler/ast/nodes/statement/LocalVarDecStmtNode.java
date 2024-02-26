@@ -37,6 +37,15 @@ public class LocalVarDecStmtNode extends StatementNode {
 
     @Override 
     public String toString() {
-        return "var: " + varName + ", initializer: " + initializer;
+        return "name: " 
+            + varName 
+            + ", \ninitializer: " 
+            + initializer 
+            + ", \ntype: " 
+            + varType 
+            + ", \nlocalindex: " 
+            + localIndex 
+            + ", \nhasvalue: "
+            + hasValue;
     }
 }

@@ -12,6 +12,13 @@ public class LocalVarSymbolTable {
     private LocalVarScope currScope;
     private Map<Integer, LocalVarScope> scopes;
     private int currScopeLevel;
+    private int localIndexStartingPoint;
+
+    public LocalVarSymbolTable (int localIndexStartingPoint) {
+        this.localIndexStartingPoint = localIndexStartingPoint;
+        scopes = new HashMap<>();
+        currScopeLevel = 0;
+    }
 
     public void printScope() {
         System.out.println(currScope);
@@ -20,7 +27,7 @@ public class LocalVarSymbolTable {
     public void createNewScope() {
         LocalVarScope newScope;
         if (currScope == null) {
-            newScope = new LocalVarScope(0, null);
+            newScope = new LocalVarScope(localIndexStartingPoint, null);
         } else {
             newScope = new LocalVarScope(currScope.getNextLocalIndex(), currScope);
         }
@@ -46,11 +53,6 @@ public class LocalVarSymbolTable {
 
     public void enterScope() {
         currScope = scopes.get(currScopeLevel++);
-    }
-
-    public LocalVarSymbolTable () {
-        scopes = new HashMap<>();
-        currScopeLevel = 0;
     }
 
     public LocalVarDecStmtNode getVarDeclNode(String name) {

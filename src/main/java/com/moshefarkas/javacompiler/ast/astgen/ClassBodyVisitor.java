@@ -265,15 +265,25 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         // formalParameter
         //     : variableModifier* unannType variableDeclaratorId
         //     ;
-        LocalVarDecStmtNode varNode = new LocalVarDecStmtNode();
-        Type type = (Type)visit(ctx.unannType());
-        String paramName = ctx.variableDeclaratorId().Identifier().getText();
 
-        varNode.hasValue = true;
-        varNode.setVarName(paramName);
-        varNode.setType(type);
-        varNode.lineNum = ctx.getStart().getLine();
-        return varNode;
+        // Type type = (Type)visit(ctx.unannType());
+        // String paramName = ctx.variableDeclaratorId().Identifier().getText();
+
+        // varNode.hasValue = true;
+        // varNode.setVarName(paramName);
+        // varNode.setType(type);
+
+        LocalVarDecStmtNode paramNode = new LocalVarDecStmtNode();
+
+        VarVisitor varVisitor = new VarVisitor();
+        varVisitor.visit(ctx);
+
+        paramNode.setInitializer(varVisitor.initializer);
+        paramNode.setType(varVisitor.varType);
+        paramNode.setVarName(varVisitor.varName);
+        paramNode.hasValue = true;
+        paramNode.lineNum = ctx.getStart().getLine();
+        return paramNode;
     }
 
     @Override

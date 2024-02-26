@@ -1,5 +1,7 @@
 package com.moshefarkas.javacompiler.semanticanalysis;
 
+import org.objectweb.asm.Opcodes;
+
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
@@ -54,7 +56,11 @@ public class SymbolTableGenVisitor extends BaseAstVisitor {
             );
             return;
         } else {
-            currentClass.methodManager.createNewMethod(node.methodName, node);
+            currentClass.methodManager.createNewMethod(
+                node.methodName, 
+                node,
+                node.methodModifiers.contains(Opcodes.ACC_STATIC) // need to know wether or not to
+            );                                                    // start at 0 or 1 index
         }
         currMethod = node.methodName;
         super.visitMethodNode(node);

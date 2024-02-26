@@ -6,9 +6,9 @@ public class Method {
     public LocalVarSymbolTable symbolTable;
     public MethodNode methodNode;
 
-    public Method(MethodNode methodNode) {
+    public Method(MethodNode methodNode, boolean isStaticMethod) {
         this.methodNode = methodNode;
-        symbolTable = new LocalVarSymbolTable();
+        symbolTable = new LocalVarSymbolTable(isStaticMethod ? 0 : 1);
     }
 
     @Override
