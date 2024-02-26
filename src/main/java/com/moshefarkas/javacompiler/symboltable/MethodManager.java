@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.objectweb.asm.Type;
 
-import com.moshefarkas.javacompiler.MethodInfo;
+import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 
 public class MethodManager {
     // private static MethodManager instance;
@@ -53,7 +53,7 @@ public class MethodManager {
 
     private Map<String, Method> methods;
    
-    public void createNewMethod(String methodName, MethodInfo methodInfo) {
+    public void createNewMethod(String methodName, MethodNode methodInfo) {
         methods.put(methodName, new Method(methodInfo));
     }
 
@@ -62,7 +62,7 @@ public class MethodManager {
     }
 
     public Type getReturnType(String methodName) {
-        return methods.get(methodName).methodInfo.returnType;
+        return methods.get(methodName).methodNode.returnType;
     }
 
     public boolean hasMethod(String methodName) {
@@ -71,9 +71,9 @@ public class MethodManager {
 
     public Type[] getParamTypes(String methodName) {
         Method calle = methods.get(methodName);
-        Type[] types = new Type[calle.methodInfo.parameters.size()];
+        Type[] types = new Type[calle.methodNode.params.size()];
         for (int i = 0; i < types.length; i++) {
-            types[i] = calle.methodInfo.parameters.get(i).varType;
+            types[i] = calle.methodNode.params.get(i).varType;
         }
         return types;
     }

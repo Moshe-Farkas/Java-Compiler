@@ -40,7 +40,7 @@ public class Clazz {
             return false; 
         }
         Method method = methodManager.getMethod(methodName);
-        for (int modifer : method.methodInfo.methodModifiers) {
+        for (int modifer : method.methodNode.methodModifiers) {
             if (modifer == Opcodes.ACC_PUBLIC)
                 return true;
         }

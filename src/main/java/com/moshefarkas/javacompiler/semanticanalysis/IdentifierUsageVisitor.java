@@ -89,6 +89,9 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
         // first check local then fields.
+        currentMethodSymbolTable(currMethod)
+            .getVarDeclNode(node.identifier.varName)
+            .hasValue = true;
         visit(node.identifier);
         visit(node.assignmentValue);
 

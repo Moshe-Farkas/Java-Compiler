@@ -1,6 +1,5 @@
 package com.moshefarkas.javacompiler.semanticanalysis;
 
-import com.moshefarkas.javacompiler.MethodInfo;
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
@@ -55,12 +54,7 @@ public class SymbolTableGenVisitor extends BaseAstVisitor {
             );
             return;
         } else {
-            MethodInfo methodInfo = new MethodInfo();
-            methodInfo.methodName = node.methodName;
-            methodInfo.parameters = node.params;
-            methodInfo.returnType = node.returnType;
-            methodInfo.methodModifiers = node.methodModifiers;
-            currentClass.methodManager.createNewMethod(node.methodName, methodInfo);
+            currentClass.methodManager.createNewMethod(node.methodName, node);
         }
         currMethod = node.methodName;
         super.visitMethodNode(node);

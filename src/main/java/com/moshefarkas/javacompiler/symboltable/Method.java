@@ -1,18 +1,18 @@
 package com.moshefarkas.javacompiler.symboltable;
 
-import com.moshefarkas.javacompiler.MethodInfo;
+import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 
 public class Method {
     public LocalVarSymbolTable symbolTable;
-    public MethodInfo methodInfo;
+    public MethodNode methodNode;
 
-    public Method(MethodInfo methodInfo) {
-        this.methodInfo = methodInfo;
+    public Method(MethodNode methodNode) {
+        this.methodNode = methodNode;
         symbolTable = new LocalVarSymbolTable();
     }
 
     @Override
     public String toString() {
-        return methodInfo + ", " + symbolTable;
+        return methodNode + ", " + symbolTable;
     }
 }
