@@ -12,7 +12,7 @@ public class SemanticAnalysis extends BaseAstVisitor {
 
     public class SemanticError extends RuntimeException {}
 
-    protected SemanticAnalysis() {}
+    // protected SemanticAnalysis() {}
     public SemanticAnalysis(String className) throws SemanticError {
         test_error = null;
         hadErr = false;
@@ -44,7 +44,7 @@ public class SemanticAnalysis extends BaseAstVisitor {
         INVALID_ARRAY_ACCESS,
     } 
 
-    protected  static ErrorType test_error;
+    protected ErrorType test_error;
     protected Clazz currentClass;
 
     public static boolean hadErr = false;

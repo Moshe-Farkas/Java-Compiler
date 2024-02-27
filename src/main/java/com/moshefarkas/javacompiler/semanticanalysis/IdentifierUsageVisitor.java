@@ -23,6 +23,11 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
     // checking if a var is subscriptable, missing return statement,
     // calling undefined method, calling method with wrong num of args,
     // invalid method header, and using break/continue outside a loop
+
+    public IdentifierUsageVisitor(String className) {
+        super(className);
+    }
+
     private String currMethod;
 
     private boolean seenReturnStmt;
@@ -88,13 +93,20 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
-        currentMethodSymbolTable(currMethod)
-            .getVarDeclNode(node.identifier.varName)
-            .hasValue = true;
-        // since about to assign to a var we need to set hasValue to 
-        // true when visiting it in idenexpr it wont see it as an uninitilaized var
-        visit(node.identifier);
-        visit(node.assignmentValue);
+        if (!currentMethodSymbolTable(currMethod).hasVar(node.identifier.varName)) {
+            // need to do this check in case node iden is not defined. the reason
+            // we dont visit iden before is because it needs to have its hasValue 
+            // set to true before
+            error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, node.identifier.varName);
+        } else {
+            currentMethodSymbolTable(currMethod)
+                .getVarDeclNode(node.identifier.varName)
+                .hasValue = true;
+            // since about to assign to a var we need to set hasValue to 
+            // true when visiting it in idenexpr it wont see it as an uninitilaized var
+            visit(node.identifier);
+            visit(node.assignmentValue);
+        }
     }
 
     @Override

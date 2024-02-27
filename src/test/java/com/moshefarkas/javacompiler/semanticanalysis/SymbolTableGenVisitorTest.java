@@ -14,8 +14,8 @@ public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
     private Clazz clazz;
     
     @Override
-    protected void compileInsctructions(String source) {
-        super.compileInsctructions(source);
+    protected void compileInstructions(String source) {
+        super.compileInstructions(source);
         SymbolTableGenVisitor.createSymbolTable(ast);
     }
 
@@ -33,7 +33,7 @@ public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
 
     @Test 
     public void testDuplicateVar() {
-        compileInsctructions("int a; int a;");
+        compileInstructions("int a; int a;");
         assertEquals(ErrorType.DUPLICATE_VAR, SymbolTableGenVisitor.test_error);
 
         compileMethodDecl("void sd(int a, int a)");
@@ -42,10 +42,10 @@ public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
         compileMethodDecl("void sd(int a, float a)");
         assertEquals(ErrorType.DUPLICATE_VAR, SymbolTableGenVisitor.test_error);
 
-        compileInsctructions("int a; if (true) {int b;} int b;");
+        compileInstructions("int a; if (true) {int b;} int b;");
         assertEquals(null, SymbolTableGenVisitor.test_error);
 
-        compileInsctructions("int a; if (true) {int a;}");
+        compileInstructions("int a; if (true) {int a;}");
         assertEquals(ErrorType.DUPLICATE_VAR, SymbolTableGenVisitor.test_error);
     }
 

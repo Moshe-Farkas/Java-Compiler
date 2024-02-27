@@ -24,10 +24,13 @@ import com.moshefarkas.javacompiler.ast.nodes.statement.IfStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.ReturnStmt;
 import com.moshefarkas.javacompiler.ast.nodes.statement.WhileStmtNode;
-import com.moshefarkas.javacompiler.symboltable.MethodManager;
 import com.moshefarkas.javacompiler.symboltable.LocalVarSymbolTable;
 
 public class TypeCheckVisitor extends SemanticAnalysis {
+
+    public TypeCheckVisitor(String className) {
+        super(className);
+    }
 
     private final Type emptyArrayType = Type.getType("[L;");
 
