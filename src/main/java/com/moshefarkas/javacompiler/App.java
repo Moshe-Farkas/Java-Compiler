@@ -1,7 +1,6 @@
 package com.moshefarkas.javacompiler;
 
 public class App {
-
     public static void main( String[] args ) throws Exception {
         // class A {
         //     int aField;

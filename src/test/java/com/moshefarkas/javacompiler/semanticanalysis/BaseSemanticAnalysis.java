@@ -15,8 +15,6 @@ public class BaseSemanticAnalysis {
                                 "public void intArr1Dim(int[] e2){}"     +
                                 "public void intArr2Dim(int[][] e2){}"   +
                                 "public void floatArr1Dim(float[] e2){}";
-    
-    private String startSourceMethods = "public class Demo {";
         
     private void compile(String source) {
         ClassManager.getIntsance().test_reset();
@@ -43,6 +41,15 @@ public class BaseSemanticAnalysis {
 
     protected void compileMethod(String method) {
         String source = "public class Demo {" + method + "}";
+        compile(source);
+    }
+
+    protected void compileFields(String[] fields) {
+        String temp = "";
+        for (String field : fields) {
+            temp += field;
+        }
+        String source = "public class Demo {" + temp + "}";
         compile(source);
     }
 }

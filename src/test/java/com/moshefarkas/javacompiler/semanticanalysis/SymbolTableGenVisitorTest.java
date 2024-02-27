@@ -31,6 +31,12 @@ public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
         clazz = SymbolTableGenVisitor.createSymbolTable(ast);
     }
 
+    @Override
+    protected void compileFields(String[] fields)  {
+        super.compileFields(fields);
+        clazz = SymbolTableGenVisitor.createSymbolTable(ast);
+    }
+
     @Test 
     public void testDuplicateVar() {
         compileInstructions("int a; int a;");
@@ -80,5 +86,14 @@ public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
         assertTrue(m.symbolTable.getVarDeclNode("m").localIndex == 3);
         m.symbolTable.exitScope();
         assertTrue(m.symbolTable.getVarDeclNode("p").localIndex == 3);
+    }
+
+    @Test 
+    public void testDuplicateField() {
+        compileFields(new String[] {"private static char p; public char p;"});
+        assertEquals(ErrorType.DUPLICATE_FIELD, SymbolTableGenVisitor.test_error);
+
+        compileFields(new String[] {"private static char p; public int p;"});
+        assertEquals(ErrorType.DUPLICATE_FIELD, SymbolTableGenVisitor.test_error);
     }
 }

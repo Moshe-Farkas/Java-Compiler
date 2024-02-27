@@ -26,19 +26,27 @@ public class Compiler {
         }
 
         classNames = new String[asts.length];
+        boolean hadSymbolTableErr = false;
         for (int i = 0; i < asts.length; i++) {
             ClassNode ast = asts[i];
             classNames[i] = ast.className;
             Clazz classSymbolTable = SymbolTableGenVisitor.createSymbolTable(ast);
+            if (SymbolTableGenVisitor.hadErr) {
+                hadSymbolTableErr = true;
+            }
             ClassManager.getIntsance().addNewClass(ast.className, classSymbolTable);
         }
+        if (hadSymbolTableErr) {
+            System.exit(1);
+        }
+        printClasses();
+
 
         semanticanalysis();
         if (SemanticAnalysis.hadErr) {
             System.exit(0);
         }
         genCode();
-        // printClasses();
     }
 
     private static void semanticanalysis() {
