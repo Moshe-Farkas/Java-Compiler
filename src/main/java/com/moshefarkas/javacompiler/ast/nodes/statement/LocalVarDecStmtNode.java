@@ -3,9 +3,10 @@ package com.moshefarkas.javacompiler.ast.nodes.statement;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.ast.AstVisitor;
+import com.moshefarkas.javacompiler.ast.nodes.IVarDecl;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 
-public class LocalVarDecStmtNode extends StatementNode {
+public class LocalVarDecStmtNode extends StatementNode implements IVarDecl {
     
     public ExpressionNode initializer; 
     public Type varType;
@@ -17,17 +18,15 @@ public class LocalVarDecStmtNode extends StatementNode {
         return initializer != null;
     }
 
-    public void setInitializer(ExpressionNode initializer) {
+    @Override
+    public void setInitializerNode(ExpressionNode initializer) {
         this.initializer = initializer;
         addChild(initializer);
     }
 
-    public void setVarName(String varName) {
-        this.varName = varName;
-    }
-
-    public void setType(Type type) {
-        this.varType = type;
+    @Override
+    public ExpressionNode getInitializerNode() {
+        return initializer;
     }
 
     @Override
@@ -47,5 +46,35 @@ public class LocalVarDecStmtNode extends StatementNode {
             + localIndex 
             + ", \nhasvalue: "
             + hasValue;
+    }
+
+    @Override
+    public String getName() {
+        return varName;
+    }
+
+    @Override
+    public Type getType() {
+        return varType;
+    }
+
+    @Override
+    public void setType(Type type) {
+        this.varType = type;
+    }
+
+    @Override
+    public boolean hasValue() {
+        return hasValue;
+    }
+
+    @Override
+    public void setName(String name) {
+        varName = name;
+    }
+
+    @Override
+    public void setHasValue(boolean hasValue) {
+        this.hasValue = hasValue;
     }
 }

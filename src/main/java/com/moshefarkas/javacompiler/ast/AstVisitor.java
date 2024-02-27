@@ -3,6 +3,7 @@ package com.moshefarkas.javacompiler.ast;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.ConstructorNode;
 import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
+import com.moshefarkas.javacompiler.ast.nodes.IVarDecl;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrayInitializerNode;

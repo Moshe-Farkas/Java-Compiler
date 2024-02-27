@@ -12,7 +12,6 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
 
     private TypeCheckVisitor visitor;
 
-
     @Override 
     protected void compileInstructions(String source) {
         super.compileInstructions(source);
@@ -26,6 +25,16 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
     @Override 
     protected void compileMethod(String method) {
         super.compileMethod(method);
+        Clazz c = SymbolTableGenVisitor.createSymbolTable(ast);
+        ClassManager.getIntsance().addNewClass(c.className, c);
+        
+        visitor = new TypeCheckVisitor(c.className);
+        visitor.visitClassNode(ast);
+    }
+
+    @Override 
+    protected void compileFields(String[] fields) {
+        super.compileFields(fields);
         Clazz c = SymbolTableGenVisitor.createSymbolTable(ast);
         ClassManager.getIntsance().addNewClass(c.className, c);
         
@@ -276,6 +285,15 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
 
         compileInstructions("int[][] a = new int[9][9]; boolean b = false; a[9][b] = 45;");
         assertEquals(ErrorType.MISMATCHED_TYPE, visitor.test_error);
+    }
+
+    @Test 
+    public void testFieldAssignment() {
+        compileFields(new String[] {"public int a = 5f;"});
+        assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
+
+        compileFields(new String[] {"public int a = (int)5f;"});
+        assertEquals(null, visitor.test_error);
     }
 
 //     @Test 

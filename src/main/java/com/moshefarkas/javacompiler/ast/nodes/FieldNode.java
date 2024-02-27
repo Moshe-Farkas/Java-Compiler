@@ -7,7 +7,7 @@ import org.objectweb.asm.Type;
 import com.moshefarkas.javacompiler.ast.AstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ExpressionNode;
 
-public class FieldNode extends AstNode {
+public class FieldNode extends AstNode implements IVarDecl {
 
     public List<Integer> fieldModifiers;
     public String fieldName;
@@ -19,25 +19,48 @@ public class FieldNode extends AstNode {
         this.fieldModifiers = fieldModifiers;
     }
 
-    public void setFieldName(String fieldName) {
-        this.fieldName = fieldName;
-    }
-
-    public void setFieldType(Type fieldType) {
-        this.fieldType = fieldType;
-    }
-
-    public void setInitializer(ExpressionNode initializer) {
-        this.initializer = initializer;
-        addChild(initializer);
-    }
-
-    public boolean hasInitializer() {
-        return initializer != null;
-    }
-
     @Override
     public void accept(AstVisitor v) {
         v.visitFieldNode(this);
+    }
+
+    @Override
+    public String getName() {
+        return fieldName;
+    }
+
+    @Override
+    public Type getType() {
+        return fieldType;
+    }
+
+    @Override
+    public boolean hasValue() {
+        return hasValue;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.fieldName = name;
+    }
+
+    @Override
+    public void setType(Type type) {
+        this.fieldType = type;
+    }
+
+    @Override
+    public void setHasValue(boolean hasValue) {
+        this.hasValue = hasValue;
+    }
+
+    @Override
+    public ExpressionNode getInitializerNode() {
+        return initializer;
+    }
+
+    @Override
+    public void setInitializerNode(ExpressionNode initializer) {
+        this.initializer = initializer;
     }
 }

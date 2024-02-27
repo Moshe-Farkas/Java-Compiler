@@ -21,24 +21,18 @@ public class FileParser implements IParser {
         if (!fileName.endsWith(".java")) {
             throw new Exception();
         }
-        try {
-            FileInputStream fis = new FileInputStream(fileName);
-            CharStream input = CharStreams.fromStream(fis);
-            Java8Lexer lexer = new Java8Lexer(input);
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-            Java8Parser parser = new Java8Parser(tokens);
-            ParseTree tree = parser.compilationUnit(); 
-            if (parser.getNumberOfSyntaxErrors() > 0) {
-                throw new Exception();
-            }
-            ClassVisitor visitor = new ClassVisitor();
-            visitor.visit(tree);
-
-            return visitor.currentClass;
-        } catch (FileNotFoundException e) {
-            throw new Exception();
-        } catch (IOException e) {
+        FileInputStream fis = new FileInputStream(fileName);
+        CharStream input = CharStreams.fromStream(fis);
+        Java8Lexer lexer = new Java8Lexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        Java8Parser parser = new Java8Parser(tokens);
+        ParseTree tree = parser.compilationUnit(); 
+        if (parser.getNumberOfSyntaxErrors() > 0) {
             throw new Exception();
         }
+        ClassVisitor visitor = new ClassVisitor();
+        visitor.visit(tree);
+
+        return visitor.currentClass;
     }
 }

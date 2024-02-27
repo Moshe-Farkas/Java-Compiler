@@ -1,8 +1,11 @@
 package com.moshefarkas.javacompiler;
 
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.codegen.ClassGenVisitor;
-import com.moshefarkas.javacompiler.codegen.CodeGen;
 import com.moshefarkas.javacompiler.parsing.FileParser;
 import com.moshefarkas.javacompiler.semanticanalysis.IdentifierUsageVisitor;
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis;
@@ -39,13 +42,9 @@ public class Compiler {
         if (hadSymbolTableErr) {
             System.exit(1);
         }
-        printClasses();
-
-
         semanticanalysis();
-        if (SemanticAnalysis.hadErr) {
-            System.exit(0);
-        }
+
+        printClasses();
         genCode();
     }
 
@@ -58,6 +57,9 @@ public class Compiler {
             }
             TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor(className);
             typeCheckVisitor.visit(ClassManager.getIntsance().getClass(className).classNode);
+            if (SemanticAnalysis.hadErr) {
+                System.exit(0);
+            }
         }
     }
 
@@ -65,6 +67,17 @@ public class Compiler {
         for (String className : classNames) {
             ClassGenVisitor classGenVisitor = new ClassGenVisitor(className);
             classGenVisitor.visit(ClassManager.getIntsance().getClass(className).classNode);
+            writeToFile(className + ".class", classGenVisitor.toByteArray());
+        }
+    }
+
+    private static void writeToFile(String filePath, byte[] classData) {
+        try {
+            FileOutputStream dos = new FileOutputStream(filePath);
+            dos.write(classData);
+            dos.close();
+        } catch (IOException e) {
+            System.out.println(e);
         }
     }
 

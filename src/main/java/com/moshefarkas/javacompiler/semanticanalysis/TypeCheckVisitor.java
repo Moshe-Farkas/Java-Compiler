@@ -140,18 +140,18 @@ public class TypeCheckVisitor extends SemanticAnalysis {
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
-        // Type idenType = currentMethodSymbolTable(currMethod).getVarType(node.varName);
         Type idenType = resolveType(node.varName);
-        
         typeStack.push(idenType);
         node.setExprType(idenType);
     }
 
     private Type resolveType(String varName) {
-        if (currentMethodSymbolTable(currMethod).hasVar(varName)) {
-            return currentMethodSymbolTable(currMethod).getVarType(varName);
+        if (currentClass.hasLocalVar(currMethod, varName)) {
+            return currentMethodSymbolTable(currMethod)
+                .getVarDeclNode(varName)
+                .getType();
         } else {
-            return currentClass.fields.getElement(varName).fieldType;
+            return currentClass.fields.getElement(varName).getType();
         }
     }
 
@@ -442,13 +442,13 @@ public class TypeCheckVisitor extends SemanticAnalysis {
     @Override
     public void visitFieldNode(FieldNode node) {
         // a node is like a local var statment
-        if (!node.hasInitializer()) {
+        if (node.getInitializerNode() == null) {
             return;
         }
         try {
             visit(node.initializer);
             Type initializerType = typeStack.pop();
-            if (!validAssignment(node.fieldType, initializerType)) {
+            if (!validAssignment(node.getType(), initializerType)) {
                 error(
                     ErrorType.MISMATCHED_ASSIGNMENT_TYPE, 
                     node.lineNum, 

@@ -27,10 +27,11 @@ public class FieldVisitor extends Java8ParserBaseVisitor<Void> {
         varVisitor.visit(ctx);
 
         fieldNode = new FieldNode();
-        fieldNode.setFieldName(varVisitor.varName);
-        fieldNode.setFieldType(varVisitor.varType);
+        fieldNode.setName(varVisitor.varName);
+        fieldNode.setType(varVisitor.varType);
         fieldNode.setFieldModifiers(fieldModifiers);
-        fieldNode.setInitializer(varVisitor.initializer);
+        fieldNode.setInitializerNode(varVisitor.initializer);
+        fieldNode.setHasValue(varVisitor.initializer != null);
         return null;
     }
     

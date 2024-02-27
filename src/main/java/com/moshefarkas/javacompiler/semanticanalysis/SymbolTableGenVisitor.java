@@ -24,6 +24,7 @@ public class SymbolTableGenVisitor extends BaseAstVisitor {
         test_error = null;
         currentClass = new Clazz(ast);
         new SymbolTableGenVisitor().visit(ast);
+        currentClass.className = ast.className;
         return currentClass;
     }
     protected static ErrorType test_error;

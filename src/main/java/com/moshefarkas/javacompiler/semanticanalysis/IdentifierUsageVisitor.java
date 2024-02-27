@@ -6,6 +6,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
+import com.moshefarkas.javacompiler.ast.nodes.IVarDecl;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.ArrAccessExprNode;
 import com.moshefarkas.javacompiler.ast.nodes.expression.AssignExprNode;
@@ -39,11 +40,20 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
+        // if local -> check if hasValue
         String varName = node.varName;
-        LocalVarSymbolTable methodSymbolTable  = currentMethodSymbolTable(currMethod);
-        if (!methodSymbolTable.hasVar(varName)) {
+        IVarDecl varDecl = null; 
+
+        if (currentClass.hasLocalVar(currMethod, varName)) {
+            varDecl = currentMethodSymbolTable(currMethod).getVarDeclNode(varName);
+        } else if (currentClass.hasField(varName)) {
+            varDecl = currentClass.fields.getElement(varName);
+        } else {
             error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, varName);
-        } else if (methodSymbolTable.getVarDeclNode(varName).hasValue == false) {
+            return;
+        }
+
+        if (varDecl.hasValue() == false) {
             error(
                 ErrorType.UNINITIALIZED_VAR, 
                 node.lineNum, 
@@ -54,23 +64,33 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     @Override 
     public void visitArrAccessExprNode(ArrAccessExprNode node) {
-        LocalVarDecStmtNode varNode = currentMethodSymbolTable(currMethod).getVarDeclNode(node.varName);
+        // can be a field decl or var decl node
+        IVarDecl varDecl = null;
+        if (currentClass.hasField(node.varName)) {
+            varDecl = currentClass.fields.getElement(node.varName);
+        } else if (currentClass.hasLocalVar(currMethod, node.varName)) {
+            varDecl = currentMethodSymbolTable(currMethod).getVarDeclNode(node.varName);
+        } else {
+            // case of iden trying to subscript doesnt even exist
+            error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, node.varName);
+            return;
+        }
 
-        if (varNode.varType.getSort() != Type.ARRAY) {
+        if (varDecl.getType().getSort() != Type.ARRAY) {
             error(
                 ErrorType.INVALID_ARRAY_ACCESS, 
                 node.lineNum, 
-                errorString("Can't subscript non array var `%s`.", varNode.varName)
+                errorString("Can't subscript non array var `%s`.", varDecl.getName())
             );
         } else {
-            validateArrayAccessLevels(node, varNode);
+            validateArrayAccessLevels(node, varDecl);
         }
     }
 
-    private void validateArrayAccessLevels(ArrAccessExprNode node, LocalVarDecStmtNode varAccNode) {
+    private void validateArrayAccessLevels(ArrAccessExprNode node, IVarDecl arrVarDecl) {
         // checks that array access did not try to access a dimension 
         // that does not exist
-        int maxDims = varAccNode.varType.getDimensions();
+        int maxDims = arrVarDecl.getType().getDimensions();
         int accessLevels = 1;
         ArrAccessExprNode iterator = node;
         while (iterator.identifer instanceof ArrAccessExprNode) {
@@ -83,7 +103,7 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
                 node.lineNum, 
                 errorString(
                     "Max array access level for var `%s` is `%s` but got `%s`.", 
-                    varAccNode.varName,
+                    arrVarDecl.getName(),
                     maxDims, 
                     accessLevels
                 )
@@ -93,29 +113,28 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
-        if (!currentMethodSymbolTable(currMethod).hasVar(node.identifier.varName)) {
-            // need to do this check in case node iden is not defined. the reason
-            // we dont visit iden before is because it needs to have its hasValue 
-            // set to true before
-            error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, node.identifier.varName);
+        String varName = node.identifier.varName;
+        IVarDecl varDecl;
+        if (currentClass.hasLocalVar(currMethod, varName)) {
+            varDecl = currentMethodSymbolTable(currMethod).getVarDeclNode(varName);
+        } else if (currentClass.hasField(varName)) {
+            varDecl = currentClass.fields.getElement(varName);
         } else {
-            currentMethodSymbolTable(currMethod)
-                .getVarDeclNode(node.identifier.varName)
-                .hasValue = true;
-            // since about to assign to a var we need to set hasValue to 
-            // true when visiting it in idenexpr it wont see it as an uninitilaized var
-            visit(node.identifier);
-            visit(node.assignmentValue);
+            error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, node.identifier.varName);
+            return;
         }
+        
+        varDecl.setHasValue(true);
+        visit(node.identifier);
+        visit(node.assignmentValue);
     }
 
     @Override
     public void visitLocalVarDecStmtNode(LocalVarDecStmtNode node) {
         if (node.hasInitializer()) {
-            
             currentMethodSymbolTable(currMethod)
                 .getVarDeclNode(node.varName)
-                .hasValue = true;
+                .setHasValue(true);
         }
         super.visitLocalVarDecStmtNode(node);
     }
@@ -238,6 +257,9 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
     @Override
     public void visitFieldNode(FieldNode node) {
         // validateFieldModifiers(node.fieldModifiers);
+        if (node.getInitializerNode() != null) {
+            node.setHasValue(true);
+        }
         super.visitFieldNode(node);
     }
 

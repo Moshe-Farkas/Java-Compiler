@@ -59,10 +59,6 @@ public class LocalVarSymbolTable {
         return currScope.getVarInfo(name);
     }
 
-    public Type getVarType(String name) {
-        return currScope.getVarType(name);
-    }
-
     @Override
     public String toString() {
         StringBuilder res = new StringBuilder();

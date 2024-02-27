@@ -30,7 +30,7 @@ public class AstPrintVisitor extends BaseAstVisitor {
 
     @Override
     public void visitFieldNode(FieldNode node) {
-        System.out.println("line: " + node.lineNum);
+        System.out.println("field on line: " + node.lineNum);
         System.out.println("\tname: " + node.fieldName);
         System.out.println("\ttype: " + node.fieldType);
         System.out.println("\tmods: " + node.fieldModifiers);

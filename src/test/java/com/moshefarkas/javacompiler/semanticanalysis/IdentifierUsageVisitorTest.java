@@ -66,6 +66,9 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
 
         compileInstructions("if (true) {int b = 8;} else if (b == 9) { }");
         assertEquals(ErrorType.UNDEFINED_IDENTIFIER, visitor.test_error);
+
+        compileInstructions("int a = b[0];");
+        assertEquals(ErrorType.UNDEFINED_IDENTIFIER, visitor.test_error);
     }
 
     @Test

@@ -12,7 +12,6 @@ public class SemanticAnalysis extends BaseAstVisitor {
 
     public class SemanticError extends RuntimeException {}
 
-    // protected SemanticAnalysis() {}
     public SemanticAnalysis(String className) throws SemanticError {
         test_error = null;
         hadErr = false;

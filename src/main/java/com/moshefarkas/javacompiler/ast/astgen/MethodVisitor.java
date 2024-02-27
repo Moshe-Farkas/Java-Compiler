@@ -153,9 +153,9 @@ public class MethodVisitor extends Java8ParserBaseVisitor<Void> {
         varVisitor.visitLocalVariableDeclaration(ctx);
         LocalVarDecStmtNode localVarDeclNode = new LocalVarDecStmtNode();
 
-        localVarDeclNode.setVarName(varVisitor.varName);
+        localVarDeclNode.setName(varVisitor.varName);
         localVarDeclNode.setType(varVisitor.varType);
-        localVarDeclNode.setInitializer(varVisitor.initializer);
+        localVarDeclNode.setInitializerNode(varVisitor.initializer);
         localVarDeclNode.lineNum = ctx.getStart().getLine();
         statementStack.push(localVarDeclNode);
         return null;

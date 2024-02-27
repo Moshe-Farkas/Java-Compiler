@@ -41,10 +41,6 @@ public class MethodGenVisitor extends CodeGen {
         this.currMethod = currMethod;
     }
 
-    private boolean isLocalVar(String varName) {
-        return currentMethodSymbolTable(currMethod).hasVar(varName);
-    }
-
     private void emitTypeCast(Type targetType, Type toCastType) {
         if (targetType == toCastType) 
             return;   // no need to cast to same type
@@ -305,27 +301,29 @@ public class MethodGenVisitor extends CodeGen {
 
     @Override
     public void visitIdentifierExprNode(IdentifierExprNode node) {
-        if (isLocalVar(node.varName)) {
-            LocalVarDecStmtNode var = currentMethodSymbolTable(currMethod).getVarDeclNode(node.varName);
-            int op = var.varType.getOpcode(Opcodes.ILOAD);
-            methodVisitor.visitVarInsn(op, var.localIndex);
-        } else {
-            // need to get field
-            FieldNode field = currentClass.fields.getElement(node.varName);
-            methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
-            methodVisitor.visitFieldInsn(
-                Opcodes.GETFIELD,
-                currentClass.className, 
-                node.varName, 
-                field.fieldType.toString() 
-            );
-
-            // visitFieldInsn
-            // public void visitFieldInsn(int opcode,
-            //  String owner,
-            //  String name,
-            //  String descriptor)
+        if (currentClass.hasLocalVar(currMethod, node.varName)) {
+            emitLocalVarLoad(node);
+        } else if (currentClass.hasField(node.varName)) {
+            emitFieldVarLoad(node);
         }
+    }
+
+    private void emitLocalVarLoad(IdentifierExprNode node) {
+        LocalVarDecStmtNode var = currentMethodSymbolTable(currMethod).getVarDeclNode(node.varName);
+        int op = var.varType.getOpcode(Opcodes.ILOAD);
+        methodVisitor.visitVarInsn(op, var.localIndex);
+    }
+
+    private void emitFieldVarLoad(IdentifierExprNode node) {
+        FieldNode fieldVar = currentClass.fields.getElement(node.varName);
+        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+
+        methodVisitor.visitFieldInsn(
+            Opcodes.GETFIELD,
+            currentClass.className,
+            fieldVar.fieldName, 
+            fieldVar.getType().getDescriptor()
+        );
     }
 
     @Override

@@ -4,6 +4,7 @@ import org.objectweb.asm.Opcodes;
 
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
+import com.moshefarkas.javacompiler.ast.nodes.IVarDecl;
 
 public class Clazz {
     public MethodManager methodManager;
@@ -51,6 +52,14 @@ public class Clazz {
             return null;
         }
         return methodManager.getMethod(methodName);
+    }
+
+    public boolean hasField(String varName) {
+        return fields.hasElement(varName);
+    }
+
+    public boolean hasLocalVar(String methodName, String varName) {
+        return methodManager.getMethod(methodName).symbolTable.hasVar(varName);
     }
 
     @Override

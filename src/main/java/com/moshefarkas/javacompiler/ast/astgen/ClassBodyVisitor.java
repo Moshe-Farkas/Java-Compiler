@@ -278,9 +278,9 @@ public class ClassBodyVisitor extends Java8ParserBaseVisitor<Object> {
         VarVisitor varVisitor = new VarVisitor();
         varVisitor.visit(ctx);
 
-        paramNode.setInitializer(varVisitor.initializer);
+        paramNode.setInitializerNode(varVisitor.initializer);
         paramNode.setType(varVisitor.varType);
-        paramNode.setVarName(varVisitor.varName);
+        paramNode.setName(varVisitor.varName);
         paramNode.hasValue = true;
         paramNode.lineNum = ctx.getStart().getLine();
         return paramNode;
