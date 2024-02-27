@@ -42,6 +42,16 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
         visitor.visitClassNode(ast);
     }
 
+    @Override 
+    protected void compileClass(String classData) {
+        super.compileClass(classData);
+        Clazz c = SymbolTableGenVisitor.createSymbolTable(ast);
+        ClassManager.getIntsance().addNewClass(c.className, c);
+        
+        visitor = new TypeCheckVisitor(c.className);
+        visitor.visitClassNode(ast);
+    }
+
     @Test
     public void testMismatchedTypes() {
         compileInstructions("int b = 5f - 6;");
@@ -51,6 +61,27 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
         assertEquals(null, visitor.test_error);
 
         compileInstructions("int c = '4' + 0;");
+        assertEquals(null, visitor.test_error);
+
+        String classData = "public class Demo {";
+        classData +=       "private int a = 5f;";
+        classData +=       "}";
+        compileClass(classData);
+        assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
+
+        classData =  "public class Demo {";
+        classData += "private float a;";
+        classData += "public void met() {int b = a;}";
+        classData += "}";
+        compileClass(classData);
+        assertEquals(ErrorType.MISMATCHED_ASSIGNMENT_TYPE, visitor.test_error);
+
+        classData =  "public class Demo {";
+        classData +=  "private int a = 4;";
+        classData += "private void mm() {float a; a = 9f;}";
+        classData += "}";
+        System.out.println(classData);
+        compileClass(classData);
         assertEquals(null, visitor.test_error);
     }
 

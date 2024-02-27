@@ -43,7 +43,15 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
         visitor.visitClassNode(ast);
     }
 
+    @Override 
+    public void compileClass(String classData) {
+        super.compileClass(classData);
+        Clazz c = SymbolTableGenVisitor.createSymbolTable(ast);
+        ClassManager.getIntsance().addNewClass(c.className, c);
 
+        visitor = new IdentifierUsageVisitor(c.className);
+        visitor.visitClassNode(ast);
+    }
 
     @Test
     public void testUndefinedVar() {
@@ -69,6 +77,13 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
 
         compileInstructions("int a = b[0];");
         assertEquals(ErrorType.UNDEFINED_IDENTIFIER, visitor.test_error);
+
+        String classData = "public class Demo {";
+        classData += "protected int a = 9;";
+        classData += "public void mm() {int m = a;}";
+        classData += "}";
+        compileClass(classData);
+        assertEquals(null, visitor.test_error);
     }
 
     @Test
@@ -92,6 +107,20 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
         assertEquals(null, visitor.test_error);
 
         compileMethod("public static void mmm(int a, int b) {a = b;}");
+        assertEquals(null, visitor.test_error);
+
+        String classData = "public class Demo {";
+        classData += "protected int a;";
+        classData += "public void mm() {int m = a;}";
+        classData += "}";
+        compileClass(classData);
+        assertEquals(ErrorType.UNINITIALIZED_VAR, visitor.test_error);
+
+        classData = "public class Demo {";
+        classData += "protected int a;";
+        classData += "public void mm() {a = 9;}";
+        classData += "}";
+        compileClass(classData);
         assertEquals(null, visitor.test_error);
     }
 

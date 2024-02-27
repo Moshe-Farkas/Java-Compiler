@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis.ErrorType;
+import com.moshefarkas.javacompiler.symboltable.ClassManager;
 import com.moshefarkas.javacompiler.symboltable.Clazz;
 import com.moshefarkas.javacompiler.symboltable.Method;
 
@@ -34,6 +35,12 @@ public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
     @Override
     protected void compileFields(String[] fields)  {
         super.compileFields(fields);
+        clazz = SymbolTableGenVisitor.createSymbolTable(ast);
+    }
+
+    @Override
+    protected void compileClass(String classData)  {
+        super.compileClass(classData);
         clazz = SymbolTableGenVisitor.createSymbolTable(ast);
     }
 
@@ -86,6 +93,20 @@ public class SymbolTableGenVisitorTest extends BaseSemanticAnalysis {
         assertTrue(m.symbolTable.getVarDeclNode("m").localIndex == 3);
         m.symbolTable.exitScope();
         assertTrue(m.symbolTable.getVarDeclNode("p").localIndex == 3);
+    }
+
+    @Test
+    public void testLocalVarIndecesWithFields() {
+        // with same name as fields
+        String classData = "public class Demo{";
+        classData +=       "private int a;";
+        classData +=       "public void mmm() {int a;}";
+        classData +=       "}";
+        compileClass(classData);
+        Method m = clazz.methodManager.getMethod("mmm");
+        m.symbolTable.resetScopes();
+        m.symbolTable.enterScope();
+        assertTrue(m.symbolTable.getVarDeclNode("a").localIndex == 1);
     }
 
     @Test 

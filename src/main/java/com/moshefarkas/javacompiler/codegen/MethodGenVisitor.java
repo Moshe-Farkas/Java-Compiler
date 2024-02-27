@@ -101,13 +101,33 @@ public class MethodGenVisitor extends CodeGen {
         if (node.identifier instanceof ArrAccessExprNode) {
             genArrAccStore((ArrAccessExprNode)node.identifier, node.assignmentValue);
         } else {
-            visit(node.assignmentValue);
-            LocalVarDecStmtNode var = currentMethodSymbolTable(currMethod)
-                .getVarDeclNode(node.identifier.varName);
-
-            emitTypeCast(var.varType, node.assignmentValue.exprType);
-            methodVisitor.visitVarInsn(var.varType.getOpcode(Opcodes.ISTORE), var.localIndex);
+            if (currentClass.hasLocalVar(currMethod, node.identifier.varName)) {
+                emitLocalVarAssign(node);
+            } else if (currentClass.hasField(node.identifier.varName)) {
+                emitFieldVarAssign(node);
+            }
         }
+    }
+
+    private void emitLocalVarAssign(AssignExprNode node) {
+        visit(node.assignmentValue);
+        LocalVarDecStmtNode var = currentMethodSymbolTable(currMethod)
+            .getVarDeclNode(node.identifier.varName);
+
+        emitTypeCast(var.varType, node.assignmentValue.exprType);
+        methodVisitor.visitVarInsn(var.varType.getOpcode(Opcodes.ISTORE), var.localIndex);
+    }
+
+    private void emitFieldVarAssign(AssignExprNode node) {
+        FieldNode fieldVar = currentClass.fields.getElement(node.identifier.varName);
+        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+        visit(node.assignmentValue);
+        methodVisitor.visitFieldInsn(
+            Opcodes.PUTFIELD,
+            currentClass.className,
+            fieldVar.fieldName, 
+            fieldVar.getType().getDescriptor()
+        );
     }
 
     private void genArrAccStore(ArrAccessExprNode node, ExpressionNode assignmentValue) {

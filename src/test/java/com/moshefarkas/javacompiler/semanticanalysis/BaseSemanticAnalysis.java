@@ -52,4 +52,8 @@ public class BaseSemanticAnalysis {
         String source = "public class Demo {" + temp + "}";
         compile(source);
     }
+
+    protected void compileClass(String classData) {
+        compile(classData);
+    }
 }
