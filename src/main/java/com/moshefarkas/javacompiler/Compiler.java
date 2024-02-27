@@ -1,8 +1,13 @@
 package com.moshefarkas.javacompiler;
 
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
+import com.moshefarkas.javacompiler.codegen.ClassGenVisitor;
+import com.moshefarkas.javacompiler.codegen.CodeGen;
 import com.moshefarkas.javacompiler.parsing.FileParser;
+import com.moshefarkas.javacompiler.semanticanalysis.IdentifierUsageVisitor;
+import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis;
 import com.moshefarkas.javacompiler.semanticanalysis.SymbolTableGenVisitor;
+import com.moshefarkas.javacompiler.semanticanalysis.TypeCheckVisitor;
 import com.moshefarkas.javacompiler.symboltable.ClassManager;
 import com.moshefarkas.javacompiler.symboltable.Clazz;
 
@@ -28,7 +33,31 @@ public class Compiler {
             ClassManager.getIntsance().addNewClass(ast.className, classSymbolTable);
         }
 
+        semanticanalysis();
+        if (SemanticAnalysis.hadErr) {
+            System.exit(0);
+        }
+        genCode();
         // printClasses();
+    }
+
+    private static void semanticanalysis() {
+        for (String className : classNames) {
+            IdentifierUsageVisitor identifierUsageVisitor = new IdentifierUsageVisitor(className);
+            identifierUsageVisitor.visit(ClassManager.getIntsance().getClass(className).classNode);
+            if (SemanticAnalysis.hadErr) {
+                System.exit(0);
+            }
+            TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor(className);
+            typeCheckVisitor.visit(ClassManager.getIntsance().getClass(className).classNode);
+        }
+    }
+
+    private static void genCode() {
+        for (String className : classNames) {
+            ClassGenVisitor classGenVisitor = new ClassGenVisitor(className);
+            classGenVisitor.visit(ClassManager.getIntsance().getClass(className).classNode);
+        }
     }
 
     private static void printClassSymbols() {

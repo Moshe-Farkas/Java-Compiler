@@ -1,18 +1,17 @@
 package com.moshefarkas.javacompiler.codegen;
 
-import org.antlr.v4.parse.BlockSetTransformer.ebnfBlockSet_return;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
-import com.moshefarkas.javacompiler.symboltable.ClassManager;
-import com.moshefarkas.javacompiler.symboltable.Clazz;
-import com.moshefarkas.javacompiler.symboltable.LocalVarSymbolTable;
 
 public class ClassGenVisitor extends CodeGen {
+
+    public ClassGenVisitor(String className) {
+        super(className);
+    }
 
     private String currMethod;
 

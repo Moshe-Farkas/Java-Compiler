@@ -17,13 +17,6 @@ public class SemanticAnalysis extends BaseAstVisitor {
         test_error = null;
         hadErr = false;
         currentClass = ClassManager.getIntsance().getClass(className);
-        
-        // IdentifierUsageVisitor iuv = new IdentifierUsageVisitor();
-        // iuv.visitClassNode(currentClass.classNode);
-        // if (hadErr) throw new SemanticError();
-        // TypeCheckVisitor s = new TypeCheckVisitor();
-        // s.visit(currentClass.classNode);
-        // if (hadErr) throw new SemanticError();
     }
 
     protected enum ErrorType {
