@@ -24,8 +24,8 @@ public class ClassManager {
 
     private Map<String, Clazz> classes;
 
-    public void createNewClass(ClassNode node) {
-        classes.put(node.className, new Clazz(node));
+    public void addNewClass(String className, Clazz classInfo) {
+        classes.put(className, classInfo);
     }
 
     public boolean hasClass(String className) {
@@ -36,5 +36,16 @@ public class ClassManager {
         if (!hasClass(className))
             return null;
         return classes.get(className);
+    }
+
+    public void debug_print_classes() {
+        for (Map.Entry<String, Clazz> entry : classes.entrySet()) {
+            System.out.println();
+            System.out.println("-------------------");
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue());
+            System.out.println("-------------------");
+            System.out.println();
+        }
     }
 }

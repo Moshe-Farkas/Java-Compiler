@@ -88,44 +88,13 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
 
     @Override
     public void visitAssignExprNode(AssignExprNode node) {
-        // first check local then fields.
         currentMethodSymbolTable(currMethod)
             .getVarDeclNode(node.identifier.varName)
             .hasValue = true;
+        // since about to assign to a var we need to set hasValue to 
+        // true when visiting it in idenexpr it wont see it as an uninitilaized var
         visit(node.identifier);
         visit(node.assignmentValue);
-
-
-        // if (hasLocalVar(node.identifier.varName)) {
-            
-        //     currentMethodSymbolTable(currMethod)
-        //         .getVarInfo(node.identifier.varName)
-        //         .hasValue = true;
-
-        //     visit(node.identifier);
-        //     visit(node.assignmentValue);
-        // } else if (hasField(node.identifier.varName)) {
-        //     currentClass.fields.getElement(node.identifier.varName)
-        //         .fieldInfo
-        //         .hasValue = true;
-
-        //     visit(node.identifier);
-        //     visit(node.assignmentValue);
-        // } else {
-        //     error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, node.identifier.varName);
-        // }
-
-        // SymbolTable methodSymbolTable  = currentMethodSymbolTable(currMethod);
-        // if (!methodSymbolTable.hasVar(node.identifier.varName)) {
-        //     error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, node.identifier.varName);
-        // } else {
-        //     currentMethodSymbolTable(currMethod)
-        //         .getVarInfo(node.identifier.varName)
-        //         .hasValue = true;
-
-        //     visit(node.identifier);
-        //     visit(node.assignmentValue);
-        // }
     }
 
     @Override

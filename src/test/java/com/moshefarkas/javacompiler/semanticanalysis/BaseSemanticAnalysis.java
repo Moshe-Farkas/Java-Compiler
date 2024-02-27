@@ -1,14 +1,7 @@
 package com.moshefarkas.javacompiler.semanticanalysis;
 
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
-
-import com.moshefarkas.generated.Java8Lexer;
-import com.moshefarkas.generated.Java8Parser;
-import com.moshefarkas.javacompiler.ast.astgen.ClassVisitor;
 import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
+import com.moshefarkas.javacompiler.parsing.StringParser;
 import com.moshefarkas.javacompiler.symboltable.ClassManager;
 
 public class BaseSemanticAnalysis {
@@ -29,67 +22,34 @@ public class BaseSemanticAnalysis {
     
     private String startSourceMethods = "public class Demo {";
         
-    protected void compile(String source) {
-        source = startSource + source + endSource;
-        CharStream input = CharStreams.fromString(source);
-        Java8Lexer lexer = new Java8Lexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        Java8Parser parser = new Java8Parser(tokens);
-        ParseTree tree = parser.compilationUnit(); 
-        if (parser.getNumberOfSyntaxErrors() > 0) {
-            System.exit(1);
+    private void compile(String source) {
+        ClassManager.getIntsance().test_reset();
+        StringParser stringParser = new StringParser();
+        try {
+             ast = stringParser.parse(source);
+        } catch (Exception e) {
+            System.out.println("\n\nhad parse error\n\n");
+            System.exit(99);
         }
-        ClassVisitor astGen = new ClassVisitor();
-        astGen.visit(tree);
-        ast = astGen.currentClass;
-        ClassManager.getIntsance().createNewClass(ast);
+    }
+
+    protected void compileInsctructions(String source) {
+        source = "public class Demo { public void meth() {" + source + "}}";
+        compile(source);
     }
 
     protected void compileMethodModifiers(String modifers) {
         String source = startSourceMethods + modifers + " void meth(){}" + "}";
-        CharStream input = CharStreams.fromString(source);
-        Java8Lexer lexer = new Java8Lexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        Java8Parser parser = new Java8Parser(tokens);
-        ParseTree tree = parser.compilationUnit(); 
-        if (parser.getNumberOfSyntaxErrors() > 0) {
-            System.exit(1);
-        }
-        ClassVisitor astGen = new ClassVisitor();
-        astGen.visit(tree);
-        ast = astGen.currentClass;
-        ClassManager.getIntsance().createNewClass(ast);
+        compile(source);
     }
 
     protected void compileMethodDecl(String methodDecl) {
         String source = startSourceMethods + methodDecl + " {}" + "}";
-        CharStream input = CharStreams.fromString(source);
-        Java8Lexer lexer = new Java8Lexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        Java8Parser parser = new Java8Parser(tokens);
-        ParseTree tree = parser.compilationUnit(); 
-        if (parser.getNumberOfSyntaxErrors() > 0) {
-            System.exit(1);
-        }
-        ClassVisitor astGen = new ClassVisitor();
-        astGen.visit(tree);
-        ast = astGen.currentClass;
-        ClassManager.getIntsance().createNewClass(ast);
+        compile(source);
     }
 
     protected void compileMethod(String method) {
         String source = "public class Demo {" + method + "}";
-        CharStream input = CharStreams.fromString(source);
-        Java8Lexer lexer = new Java8Lexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        Java8Parser parser = new Java8Parser(tokens);
-        ParseTree tree = parser.compilationUnit(); 
-        if (parser.getNumberOfSyntaxErrors() > 0) {
-            System.exit(1);
-        }
-        ClassVisitor astGen = new ClassVisitor();
-        astGen.visit(tree);
-        ast = astGen.currentClass;
-        ClassManager.getIntsance().createNewClass(ast);
+        compile(source);
     }
 }

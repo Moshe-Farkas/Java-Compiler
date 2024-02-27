@@ -42,6 +42,7 @@ public class AstPrintVisitor extends BaseAstVisitor {
         System.out.println("\tmethod modifiers: " + node.methodModifiers);
         System.out.println("\tmethod: " + node.methodName);
         System.out.println("\tparams: " + node.params);
+        System.out.println("\t" + node.statements);
         super.visitMethodNode(node);
     }
 

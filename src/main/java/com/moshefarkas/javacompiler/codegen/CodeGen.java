@@ -15,7 +15,7 @@ public class CodeGen extends BaseAstVisitor {
     public CodeGen(String className) {
         currentClass = ClassManager.getIntsance().getClass(className);
         ClassGenVisitor classGenVisitor = new ClassGenVisitor();
-        classGenVisitor.visit(currentClass.classNode);
+        // classGenVisitor.visit(currentClass.classNode);
     }
 
     protected CodeGen() {}

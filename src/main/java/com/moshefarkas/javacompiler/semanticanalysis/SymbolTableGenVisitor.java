@@ -3,12 +3,12 @@ package com.moshefarkas.javacompiler.semanticanalysis;
 import org.objectweb.asm.Opcodes;
 
 import com.moshefarkas.javacompiler.ast.BaseAstVisitor;
+import com.moshefarkas.javacompiler.ast.nodes.ClassNode;
 import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 import com.moshefarkas.javacompiler.ast.nodes.MethodNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.BlockStmtNode;
 import com.moshefarkas.javacompiler.ast.nodes.statement.LocalVarDecStmtNode;
 import com.moshefarkas.javacompiler.semanticanalysis.SemanticAnalysis.ErrorType;
-import com.moshefarkas.javacompiler.symboltable.ClassManager;
 import com.moshefarkas.javacompiler.symboltable.Clazz;
 import com.moshefarkas.javacompiler.symboltable.LocalVarSymbolTable;
 
@@ -17,23 +17,30 @@ public class SymbolTableGenVisitor extends BaseAstVisitor {
     // checking if local var alreay exists, duplicate method check,
     // and creating scopes
 
-    public SymbolTableGenVisitor(String className) {
-        currentClass = ClassManager.getIntsance().getClass(className);
-    }
+    private SymbolTableGenVisitor() {}
 
-    private Clazz currentClass;
+    public static Clazz createSymbolTable(ClassNode ast) {
+        hadErr = false;
+        test_error = null;
+        currentClass = new Clazz(ast);
+        new SymbolTableGenVisitor().visit(ast);
+        return currentClass;
+    }
+    protected static ErrorType test_error;
+    public static boolean hadErr = false;
+
+    private static Clazz currentClass;
     private String currMethod;
 
-    protected LocalVarSymbolTable currentMethodSymbolTable(String currMethod) {
+    private LocalVarSymbolTable currentMethodSymbolTable(String currMethod) {
         return currentClass.methodManager.getSymbolTable(currMethod);
     }
-
-    public ErrorType test_error;
 
     protected void error(ErrorType errType, int lineNum, String errMsg) {
         String className = currentClass.classNode.className;
         System.err.println("\u001B[31m" + className + " - " + errType + " on line " + lineNum + ": " + errMsg + "\u001B[0m");
         test_error = errType;
+        hadErr = true;
     }
 
     @Override

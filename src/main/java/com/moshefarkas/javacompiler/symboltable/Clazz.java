@@ -8,12 +8,11 @@ import com.moshefarkas.javacompiler.ast.nodes.FieldNode;
 public class Clazz {
     public MethodManager methodManager;
     public Scope<String, FieldNode> fields;
-    public ClassNode classNode;
     public String className;
+    public ClassNode classNode;
 
-    public Clazz(ClassNode node) {
-        this.classNode = node;
-        className = classNode.className;
+    public Clazz(ClassNode classNode) {
+        this.classNode = classNode;
         methodManager = new MethodManager();
         fields = new Scope<>(null);
     }
