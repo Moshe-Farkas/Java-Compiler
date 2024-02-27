@@ -2,6 +2,7 @@ target/
 Demo.java
 Demo2.java
 Demo.class
+Demo.*
 plans.txt
 bytecode-testing/
 .vscode/
