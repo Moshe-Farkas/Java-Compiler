@@ -2,6 +2,7 @@ package com.moshefarkas.javacompiler.ast.nodes;
 
 import java.util.List;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.ast.AstVisitor;
@@ -27,6 +28,10 @@ public class MethodNode extends AstNode {
 
     public void setMethodModifiers(List<Integer> accessModifiers) {
         this.methodModifiers = accessModifiers;
+    }
+
+    public boolean isStaticMethod() {
+        return methodModifiers.contains(Opcodes.ACC_STATIC);
     }
 
     public void setStatements(BlockStmtNode statements) {

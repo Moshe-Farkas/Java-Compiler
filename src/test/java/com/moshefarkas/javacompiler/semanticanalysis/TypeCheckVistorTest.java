@@ -80,7 +80,6 @@ public class TypeCheckVistorTest extends BaseSemanticAnalysis {
         classData +=  "private int a = 4;";
         classData += "private void mm() {float a; a = 9f;}";
         classData += "}";
-        System.out.println(classData);
         compileClass(classData);
         assertEquals(null, visitor.test_error);
     }

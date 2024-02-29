@@ -202,4 +202,35 @@ public class IdentifierUsageVisitorTest extends BaseSemanticAnalysis {
         compileInstructions("int[] a = new int[8]; int[] b = a[89];");
         assertEquals(null, visitor.test_error);
     }
+
+    @Test
+    public void testFieldUsage() {
+        String classData = "public class Demo {";
+        classData += "public int p = 0;";
+        classData += "public static void mm() {p = 0;}";
+        classData += "}";
+        compileClass(classData);
+        assertEquals(ErrorType.INVALID_STATIC_ACCESS, visitor.test_error);
+
+        classData = "public class Demo {";
+        classData += "public static int p = 0;";
+        classData += "public static void mm() {p = 0;}";
+        classData += "}";
+        compileClass(classData);
+        assertEquals(null, visitor.test_error);
+
+        classData = "public class Demo {";
+        classData += "public static int p = 0;";
+        classData += "public void mm() {p = 0;}";
+        classData += "}";
+        compileClass(classData);
+        assertEquals(null, visitor.test_error);
+
+        classData = "public class Demo {";
+        classData += "public int p = 0;";
+        classData += "public void mm() {p = 0;}";
+        classData += "}";
+        compileClass(classData);
+        assertEquals(null, visitor.test_error);
+    }
 }

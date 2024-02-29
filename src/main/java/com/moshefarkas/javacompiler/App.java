@@ -1,6 +1,8 @@
 package com.moshefarkas.javacompiler;
 
 public class App {
+
+    public int l;
     public static void main( String[] args ) throws Exception {
         for (String file : args) {
             if (!file.endsWith(".java")) {

@@ -120,13 +120,33 @@ public class MethodGenVisitor extends CodeGen {
 
     private void emitFieldVarAssign(AssignExprNode node) {
         FieldNode fieldVar = currentClass.fields.getElement(node.identifier.varName);
+        if (fieldVar.isStaticField()) {
+            emitStaticFieldAssign(fieldVar, node);
+        } else {
+            emitNonStaticFieldAssign(fieldVar, node);
+        }
+    }
+
+    private void emitStaticFieldAssign(FieldNode fieldNode, AssignExprNode node) {
+        // push value
+        // putstatic
+        visit(node.assignmentValue);
+        methodVisitor.visitFieldInsn(
+            Opcodes.PUTSTATIC,
+            currentClass.className,
+            fieldNode.fieldName, 
+            fieldNode.getType().getDescriptor()
+        );
+    }
+
+    private void emitNonStaticFieldAssign(FieldNode fieldNode, AssignExprNode node) {
         methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
         visit(node.assignmentValue);
         methodVisitor.visitFieldInsn(
             Opcodes.PUTFIELD,
             currentClass.className,
-            fieldVar.fieldName, 
-            fieldVar.getType().getDescriptor()
+            fieldNode.fieldName, 
+            fieldNode.getType().getDescriptor()
         );
     }
 
@@ -336,13 +356,29 @@ public class MethodGenVisitor extends CodeGen {
 
     private void emitFieldVarLoad(IdentifierExprNode node) {
         FieldNode fieldVar = currentClass.fields.getElement(node.varName);
-        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
+        if (fieldVar.isStaticField()) {
+            emitStaticFieldLoad(fieldVar);
+        } else {
+            emitNonStaticFieldLoad(fieldVar);
+        }
+    }
 
+    private void emitStaticFieldLoad(FieldNode fieldNode) {
+        methodVisitor.visitFieldInsn(
+            Opcodes.GETSTATIC,
+            currentClass.className,
+            fieldNode.fieldName, 
+            fieldNode.getType().getDescriptor()
+        );
+    }
+
+    private void emitNonStaticFieldLoad(FieldNode fieldNode) {
+        methodVisitor.visitVarInsn(Opcodes.ALOAD, 0);
         methodVisitor.visitFieldInsn(
             Opcodes.GETFIELD,
             currentClass.className,
-            fieldVar.fieldName, 
-            fieldVar.getType().getDescriptor()
+            fieldNode.fieldName, 
+            fieldNode.getType().getDescriptor()
         );
     }
 

@@ -2,6 +2,7 @@ package com.moshefarkas.javacompiler.ast.nodes;
 
 import java.util.List;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.moshefarkas.javacompiler.ast.AstVisitor;
@@ -17,6 +18,10 @@ public class FieldNode extends AstNode implements IVarDecl {
 
     public void setFieldModifiers(List<Integer> fieldModifiers) {
         this.fieldModifiers = fieldModifiers;
+    }
+
+    public boolean isStaticField() {
+        return fieldModifiers.contains(Opcodes.ACC_STATIC);
     }
 
     @Override

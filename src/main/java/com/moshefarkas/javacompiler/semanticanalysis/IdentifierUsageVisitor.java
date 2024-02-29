@@ -23,7 +23,8 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
     // responsible for checking if var is defined, and initialized,
     // checking if a var is subscriptable, missing return statement,
     // calling undefined method, calling method with wrong num of args,
-    // invalid method header, and using break/continue outside a loop
+    // invalid method header, using break/continue outside a loop
+    // and accessing a non static field/method from a non static method
 
     public IdentifierUsageVisitor(String className) {
         super(className);
@@ -48,6 +49,7 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
             varDecl = currentMethodSymbolTable(currMethod).getVarDeclNode(varName);
         } else if (currentClass.hasField(varName)) {
             varDecl = currentClass.fields.getElement(varName);
+            validateFieldUsage((FieldNode)varDecl);
         } else {
             error(ErrorType.UNDEFINED_IDENTIFIER, node.lineNum, varName);
             return;
@@ -59,6 +61,22 @@ public class IdentifierUsageVisitor extends SemanticAnalysis {
                 node.lineNum, 
                 errorString("Can't use var `%s` as it's not initialized.", varName)
             );
+        }
+    }
+    
+    private void validateFieldUsage(FieldNode node) {
+        // check if non static field used in static method
+        if (!node.isStaticField()) {
+            if (currentClass.methodManager.getMethod(currMethod).methodNode.isStaticMethod()) {
+                error(
+                    ErrorType.INVALID_STATIC_ACCESS, 
+                    node.lineNum, 
+                    errorString(
+                        "Can't access non static field `%s` in non static method", 
+                        node.fieldName
+                    )
+                );
+            }
         }
     }
 
